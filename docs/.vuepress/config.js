@@ -10,6 +10,10 @@ module.exports = {
     markdown: {
         lineNumbers: true // 代码块是否显示行号
     },
+    plugins: [['vuepress-plugin-code-copy', {
+        align: 'bottom', // top和bottom
+        successText: '复制成功'
+    }]],
     theme: 'reco',
     port: 8080, //  指定 dev server 的端口。
     themeConfig: {

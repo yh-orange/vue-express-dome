@@ -12,7 +12,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "vuepress-plugin-code-copy": "^1.0.6"
+  },
   "devDependencies": {
     "vuepress": "^1.9.6",
     "vuepress-theme-reco": "^1.6.10"
