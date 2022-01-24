@@ -1,22 +1,20 @@
 {
-  "name": "yh",
+  "name": "gaoniao",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "vuepress dev docs",
+    "dev": "vuepress dev docs",
+    "build": "vuepress build docs",
+    "deploy": "bash deploy.sh"
   },
-  "keywords": [
-    "dome",
-    "vuePress",
-    "typescript"
-  ],
-  "author": "yinHu",
+  "keywords": [],
+  "author": "",
   "license": "ISC",
+  "dependencies": {},
   "devDependencies": {
-    "vuepress": "^1.8.3",
+    "vuepress": "^1.9.6",
     "vuepress-theme-reco": "^1.6.10"
   }
 }
