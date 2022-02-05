@@ -11,7 +11,8 @@ module.exports = {
         lineNumbers: true // 代码块是否显示行号
     },
     plugins: [['vuepress-plugin-code-copy', {
-        align: 'bottom', // top和bottom
+        align: 'top', // top和bottom
+        staticIcon: true,
         successText: '复制成功'
     }]],
     theme: 'reco',

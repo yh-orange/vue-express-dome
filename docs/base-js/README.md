@@ -54,10 +54,9 @@ DTD 的全称是 `Document Type Defination`，也就是文档类型定义。SGML
 </html>
 ```
 可以将这个简单的`HTML`文档表示为一个层次结构:
-![npm1](/images/base-js01.png)
+![01](/images/base-js01.png)
 节点之间的关系图:
-![npm2](/images/base-js01.png)
-
+![02](/images/base-js01.png)
 ### 节点操作
 * appendChild():用于向指定节点末尾追加一个节点，如果传入到 appendChild()中的节点已经是文档的一部分了，那结果就是将该节点从原来的位置转移到新位置。
 ```js
@@ -217,25 +216,25 @@ function loadStyleString(css) {
 ### DOM 扩展
 
 #### 选择符 API
-Selectors API Level 1 的核心是两个方法：querySelector()和 querySelectorAll()。
+Selectors API Level 1 的核心是两个方法：`querySelector`()和 `querySelectorAll`()。
 
-* querySelector()方法:接收一个CSS选择符，返回与该模式匹配的第一个元素，如果没有找到匹配的元素，返回 null。
+* `querySelector`()方法:接收一个CSS选择符，返回与该模式匹配的第一个元素，如果没有找到匹配的元素，返回 null。
 ::: tip TIP
- 通过 Document类型调用 querySelector()方法时，会在文档元素的范围内查找匹配的元素。
- 而通过 Element 类型调用 querySelector()方法时，只会在该元素后代元素的范围内查找匹配的元素。
+ 通过 `Document` 类型调用 `querySelector`()方法时，会在文档元素的范围内查找匹配的元素。
+ 而通过 `Element` 类型调用 `querySelector`()方法时，只会在该元素后代元素的范围内查找匹配的元素。
 :::
 
-* querySelectorAll()方法:接收的参数与 querySelector()方法一样，都是一个CSS选择符，但返回的是所有匹配的元素而不仅仅是一个元素。这个方法返回的是NodeList的实例。
-Selectors API Level 2 规范为 Element类型新增了一个方法matchesSelector()。
+* `querySelectorAll`()方法:接收的参数与 `querySelector`()方法一样，都是一个CSS选择符，但返回的是所有匹配的元素而不仅仅是一个元素。这个方法返回的是NodeList的实例。
+`Selectors API Level 2` 规范为 `Element` 类型新增了一个方法 `matchesSelector`()。
 
-* matchesSelector()方法:接收一个参数，即CSS选择符，如果调用元素与该选择符匹配，返回true；否则，返回 false。
+* matchesSelector()方法:接收一个参数，即CSS选择符，如果调用元素与该选择符匹配，返回true；否则，返回 `false`。
 ::: tip TIP
- 我们需要注意，getElementById、getElementsByName、getElementsByTagName、getElementsByClassName，
- 这几个 API 的性能高于 querySelector。而 getElementsByName、getElementsByTagName、getElementsByClassName 
+ 我们需要注意，`getElementById`、`getElementsByName`、`getElementsByTagName`、`getElementsByClassName`，
+ 这几个 `API` 的性能高于 `querySelector`。而 `getElementsByName`、`getElementsByTagName`、`getElementsByClassName` 
  获取的集合并非数组，而是一个能够动态更新的集合。
  
  浏览器内部是有高速的索引机制，来动态更新这样的集合的。
- 但是,尽管 querySelector 系列的 API 非常强大，我们还是应该尽量使用 getElement 系列的 API。
+ 但是,尽管 `querySelector` 系列的 API 非常强大，我们还是应该尽量使用 `getElement` 系列的 `API`。
 :::
 ### HTML5 扩充
 #### 与类相关的扩充
@@ -250,15 +249,15 @@ HTML5 新增了一种操作类名的方式，可以让操作更简单也更安�
 
 ```markdown
 
-1. getElementsByClassName()方法:接收一个参数，即一个包含一或多个类名的字符串，返回带有指定类的所有元素的NodeList。传入多个类名时，类名的先后顺序不重要。
-2. classList 属性
-3. HTML5 新增了一种操作类名的方式，可以让操作更简单也更安全，那就是为所有元素添加classList属性。
-4. 这个classList属性是新集合类型DOMTokenList 的实例。与其他 DOM 集合类似，DOMTokenList 有一个表示自己包含多少元素的 length 属性，而要取得每个元素可以使用item()方法，也可以使用方括号语法。此外，这个新类型还定义如下方法。
+1. `getElementsByClassName`()方法:接收一个参数，即一个包含一或多个类名的字符串，返回带有指定类的所有元素的 `NodeList`。传入多个类名时，类名的先后顺序不重要。
+2. `classList` 属性
+3. `HTML5` 新增了一种操作类名的方式，可以让操作更简单也更安全，那就是为所有元素添加 `classList` 属性。
+4. 这个 `classList` 属性是新集合类型 `DOMTokenList` 的实例。与其他 `DOM` 集合类似，`DOMTokenList` 有一个表示自己包含多少元素的 `length` 属性，而要取得每个元素可以使用`item()`方法，也可以使用方括号语法。此外，这个新类型还定义如下方法。
 ```
 #### 焦点管理
 
-* focus()方法
-* document.hasFocus()方法，这个方法用于确定文档是否获得了焦点。
+* `focus`()方法
+* `document.hasFocus`()方法，这个方法用于确定文档是否获得了焦点。
 
 #### HTMLDocument 的变化
 
@@ -460,7 +459,6 @@ function getStyle(ele, attr) {
 ![offsetParent](/images/base-js04.png)
 
 #### 客户区大小 内边距
-
 * clientWidth:是元素内容区宽度加上左右内边距宽度。
 * clientHeight:元素内容区高度加上上下内边距高度。
 
@@ -482,3 +480,531 @@ function getStyle(ele, attr) {
 ```js
 el.getBoundingClientRect();
 ```
+---
+
+### DOM 事件
+::: tip 
+`javaScript` 与 `HTML` 之间的交互是通过事件实现的。事件，就是文档或浏览器窗口中发生的一些特定的交互瞬间。
+:::
+
+#### 事件流
+
+* `事件冒泡`: 事件开始时由最具体的元素（文档中嵌套层次最深的那个节点）接收，然后逐级向上传播到较为不具体的节点（`document`）。
+
+```html
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Event Bubbling Example</title>
+  </head>
+
+  <body>
+    <div id="myDiv">Click Me</div>
+  </body>
+</html>
+```
+
+如果你单击了页面中的`<div>`元素，那么这个 cl`ick 事件会按照如下顺序传播：
+
+![06](/images/base-js06.png)
+
+* `事件捕获` ：事件捕获的思想是不太具体的节点应该更早接收到事件，而最具体的节点应该最后接收到事件。*事件捕获的用意在于在事件到达预定目标之前捕获它*。
+
+![07](/images/base-js07.png)
+
+#### 捕获和冒泡
+
+我们都知道捕获过程是从外向内，冒泡过程是从内向外,那么为什么需要事件捕获和冒泡呢?
+
+这里引用一个故事:
+
+我们现代的 `UI` 系统，都源自 `WIMP` 系统。`WIMP` 即 `Window Icon Menu Pointer` 四个要素，它最初由施乐公司研发，后来被微软和苹果两家公司应用在了自己的操作系统上。
+
+`WIMP` 是由 `Alan Kay` 主导设计的，这位巨匠，同时也是面向对象之父和 `Smalltalk` 语言之父。
+
+乔布斯曾经受邀参观施乐，他见到当时的 `WIMP` 界面，认为非常惊艳，不久后就领导苹果研究了新一代麦金塔系统。
+
+后来，在某次当面对话中，乔布斯指责比尔盖茨抄袭了 `WIMP` 的设计，盖茨淡定地回答：“史蒂夫，我觉得应该用另一种方式看待这个问题。这就像我们有个叫施乐的有钱邻居，当我闯进去想偷走电视时，却发现你已经这么干了。”
+
+但是不论如何，苹果和微软的数十代操作系统，极大地发展了这个体系，才有了我们今天的 UI 界面。
+
+回归到之前的问题上:
+
+实际上点击事件来自触摸屏或者鼠标，鼠标点击并没有位置信息，但是一般操作系统会根据位移的累积计算出来，跟触摸屏一样，提供一个坐标给浏览器。
+
+::: tip TIP
+ 那么，把这个坐标转换为具体的元素上事件的过程，就是捕获过程了。而冒泡过程，则是符合人类理解逻辑的：当你按电视机开关时，你也按到了电视机。
+ 
+ 所以我们可以认为，捕获是计算机处理事件的逻辑，而冒泡是人类处理事件的逻辑。
+:::
+
+参考例子如下：
+
+```html
+<body>
+  <input id="i" />
+</body>
+```
+```js
+document.body.addEventListener(
+  "mousedown",
+  () => {
+    console.log("key1");
+  },
+  true
+);
+
+document.getElementById("i").addEventListener(
+  "mousedown",
+  () => {
+    console.log("key2");
+  },
+  true
+);
+
+document.body.addEventListener(
+  "mousedown",
+  () => {
+    console.log("key11");
+  },
+  false
+);
+
+document.getElementById("i").addEventListener(
+  "mousedown",
+  () => {
+    console.log("key22");
+  },
+  false
+);
+
+// key1 key2 key22 key11
+```
+在一个事件发生时，捕获过程跟冒泡过程总是先后发生，跟你是否监听毫无关联。
+
+::: tip TIP
+ 在我们实际监听事件时，我建议这样使用冒泡和捕获机制：默认使用冒泡模式，当开发组件时，遇到需要父元素控制子元素的行为，可以使用捕获机制。
+:::
+
+理解了冒泡和捕获的过程，我们再看监听事件的 API，就非常容易理解了。
+
+addEventListener 有三个参数：
+
+* 事件名称；
+* 事件处理函数；
+* 捕获还是冒泡。
+
+事件处理函数不一定是函数，也可以是个 JavaScript 具有 handleEvent 方法的对象，看下例子：
+
+```js
+let o = {
+  handleEvent: (event) => console.log(event),
+};
+document.body.addEventListener("keydown", o, false);
+```
+
+第三个参数不一定是 bool 值，也可以是个对象，它提供了更多选项。
+
+* once：只执行一次。
+* passive：承诺此事件监听不会调用 preventDefault，这有助于性能。
+* useCapture：是否捕获（否则冒泡）。
+
+实际使用，在现代浏览器中，还可以不传第三个参数，我建议默认不传第三个参数，因为我认为冒泡是符合正常的人类心智模型的，大部分业务开发者不需要关心捕获过程。除非你是组件或者库的使用者，那就总是需要关心冒泡和捕获了。
+
+#### 自定义事件
+
+除了来自输入设备的事件，还可以自定义事件，实际上事件也是一种非常好的代码架构，但是 DOM API 中的事件并不能用于普通对象，所以很遗憾，我们只能在 DOM 元素上使用自定义事件。
+
+dome 如下代码
+
+```js 
+var evt = new Event("look", { bubbles: true, cancelable: false });
+document.dispatchEvent(evt);
+```
+
+这里使用 Event 构造器来创造了一个新的事件，然后调用 dispatchEvent 来在特定元素上触发。
+
+我们可以给这个 Event 添加自定义属性、方法。
+
+::: warning WARNING
+ 注意，这里旧的自定义事件方法（使用 `document.createEvent` 和 `initEvent`）已经被废弃。
+:::
+
+#### DOM 事件流
+
+`DOM2` 级事件规定的事件流包括三个阶段：`事件捕获阶段`、`处于目标阶段`和`事件冒泡阶段`。
+
+1. 首先发生的是事件捕获，为截获事件提供了机会。
+2. 然后是实际的目标接收到事件。
+3. 最后一个阶段是冒泡阶段，可以在这个阶段对事件做出响应。
+
+![08](/images/base-js08.png)
+
+::: tip TIP
+ 
+ 在 `DOM` 事件流中，实际的目标（`<div>`元素）在捕获阶段不会接收到事件。
+ 
+ 这意味着在捕获阶段，事件从 `document` 到`<html>`再到`<body>`后就停止了。
+ 
+ 下一个阶段是“处于目标”阶段，于是事件在`<div>`上发生，并在事件处理中被看成冒泡阶段的一部分。然后，冒泡阶段发生，事件又传播回文档。
+:::
+
+### DOM 事件处理程序
+
+事件就是用户或浏览器自身执行的某种动作。诸如 `click`、`load` 和 `mouseover`，都是事件的名字。而响应某个事件的函数就叫做事件处理程序（或事件侦听器）。
+
+#### DOM0 级事件处理程
+
+通过JavaScript指定事件处理程序的传统方式，就是将一个函数赋值给一个事件处理程序属性。
+
+```js
+let btn = document.getElementById("myBtn");
+btn.onclick = function() {
+  alert("Clicked");
+};
+```
+
+在此，我们通过文档对象取得了一个按钮的引用，然后为它指定了onclick事件处理程序。*但要注意，在这些代码运行以前不会指定事件处理程序，因此如果这些代码在页面中位于按钮后面，就有可能在一段时间内怎么单击都没有反应。*
+
+::: tip TIP
+ 
+ 使用DOM0级方法指定的事件处理程序被认为是元素的方法。因此，这时候的事件处理程序是在元素的作用域中运行；换句话说，程序中的 this 引用当前元素。来看一个例子:
+:::
+
+```js
+let btn = document.getElementById("myBtn");
+btn.onclick = function() {
+  alert(this.id); //"myBtn"
+};
+```
+
+::: tip TIP
+        
+        DOM0 级添加的事件处理程序会在事件流的冒泡阶段被处理。
+        
+        也可以删除通过 DOM0级方法指定的事件处理程序，只要像下面这样将事件处理程序属性的值设置为null即可：
+ :::
+
+```js
+btn.onclick = null; // 删除事件处理程序
+```
+
+#### DOM2 级事件处理程序
+
+“`DOM2 级事件`”定义了两个方法，用于处理指定和删除事件处理程序的操作：`addEventListener()`和 `removeEventListener()`。
+
+所有 DOM 节点中都包含这两个方法，并且它们都接受 3 个参数：
+
+1. 要处理的事件名
+2. 事件处理程序的函数
+3. 一个布尔值。
+
+::: tip TIP
+        
+ 最后这个布尔值参数如果是true，表示在捕获阶段调用事件处理程序；如果是 false，表示在冒泡阶段调用事件处理程序。
+:::
+
+```js
+/**
+ * eventName
+ * handler
+ * capture | bind
+ */
+var btn = document.getElementById("myBtn");
+btn.addEventListener(
+  "click",
+  function() {
+    alert(this.id);
+  },
+  false
+);
+```
+
+上面的代码为一个按钮添加了 `onclick` 事件处理程序，而且该事件会在冒泡阶段被触发。
+
+::: tip TIP
+
+与 `DOM0` 级方法一样，这里添加的事件处理程序也是在其依附的元素的作用域中运行。
+
+使用 `DOM2` 级方法添加事件处理程序的主要好处是可以添加多个事件处理程序。
+:::
+
+```js
+var btn = document.getElementById("myBtn");
+btn.addEventListener(
+  "click",
+  function() {
+    alert(this.id);
+  },
+  false
+);
+
+btn.addEventListener(
+  "click",
+  function() {
+    alert("Hello world!");
+  },
+  false
+);
+```
+
+::: warning WARNING
+            
+ 通过 `addEventListener()`添加的事件处理程序只能使用 `removeEventListener()`来移除；移除时传入的参数与添加处理程序时使用的参数相同。这也意味着通过 `addEventListener()`添加的匿名函数将无法移除，如下面的例子所示:
+:::
+
+```js
+let btn = document.getElementById("myBtn");
+btn.addEventListener("click", function(){
+ 	alert(this.id);
+});
+//这里省略了其他代码
+btn.removeEventListener("click", function(){ // 没有用！
+ 	alert(this.id);
+}, false);
+```
+
+`event` 对象包含与创建它的特定事件有关的属性和方法。触发的事件类型不一样，可用的属性和方法也不一样。不过，所有事件都会有下表列出的成员。
+
+![09](/images/base-js09.png)
+
+::: tip TIP
+        
+在事件处理程序内部，对象 `this` 始终等于 `currentTarget` 的值，而 `target` 则只包含事件的实际目标。
+
+如果直接将事件处理程序指定给了目标元素，则 `this`、`currentTarget` 和 `target` 包含相同的值
+:::
+
+```js
+let btn = document.getElementById("myBtn");
+btn.onclick = function(event) {
+  alert(event.currentTarget === this); // true
+  alert(event.target === this); // true
+};
+```
+
+如果事件处理程序存在于按钮的父节点中（例如 `document.body`），那么这些值是不相同的。
+
+```js
+document.body.onclick = function(event) {
+  alert(event.currentTarget === document.body); //true
+  alert(this === document.body); //true
+  alert(event.target === document.getElementById("myBtn")); //true
+};
+```
+
+当单击这个例子中的按钮时，`this` 和 `currentTarget` 都等于 `document.body`，因为事件处理程序是注册到这个元素上的。然而，`target` 元素却等于按钮元素，因为它是 `click` 事件真正的目标。
+
+::: tip TIP
+        
+ 简单的理解就是 `currentTarget` 保存着事件的真实注册者，`target` 保存着事件触发的目标。
+:::
+
+*要阻止特定事件的默认行为，可以使用 `preventDefault()`方法。另外，`stopPropagation()`方法用于立即停止事件在 DOM 层次中的传播，即取消进一步的事件捕获或冒泡*
+
+::: tip TIP
+
+事件对象的 `eventPhase` 属性，可以用来确定事件当前正位于事件流的哪个阶段。
+:::
+
+* 如果是在捕获阶段调用的事件处理程序，那么eventPhase 等于 1；
+* 如果事件处理程序处于目标对象上，则 eventPhase 等于 2；
+* 如果是在冒泡阶段调用的事件处理程序，eventPhase 等于 3。
+
+::: warning WARNING
+            
+ 这里要注意的是，尽管“处于目标”发生在冒泡阶段，但 `eventPhase` 仍然一直等于 2。
+:::
+
+```javascript
+let btn = document.getElementById("myBtn");
+btn.onclick = function(event) {
+  alert(event.eventPhase); // 2
+};
+document.body.addEventListener(
+  "click",
+  function(event) {
+    alert(event.eventPhase); // 1
+  },
+  true
+);
+document.body.onclick = function(event) {
+  alert(event.eventPhase); // 3
+};
+
+// 1————>2————>3
+```
+
+### 事件类型
+
+`Web` 浏览器中可能发生的事件有很多类型。如前所述，不同的事件类型具有不同的信息，而`“DOM3级事件”`规定了以下几类事件。
+
+* `UI（User Interface，用户界面）事件`，当用户与页面上的元素交互时触发；
+* `焦点事件`，当元素获得或失去焦点时触发；
+* `鼠标事件`，当用户通过鼠标在页面上执行操作时触发；
+* `滚轮事件`，当使用鼠标滚轮（或类似设备）时触发；
+* `文本事件`，当在文档中输入文本时触发；
+* `键盘事件`，当用户通过键盘在页面上执行操作时触发；
+* `合成事件`，当为 `IME（Input Method Editor，输入法编辑器）`输入字符时触发；
+* `变动（mutation）事件`，当底层 `DOM` 结构发生变化时触发。
+
+
+#### UI 事件
+* `load`：当页面完全加载后在 `window` 上面触发，当所有框架都加载完毕时在框架集上面触发,当图像加载完毕时在`<img>`元素上面触发，或者当嵌入的内容加载完毕时在`<object>`元素上面触发。
+
+* `unload`：当页面完全卸载后在 `window` 上面触发，当所有框架都卸载后在框架集上面触发，或者当嵌入的内容卸载完毕后在`<object>`元素上面触发。只要用户从一个页面切换到另一个页面，就会发生 `unload` 事件。
+
+* `abort`：在用户停止下载过程时，如果嵌入的内容没有加载完，则在`<object>`元素上面触发。
+* 
+* `error`：当发生 `JavaScript` 错误时在 `window` 上面触发，当无法加载图像时在`<img>`元素上面触发，当无法加载嵌入内容时在`<object>`元素上面触发，或者当有一或多个框架无法加载时在框架集上面触发。
+
+* `select`：当用户选择文本框（`<input>`或`<texterea>`）中的一或多个字符时触发。
+
+* `resize`：当窗口或框架的大小变化时在 `window` 或框架上面触发。
+
+* `scroll`：当用户滚动带滚动条的元素中的内容时，在该元素上面触发。`<body>` 元素中包含所加载页面的滚动条。
+
+
+#### 键盘事件
+
+![10](/images/base-js10.png)
+![11](/images/base-js10.png)
+
+#### H5新增事件
+
+1. `HTML5` 新增了 `hashchange` 事件，以便在 `URL` 的参数列表（及 `URL` 中`“#”`号后面的所有字符串）发生变化时通知开发人员。
+
+```js
+EventUtil.addHandler(window, "hashchange", function(event) {
+  alert("Current hash: " + location.hash);
+  alert("Old URL: " + event.oldURL + "\nNew URL: " + event.newURL);
+});
+```
+2. `orientationchange` 事件
+
+苹果公司为移动 `Safari` 中添加了 `orientationchange` 事件，以便开发人员能够确定用户何时将设备由横向查看模式切换为纵向查看模式。
+
+移动 `Safari` 的 `window.orientation` 属性中可能包含 如下值：
+
+* 0 表示肖像模式，
+* 90 表示向左旋转的横向模式（“主屏幕”按钮在右侧），
+* -90 表示向右旋转的横向模式（“主屏幕”按钮在左侧）。
+* 180 表示 iPhone 头朝下；
+
+![12](/images/base-js12.png)
+
+3. `deviceorientation` 事件
+
+`deviceorientation` 事件的意图是告诉开发人员设备在空间中朝向哪儿，而不是如何移动。
+
+* 触摸事件
+* `touchstart`：当手指触摸屏幕时触发；即使已经有一个手指放在了屏幕上也会触发。
+* `touchmove`：当手指在屏幕上滑动时连续地触发。在这个事件发生期间，调用preventDefault()可以阻止滚动。
+* `touchend`：当手指从屏幕上移开时触发。
+* `touchcancel`：当系统停止跟踪触摸时触发。
+上面这几个事件都会冒泡，也都可以取消。虽然这些触摸事件没有在 DOM 规范中定义，但它们却是以兼容 DOM 的方式实现的。
+
+除了常见的 `DOM` 属性外，触摸事件还包含下列三个用于跟踪触摸的属性。
+
+* `touches`：表示当前跟踪的触摸操作的 `Touch` 对象的数组。
+* `targetTouchs`：特定于事件目标的 `Touch` 对象的数组。
+* `changeTouches`：表示自上次触摸以来发生了什么改变的 `Touch` 对象的数组。
+
+::: tip TIP
+ 在触摸屏幕上的元素时，这些事件（包括鼠标事件）发生的顺序如下：
+ `touchstart`
+ `mouseover`
+ `mousemove`（一次）
+ `mousedown`
+ `mouseup`
+ `click`
+ `touchend`
+:::
+
+手势事件
+
+iOS 2.0 中的 `Safari` 还引入了一组手势事件。当两个手指触摸屏幕时就会产生手势，手势通常会改变显示项的大小，或者旋转显示项。有三个手势事件，分别介绍如下：
+
+* `gesturestart`：当一个手指已经按在屏幕上而另一个手指又触摸屏幕时触发。
+* `gesturechange`：当触摸屏幕的任何一个手指的位置发生变化时触发。
+* `gestureend`：当任何一个手指从屏幕上面移开时触发。
+  只有两个手指都触摸到事件的接收容器时才会触发这些事件。在一个元素上设置事件处理程序，意味着两个手指必须同时位于该元素的范围之内，才能触发手势事件（这个元素就是目标）。
+
+  由于这些`事件冒泡`，所以将事件处理程序放在文档上也可以处理所有手势事件。此时，事件的目标就是两个手指都位于其范围内的那个元素。
+
+  触摸事件和手势事件之间存在某种关系。当一个手指放在屏幕上时，会触发 `touchstart` 事件。如果另一个手指又放在了屏幕上，则会先触发 `gesturestart` 事件，随后触发基于该手指的 `touchstart` 事件。如果一个或两个手指在屏幕上滑动，将会触发 `gesturechange` 事件。但只要有一个手指移开，就会触发 `gestureend` 事件，紧接着又会触发基于该手指的 `touchend` 事件。
+
+### 事件委托
+
+::: tip TIP
+ 对“事件处理程序过多”问题的解决方案就是事件委托。事件委托利用了事件冒泡，只指定一个事件处理程序，就可以管理某一类型的所有事件。
+:::
+
+::: warning WARNING
+ 在使用事件时，需要考虑如下一些内存与性能方面的问题。
+ 
+ 有必要限制一个页面中事件处理程序的数量，数量太多会导致占用大量内存，而且也会让用户感觉页面反应不够灵敏。
+ 建立在事件冒泡机制之上的事件委托技术，可以有效地减少事件处理程序的数量。
+ 建议在浏览器卸载页面之前移除页面中的所有事件处理程序。
+:::
+
+### CSSOM
+
+我们通常创建样式表也都是使用 `HTML` 标签来做到的，我们用 `style` 标签和 `link` 标签创建样式表，例如：
+
+```html
+<style title="Hello">
+  a {
+    color: red;
+  }
+</style>
+<link rel="stylesheet" title="x" href="data:text/css,p%7Bcolor:blue%7D" />
+```
+我们创建好样式表后，还有可能要对它进行一些操作。如果我们以 `DOM` 的角度去理解的话，这些标签在 `DOM` 中是一个节点，它们有节点的内容、属性，这两个标签中，`CSS` 代码有的在属性、有的在子节点。这两个标签也遵循 `DOM` 节点的操作规则，所以可以使用 `DOM API` 去访问。
+
+但是，这样做的后果是我们需要去写很多分支逻辑，并且，要想解析 `CSS` 代码结构也不是一件简单的事情，所以，这种情况下，我们直接使用 `CSSOM API` 去操作它们生成的样式表，这是一个更好的选择。
+
+我们首先了解一下 `CSSOM API` 的基本用法，一般来说，我们需要先获取文档中所有的样式表：
+
+```js
+document.styleSheets;
+```
+
+`document` 的 `styleSheets` 属性表示文档中的所有样式表，这是一个只读的列表，我们可以用方括号运算符下标访问样式表，也可以使用 `item` 方法来访问，它有 `length` 属性表示文档中的样式表数量。
+
+样式表只能使用 `style` 标签或者 `link` 标签创建,我们虽然无法用 `CSSOM API` 来创建样式表，但是我们可以修改样式表中的内容。
+
+```js
+document.styleSheets[0].insertRule("p { color:pink; }", 0);
+document.styleSheets[0].removeRule(0);
+```
+
+更进一步，我们可以获取样式表中特定的规则（Rule），并且对它进行一定的操作，具体来说，就是使用它的 cssRules 属性来实现：
+
+```js
+document.styleSheets[0].cssRules;
+```
+此外，`CSSOM` 还提供了一个非常重要的方法，来获取一个元素最终经过 `CSS` 计算得到的属性：
+
+```js
+window.getComputedStyle(elt, pseudoElt);
+```
+其中第一个参数就是我们要获取属性的元素，第二个参数是可选的，用于选择伪元素。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
