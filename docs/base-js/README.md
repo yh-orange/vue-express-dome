@@ -1,4 +1,4 @@
-# 前端积累
+# 前端基础知识部分
 
 ## 文档对象模型
 
@@ -13,28 +13,30 @@
 
 `W3C DOM` 标准被分为 3 个不同的部分：
 
-核心 DOM - 针对任何结构化文档的标准模型
-* XML DOM - 针对 XML 文档的标准模型
-* HTML DOM - 针对 HTML 文档的标准模型
-* !DOCTYPE html 作用
+核心 `DOM` - 针对任何结构化文档的标准模型
+* `XML` `DOM` - 针对 `XML` 文档的标准模型
+* `HTML` `DOM` - 针对 `HTML` 文档的标准模型
+* `!DOCTYPE html` 作用
 
----
 ### !DOCTYPE html 作用
 `<!DOCTYPE>` 声明必须是 HTML 文档的第一行，位于 `<html>` 标签之前。
 
 `HTML`版本有很多种，这个声明告诉浏览器采用 HTML5 标准网页声明来解析`html`文件。
 
 ---
+
 ### DTD 语法（文档类型定义）
 DTD 的全称是 `Document Type Defination`，也就是文档类型定义。SGML 用 DTD 来定义每一种文档类型，HTML 属于 SGML，在 HTML5 出现之前，HTML 都是使用符合 SGML 规定的 DTD。
 
 ---
+
 ### 严格模式和混杂模式
 * `严格模式`下排版和 js 运作模式是以该浏览器支持的最高标准运行。
 
 * `混杂模式`下浏览器向后兼容，模拟老浏览器，防止浏览器无法兼容页面。
 
 ---
+
 ### DOM 级别
 
 * dom1级：如何映射基于 XML 的文档结构，以便简化对文档中任意部分的访问和操作。
@@ -42,6 +44,7 @@ DTD 的全称是 `Document Type Defination`，也就是文档类型定义。SGML
 * dom3级：在 dom2 的基础上进一步引入了以统一方式加载和保存文档的方法——在 DOM 加载和保存(DOM Load and Save)模块中定义;新增了验证文档的方法——在 DOM 验证(DOM Validation)模块中定义。DOM3 级也对 DOM 核心进行了扩展，开始支持 XML 1.0 规范，涉及 XML Infoset、XPath 和 XML Base。
 
 ---
+
 ### 节点层次
 ```html
 <html>
@@ -57,6 +60,7 @@ DTD 的全称是 `Document Type Defination`，也就是文档类型定义。SGML
 ![01](/images/base-js01.png)
 节点之间的关系图:
 ![02](/images/base-js01.png)
+
 ### 节点操作
 * appendChild():用于向指定节点末尾追加一个节点，如果传入到 appendChild()中的节点已经是文档的一部分了，那结果就是将该节点从原来的位置转移到新位置。
 ```js
@@ -81,6 +85,7 @@ someNode.cloneNode(true); // 复制节点及其整个子节点树
  ```
  ---
  
+ 
 ### 设置浏览器文档标题
 
 ```js
@@ -89,6 +94,7 @@ document.title = "New page title";
 ```
 
 ---
+
 ### 查找元素
 
 * `document.getElementById('id')`:如果页面中多个元素的 ID 值相同，`getElementById()`只返回文档中第一次出现的元素。
@@ -100,6 +106,7 @@ document.title = "New page title";
 * `document.links`:返回文档中所有带href特性的`<a>`元素
 
 ---
+
 ### 创建元素
 * `document.createElement('div')`:这个方法只接受一个参数，即要创建元素的标签名。
 ::: warning WARNING
@@ -112,6 +119,7 @@ document.body.appendChild(div);
 一旦将元素添加到文档树中，浏览器就会立即呈现该元素。此后，对这个元素所作的任何修改都会实时反映在浏览器中。
 
 ---
+
 ### 创建文本节点
 `document.createTextNode()`:该方法接受一个参数——要插入节点中的文本。
 
@@ -124,6 +132,7 @@ document.body.appendChild(element);
 ```
 
 ---
+
 ### 规范化文本节点
 
 `DOM`文档中存在相邻的同胞文本节点很容易导致混乱，因为分不清哪个文本节点表示哪个字符串。另外，`DOM`文档中出现相邻文本节点的情况也不在少数，于是就催生了一个能够将相邻文本节点合并的方法。
@@ -151,13 +160,14 @@ alert(element.firstChild.nodeValue); // "Hello world!Yippee!"
 ```
 
 ---
+
 ### DOM 操作技术
 
-#### 动态脚本
+1. 动态脚本
 
 使用`<script>`元素可以向页面中插入`JavaScript`代码，一种方式是通过其`src`特性包含外部文件，另一种方式就是用这个元素本身来包含代码。跟操作`HTML`元素一样，创建动态脚本也有两种方式：
 * 插入外部文件。
-* 直接插入JavaScript代码。
+* 直接插入`JavaScript`代码。
 
 ```js
 
@@ -182,7 +192,7 @@ function loadScriptString(code) {
 
 ---
 
-#### 动态样式
+2. 动态样式
 
 能够把`CSS`样式包含到`HTML`页面中的元素有两个。其中，`<link>`元素用于包含来自外部的文件，而`<style>`元素用于指定嵌入的样式。与动态脚本类似，所谓动态样式是指在页面刚加载时不存在的样式；动态样式是在页面加载完成后动态添加到页面中的。
 
@@ -215,7 +225,7 @@ function loadStyleString(css) {
 
 ### DOM 扩展
 
-#### 选择符 API
+1. 选择符 API
 Selectors API Level 1 的核心是两个方法：`querySelector`()和 `querySelectorAll`()。
 
 * `querySelector`()方法:接收一个CSS选择符，返回与该模式匹配的第一个元素，如果没有找到匹配的元素，返回 null。
@@ -236,8 +246,10 @@ Selectors API Level 1 的核心是两个方法：`querySelector`()和 `querySele
  浏览器内部是有高速的索引机制，来动态更新这样的集合的。
  但是,尽管 `querySelector` 系列的 API 非常强大，我们还是应该尽量使用 `getElement` 系列的 `API`。
 :::
+
 ### HTML5 扩充
-#### 与类相关的扩充
+
+1. 与类相关的扩充
 
 * `getElementsByClassName()`方法:接收一个参数，即一个包含一或多个类名的字符串，返回带有指定类的所有元素的`NodeList`。传入多个类名时，类名的先后顺序不重要。
 
@@ -254,12 +266,12 @@ HTML5 新增了一种操作类名的方式，可以让操作更简单也更安�
 3. `HTML5` 新增了一种操作类名的方式，可以让操作更简单也更安全，那就是为所有元素添加 `classList` 属性。
 4. 这个 `classList` 属性是新集合类型 `DOMTokenList` 的实例。与其他 `DOM` 集合类似，`DOMTokenList` 有一个表示自己包含多少元素的 `length` 属性，而要取得每个元素可以使用`item()`方法，也可以使用方括号语法。此外，这个新类型还定义如下方法。
 ```
-#### 焦点管理
+2. 焦点管理
 
 * `focus`()方法
 * `document.hasFocus`()方法，这个方法用于确定文档是否获得了焦点。
 
-#### HTMLDocument 的变化
+3. HTMLDocument 的变化
 
 * `readyState` 属性 `Document` 的 `readyState` 属性有两个可能的值：
 1. `loading`，正在加载文档；
@@ -296,13 +308,13 @@ if (document.compatMode == "CSS1Compat") {
 let head = document.head || document.getElementsByTagName("head")[0];
 ```
 
-#### 字符集属性
+4. 字符集属性
 
 `HTML5`新增了几个与文档字符集有关的属性。其中，`charset` 属性表示文档中实际使用的字符集，
 也可以用来指定新字符集。默认情况下，这个属性的值为"`UTF-16`"，
 但可以通过`<meta>`元素、响应头部或直接设置 `charset` 属性修改这个值。
 
-#### scrollIntoView()方法
+5. scrollIntoView()方法
 
 ::: tip TIP
   scrollIntoView()可以在所有 HTML 元素上调用，通过滚动浏览器窗口或某个容器元素，调用元素就可以出现在视口中。
@@ -378,7 +390,7 @@ let head = document.head || document.getElementsByTagName("head")[0];
 ```
 
 
-#### 文档模式
+6. 文档模式
 
 要强制浏览器以某种模式渲染页面，可以使用 `HTTP` 头部信息 `X-UA-Compatible`，或通过等价的`<meta>`标签来设置：
 
@@ -401,7 +413,7 @@ alert(document.documentElement.contains(document.body)); //true
 
 ![base-js](/images/base-js03.png)
 
-#### 滚动
+7. 滚动
 
 * `scrollIntoViewIfNeeded(alignCenter)`:只在当前元素在视口中不可见的情况下，才滚动浏览器窗口或容器元素，最终让它可见。如果当前元素在视口中可见，这个方法什么也不做。如果将可选的 `alignCenter` 参数设置为 `true`，则表示尽量将元素显示在视口中部（垂直方向）。
 
@@ -420,7 +432,7 @@ alert(document.documentElement.contains(document.body)); //true
 
 `DOM1` 级主要定义的是 `HTML` 和 `XML` 文档的底层结构。 `DOM2` 和 `DOM3` 级则在这个结构的基础上引入了更多的交互能力，也支持了更高级的 `XML` 特性。
 
-#### 计算的样式
+1. 计算的样式
 
 虽然 `style` 对象能够提供支持 `style` 特性的任何元素的样式信息，但它不包含那些从其他样式表层叠而来并影响到当前元素的样式信息。
 
@@ -447,7 +459,7 @@ function getStyle(ele, attr) {
 
 ### 元素大小
 
-#### 偏移量 外边距
+1. 偏移量 外边距
 
 * `offsetHeight`:元素在垂直方向上占用的空间大小，以像素计。包括元素的高度、（可见的）水平滚动条的高度、上边框高度和下边框高度。
 * `offsetWidth`：元素在水平方向上占用的空间大小，以像素计。包括元素的宽度、（可见的）垂直滚动条的宽度、左边框宽度和右边框宽度。
@@ -458,13 +470,13 @@ function getStyle(ele, attr) {
 
 ![offsetParent](/images/base-js04.png)
 
-#### 客户区大小 内边距
+2. 客户区大小 内边距
 * clientWidth:是元素内容区宽度加上左右内边距宽度。
 * clientHeight:元素内容区高度加上上下内边距高度。
 
 ![内边距](/images/base-js05.png)
 
-#### 滚动大小
+3. 滚动大小
 
 * `scrollHeight`：在没有滚动条的情况下，元素内容的总高度。
 * `scrollWidth`：在没有滚动条的情况下，元素内容的总宽度。
@@ -480,14 +492,13 @@ function getStyle(ele, attr) {
 ```js
 el.getBoundingClientRect();
 ```
----
 
-### DOM 事件
+### `DOM` 事件
 ::: tip 
 `javaScript` 与 `HTML` 之间的交互是通过事件实现的。事件，就是文档或浏览器窗口中发生的一些特定的交互瞬间。
 :::
 
-#### 事件流
+1. 事件流
 
 * `事件冒泡`: 事件开始时由最具体的元素（文档中嵌套层次最深的那个节点）接收，然后逐级向上传播到较为不具体的节点（`document`）。
 
@@ -512,7 +523,7 @@ el.getBoundingClientRect();
 
 ![07](/images/base-js07.png)
 
-#### 捕获和冒泡
+2. 捕获和冒泡
 
 我们都知道捕获过程是从外向内，冒泡过程是从内向外,那么为什么需要事件捕获和冒泡呢?
 
@@ -611,7 +622,7 @@ document.body.addEventListener("keydown", o, false);
 
 实际使用，在现代浏览器中，还可以不传第三个参数，我建议默认不传第三个参数，因为我认为冒泡是符合正常的人类心智模型的，大部分业务开发者不需要关心捕获过程。除非你是组件或者库的使用者，那就总是需要关心冒泡和捕获了。
 
-#### 自定义事件
+3. 自定义事件
 
 除了来自输入设备的事件，还可以自定义事件，实际上事件也是一种非常好的代码架构，但是 DOM API 中的事件并不能用于普通对象，所以很遗憾，我们只能在 DOM 元素上使用自定义事件。
 
@@ -630,7 +641,7 @@ document.dispatchEvent(evt);
  注意，这里旧的自定义事件方法（使用 `document.createEvent` 和 `initEvent`）已经被废弃。
 :::
 
-#### DOM 事件流
+4. DOM 事件流
 
 `DOM2` 级事件规定的事件流包括三个阶段：`事件捕获阶段`、`处于目标阶段`和`事件冒泡阶段`。
 
@@ -653,7 +664,7 @@ document.dispatchEvent(evt);
 
 事件就是用户或浏览器自身执行的某种动作。诸如 `click`、`load` 和 `mouseover`，都是事件的名字。而响应某个事件的函数就叫做事件处理程序（或事件侦听器）。
 
-#### DOM0 级事件处理程
+1. DOM0 级事件处理程
 
 通过JavaScript指定事件处理程序的传统方式，就是将一个函数赋值给一个事件处理程序属性。
 
@@ -689,7 +700,7 @@ btn.onclick = function() {
 btn.onclick = null; // 删除事件处理程序
 ```
 
-#### DOM2 级事件处理程序
+2. DOM2 级事件处理程序
 
 “`DOM2 级事件`”定义了两个方法，用于处理指定和删除事件处理程序的操作：`addEventListener()`和 `removeEventListener()`。
 
@@ -849,7 +860,7 @@ document.body.onclick = function(event) {
 * `变动（mutation）事件`，当底层 `DOM` 结构发生变化时触发。
 
 
-#### UI 事件
+1. UI 事件
 * `load`：当页面完全加载后在 `window` 上面触发，当所有框架都加载完毕时在框架集上面触发,当图像加载完毕时在`<img>`元素上面触发，或者当嵌入的内容加载完毕时在`<object>`元素上面触发。
 
 * `unload`：当页面完全卸载后在 `window` 上面触发，当所有框架都卸载后在框架集上面触发，或者当嵌入的内容卸载完毕后在`<object>`元素上面触发。只要用户从一个页面切换到另一个页面，就会发生 `unload` 事件。
@@ -865,12 +876,12 @@ document.body.onclick = function(event) {
 * `scroll`：当用户滚动带滚动条的元素中的内容时，在该元素上面触发。`<body>` 元素中包含所加载页面的滚动条。
 
 
-#### 键盘事件
+2. 键盘事件
 
 ![10](/images/base-js10.png)
 ![11](/images/base-js10.png)
 
-#### H5新增事件
+3. H5新增事件
 
 1. `HTML5` 新增了 `hashchange` 事件，以便在 `URL` 的参数列表（及 `URL` 中`“#”`号后面的所有字符串）发生变化时通知开发人员。
 
@@ -990,6 +1001,464 @@ document.styleSheets[0].cssRules;
 window.getComputedStyle(elt, pseudoElt);
 ```
 其中第一个参数就是我们要获取属性的元素，第二个参数是可选的，用于选择伪元素。
+
+## 浏览器对象 BOM
+
+### 定义
+
+各个浏览器厂商针对`DOM`标准实现的用来获取或设置浏览器的属性、行为的一个对象。
+
+BOM是由哪些对象组成？
+
+* `window` : BOM中最顶层对象
+* `screen` ：屏幕对象
+* `location`： 地址栏对象
+* `history`：历史记录对象
+* `navigator`： 导航对象
+* `document` ： 文档对象
+* `frames` :框架集
+
+### window对象
+
+BOM的核心对象是 `window`，它表示浏览器的一个实例。
+
+在浏览器中，`window` 对象有双重角色，它既是通过 `JavaScript` 访问浏览器窗口的一个接口，又是 `ECMAScript` 规定的 `Global` 对象。
+
+这意味着在网页中定义的任何一个对象、变量和函数，都以 `window` 作为其 `Global` 对象，因此有权访问 `parseInt()` 等方法。
+
+1. 全局作用域
+
+全局变量不能通过 `delete` 操作符删除，而直接在 `window` 对象上的定义的属性可以。
+
+```js
+let age = 29; 
+window.color = "red"; 
+//在 IE < 9 时抛出错误，在其他所有浏览器中都返回 false 
+delete window.age; 
+//在 IE < 9 时抛出错误，在其他所有浏览器中都返回 true 
+delete window.color; //returns true 
+alert(window.age); // 29 
+alert(window.color); // undefined
+```
+
+2. 窗口位置
+
+```javascript
+let leftPos = (typeof window.screenLeft == "number") ? 
+ window.screenLeft : window.screenX; 
+let topPos = (typeof window.screenTop == "number") ? 
+ window.screenTop : window.screenY;
+```
+3. 窗口大小
+
+```js
+let pageWidth = window.innerWidth, pageHeight = window.innerHeight; 
+if (typeof pageWidth != "number"){ 
+    if (document.compatMode == "CSS1Compat"){ 
+        pageWidth = document.documentElement.clientWidth; 
+        pageHeight = document.documentElement.clientHeight; 
+    } else { 
+        pageWidth = document.body.clientWidth; 
+        pageHeight = document.body.clientHeight; 
+    } 
+}
+```
+::: tip TIP
+        
+另外，使用 `resizeTo()`和 `resizeBy()`方法可以调整浏览器窗口的大小。
+
+这两个方法都接收两个参数，其中 `resizeTo()` 接收浏览器窗口的新宽度和新高度，而`resizeBy()`接收新窗口与原窗口的宽度和高度之差。
+:::
+
+4. 导航和打开窗口
+
+使用 `window.open()`方法既可以导航到一个特定的`url`，也可以打开一个新的浏览器窗口。
+
+>window.open(url,name,features,replace);
+
+5. 间歇调用和超时调用
+
+`JavaScript` 是单线程语言，但它允许通过设置超时值和间歇时间值来调度代码在特定的时刻执行。前者是在指定的时间过后执行代码，而后者则是每隔指定的时间就执行一次代码。
+```javascript
+setTimeout(function() { 
+	alert("Hello world!"); 
+}, 1000);
+```
+*第二个参数是一个表示等待多长时间的毫秒数，但经过该时间后指定的代码不一定会执行。*
+
+`JavaScript` 是一个单线程序的解释器，因此一定时间内只能执行一段代码。为了控制要执行的代码，就有一个`JavaScript`任务队列。这些任务会按照将它们添加到队列的顺序执行。
+
+*`setTimeout()`的第二个参数告诉 `JavaScript` 再过多长时间把当前任务添加到队列中。*
+
+如果队列是空的，那么添加的代码会立即执行；如果队列不是空的，那么它就要等前面的代码执行完了以后再执行。
+
+调用 `setTimeout()`之后，该方法会返回一个数值 ID，表示超时调用。
+
+这个超时调用`ID`是计划执行代码的唯一标识符，可以通过它来取消超时调用。要取消尚未执行的超时调用计划，可以调用`clearTimeout()`方法并将相应的超时调用ID作为参数传递给它，如下所示:
+
+```javascript
+// 设置超时调用
+let timeoutId = setTimeout(function() { 
+	alert("Hello world!"); 
+}, 1000); 
+// 注意：把它取消
+clearTimeout(timeoutId);
+```
+
+间歇调用与超时调用类似，只不过它会按照指定的时间间隔重复执行代码，直至间歇调用被取消或者页面被卸载。
+
+```javascript
+let num = 0; 
+let max = 10; 
+let intervalId = null; 
+function incrementNumber() { 
+	num++; 
+ 	// 如果执行次数达到了 max 设定的值，则取消后续尚未执行的调用
+	 if (num == max) { 
+	 	clearInterval(intervalId); 
+	 	alert("Done"); 
+	 } 
+} 
+intervalId = setInterval(incrementNumber, 500);
+```
+
+在这个例子中，变量 `num` 每半秒钟递增一次，当递增到最大值时就会取消先前设定的间歇调用。这个模式也可以使用超时调用来实现，如下所示:
+
+```javascript
+let num = 0; 
+let max = 10; 
+function incrementNumber() { 
+    num++; 
+    // 如果执行次数未达到 max 设定的值，则设置另一次超时调用
+    if (num < max) { 
+ 	    setTimeout(incrementNumber, 500); 
+    } else { 
+ 	    alert("Done"); 
+    } 
+} 
+setTimeout(incrementNumber, 500);
+```
+::: tip TIP
+        
+在使用超时调用时，没有必要跟踪超时调用`ID`，因为每次执行代码之后，如果不再设置另一次超时调用，调用就会自行停止。
+
+一般认为，使用超时调用来模拟`间歇调用`的是一种最佳模式。在开发环境下，很少使用真正的`间歇调用`，原因是后一个间歇调用可能会在前一个`间歇调`用结束之前启动。而像前面示例中那样使用`超时调用`，则完全可以避免这一点。
+
+另外使用定时器的时候需要慎重，注意及时清理，避免内存溢出。
+:::
+
+### location 对象
+`location` 是最有用的 `BOM` 对象之一，它提供了与当前窗口中加载的文档有关的信息，还提供了一些导航功能。
+
+假设我们有如下一个url:
+
+>http://localhost:8000/#/user/login?a=1&b=2
+
+| 属性 | 例子 | 描述|
+| --- | --- | --- |
+|origin|	http://localhost:8000|	返回主机等信息|
+|protocol|	http|	返回当前地址的协议类型 http 、 https|
+|host|	localhost:8000|	返回当前的域名及端口号|
+|hostname|	localhost	|返回当前的域名|
+|port|	8000	|返回当前地址的端口号|
+|pathname|	/	|返回当前页面所在目录路径|
+|search|	""	|返回当前地址所带的参数如果没有返回空字符串|
+|hash|	#/user/login?a=1&b=2	|返回当前地址所包含的hash值，如果没有hash值则返回空字符串|
+|href|	http://localhost:8000/#/user/login?a=1&b=2	|返回当前地址的完整url|
+
+跳转操作
+
+* window.location = url
+* window.location.href = url
+* window.location.assign(url)
+* window.location.replace(url) // 无法返回上个页面
+* window.location.reload(); // 重新加载（有可能从缓存中加载）
+* window.location.reload(true); // 重新加载（从服务器重新加载）
+
+### navigator 对象
+
+Navigator 对象包含有关浏览器的信息。
+
+:boom: 注意： 没有应用于 navigator 对象的公开标准，不过所有浏览器都支持该对象。
+*Navigator 对象属性*
+|属性|描述|
+|---|---|
+|appCodeName|	返回浏览器的代码名。|
+|appMinorVersion|	返回浏览器的次级版本。|
+|appName|	返回浏览器的名称。|
+|appVersion|	返回浏览器的平台和版本信息。|
+|browserLanguage|	返回当前浏览器的语言。|
+|cookieEnabled|	返回指明浏览器中是否启用 cookie 的布尔值。|
+|cpuClass|	返回浏览器系统的 CPU 等级。|
+|onLine|	返回指明系统是否处于脱机模式的布尔值。|
+|platform|	返回运行浏览器的操作系统平台。|
+|systemLanguage|	返回 OS 使用的默认语言。|
+|userAgent|	返回由客户机发送服务器的 user-agent 头部的值。|
+|userLanguage|	返回 OS 的自然语言设置。|
+
+*Navigator 对象方法*
+|方法|描述|
+|---|---|
+|javaEnabled()|	规定浏览器是否启用 Java。|
+|taintEnabled()|	规定浏览器是否启用数据污点 (data tainting)。|
+
+
+*Navigator 对象描述*
+`Navigator` 对象包含的属性描述了正在使用的浏览器。可以使用这些属性进行平台专用的配置。
+
+虽然这个对象的名称显而易见的是 `Netscape` 的 `Navigator` 浏览器，但其他实现了 `JavaScript` 的浏览器也支持这个对象。
+
+Navigator 对象的实例是唯一的，可以用 `Window` 对象的 `navigator` 属性来引用它。
+
+### history对象
+
+history 对象保存着用户上网的历史记录，从窗口被打开的那一刻算起。
+
+history.back();// 回退一页
+history.forword();// 前进一页
+history.go(number | url) // 跳转指定页数或者页面
+history.length // 保存着历史记录的数量
+
+### 客户端检测
+
+*在可能的情况下，要尽量使用`typeof`进行能力检测。*
+
+在浏览器环境下测试任何对象的某个特性是否存在，要使用下面这个函数：
+
+```javascript
+// 作者：Peter Michaux 
+function isHostMethod(object, property) { 
+	let t = typeof object[property]; 
+ 	return t === 'function' || (!!( t === 'object' && object[property])) || t == 'unknown'; 
+}
+
+// 可以像下面这样使用这个函数：
+result = isHostMethod(xhr, "open"); //true 
+result = isHostMethod(xhr, "foo"); //false
+```
+
+### 有趣的userAgent
+
+>"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36"
+
+基于 `WebKit` 的所有浏览器都将自己标识为 `Mozilla 5.0`，与基于 `Gecko` 的浏览器完全一样。
+
+1. 用户代理字符串检测技术
+
+```javascript
+export function OS() {
+  const u = navigator.userAgent
+  // 移动终端浏览器版本信息
+  return {
+    trident: u.indexOf('Trident') > -1, // IE内核
+    presto: u.indexOf('Presto') > -1, // opera内核
+    webKit: u.indexOf('AppleWebKit') > -1, // 苹果、谷歌内核
+    gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') === -1, // 火狐内核
+    mobile: !!u.match(/AppleWebKit.*Mobile.*/), // 是否为移动终端
+    ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), // ios终端
+    android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1 || u.indexOf('UCBrowser') > -1, // android终端或者uc浏览器
+    iPhone: u.indexOf('iPhone') > -1, // 是否为iPhone或者QQHD浏览器
+    iPad: u.indexOf('iPad') > -1, // 是否iPad
+    webApp: u.indexOf('Safari') === -1, // 是否web应该程序，没有头部与底部
+    weixin: u.indexOf('MicroMessenger') > -1, // 是否微信
+    chrome: u.indexOf('Chrome') > -1,
+    ali: u.indexOf('Alipay') > -1,
+    qq: u.match(/\sQQ/i), // 是否QQ
+    safari: u.indexOf('Safari') > -1,
+  }
+}
+```
+
+### Web Components
+
+`Web Components API`是右 `Google` 一直在推行的一种实现组件的方式,相比第三方框架，原生组件简单直接，符合直觉，不用加载任何外部模块，代码量小,但是实际书写上和可维护性也不是特别的好。
+不太使用。
+`dome` 如下
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Bin</title>
+</head>
+<body>
+<user-card
+  image="https://semantic-ui.com/images/avatar2/large/kristy.png"
+  name="User Name"
+  email="yourmail@some-email.com"
+></user-card>
+  
+<template id="userCardTemplate">
+  <style>
+   :host {
+     display: flex;
+     align-items: center;
+     width: 450px;
+     height: 180px;
+     background-color: #d4d4d4;
+     border: 1px solid #d5d5d5;
+     box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+     border-radius: 3px;
+     overflow: hidden;
+     padding: 10px;
+     box-sizing: border-box;
+     font-family: 'Poppins', sans-serif;
+   }
+   .image {
+     flex: 0 0 auto;
+     width: 160px;
+     height: 160px;
+     vertical-align: middle;
+     border-radius: 5px;
+   }
+   .container {
+     box-sizing: border-box;
+     padding: 20px;
+     height: 160px;
+   }
+   .container > .name {
+     font-size: 20px;
+     font-weight: 600;
+     line-height: 1;
+     margin: 0;
+     margin-bottom: 5px;
+   }
+   .container > .email {
+     font-size: 12px;
+     opacity: 0.75;
+     line-height: 1;
+     margin: 0;
+     margin-bottom: 15px;
+   }
+   .container > .button {
+     padding: 10px 25px;
+     font-size: 12px;
+     border-radius: 5px;
+     text-transform: uppercase;
+   }
+  </style>
+  
+  <img class="image">
+  <div class="container">
+    <p class="name"></p>
+    <p class="email"></p>
+    <button class="button">Follow John</button>
+  </div>
+</template>
+
+</body>
+</html>
+```
+```javascript
+class UserCard extends HTMLElement {
+  constructor() {
+    super();
+    var shadow = this.attachShadow( { mode: 'closed' } );
+    
+    var templateElem = document.getElementById('userCardTemplate');
+    var content = templateElem.content.cloneNode(true);
+    content.querySelector('img').setAttribute('src', this.getAttribute('image'));
+    content.querySelector('.container>.name').innerText = this.getAttribute('name');
+    content.querySelector('.container>.email').innerText = this.getAttribute('email');
+
+    shadow.appendChild(content);
+  }
+}
+window.customElements.define('user-card', UserCard);
+```
+
+常见坑如下
+1. 组件内部事件的回调
+比如，一个弹窗组件（`<my-dialog></my-dialog>`）中的确定按钮，那么它的事件是如何触发的呢？
+```javascript
+class myDialog extends HTMLElement {
+  // ...
+  connectedCallback() {
+    const shadowRoot = this.attachShadow({ mode: 'open' });
+    shadowRoot.innerHTML = `
+      <div class="dialog">
+        <div class="dialog-content">
+          <div class="dialog-body">
+            弹窗内容
+          </div>
+
+          <button id="okBtn">确定</button>
+        </div>
+      </div>
+    `;
+
+    shadowRoot.querySelector('#okBtn').addEventListener('click', () => {
+      // 组件内部定义事件
+      this.dispatchEvent(new CustomEvent('okBtnFn'));
+    });
+  }
+}
+
+customElements.define('my-dialog', myDialog);
+```
+现在方案是 `custom` `element` 内部自定义事件 `new CustomEvent()`，外部用 `addEventListener` 监听。这样的写法是很丑陋的，仿佛又回到了原生 `JS` 写应用的时代。
+
+```html
+<my-dialog></my-dialog>
+
+<script> export default {
+    created() {
+      document.addEventListener('okBtnFn', function(){
+        // 点击弹窗按钮，触发回调事件
+      });
+    }
+  } </script>
+```
+
+2. 组件样式覆盖
+
+对于开发者来说，难免会遇到需要调整组件内部样式的时候。无论你是使用antd、vant还是使用其它组件库，但 WC 的 CSS 防污染机制导致你很难修改内部样式。这需要你付出一些代价来变相的修改内部样式.
+
+3. 组件内部资源相对路径问题
+
+就目前来说，任何直接基于 Custom Element v1, Template 和 HTML Import 的组件都无法做到完全资源独立 —— 在不知道使用方环境且不给使用方增加额外限制的情况下使用内部封装的任何资源文件。比如如果你有一个自定义 icon 组件：
+
+```javascript
+class MyIcon extends HTMLElement {
+    static get observedAttributes() { return ['name','size','color'] }
+    constructor() {
+        super();
+        const shadowRoot = this.attachShadow({ mode: 'open' });
+        shadowRoot.innerHTML = `
+            <svg class="icon" id="icon" aria-hidden="true" viewBox="0 0 1024 1024">
+                <use id="use"></use>
+            </svg>
+        `
+    }
+
+    attributeChangedCallback (name, oldValue, newValue) {
+        if( name == 'name' && this.shadowRoot){
+            // 如果使用的项目中，根目录没有 icon.svg 文件，那就 gg
+            this.use.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', `./icon.svg#icon-${newValue}`);
+        }
+    }
+}
+
+customElements.define('my-icon', MyIcon);
+```
+如果使用的项目中，根目录没有 icon.svg 文件，那就 gg。如果你在这里使用 cdn 路径，就会出现跨域问题。
+
+4. form表单类组件 value 获取问题
+
+5. 其他
+缺少数据绑定和状态管理也是 WC 存在的缺陷，此处不再赘述。
+
+
+* WC 指在丰富 HTML 的 DOM 特性，让 HTML 拥有更强大的复用能力
+* WC 可以直接当做原生标签，在任何前端框架和无框架中运行
+* 结合当下的主流技术栈来说，WC 当前主要问题在于复杂的组件中，数据通信和事件传递存在一定使用成本
+* 兼容问题，比如可以覆盖内部样式的 :part 方法
+
+
+[[toc]]
+
+
 
 
 

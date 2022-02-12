@@ -8,13 +8,14 @@ module.exports = {
     ],
     serviceWorker: true, // 是否开启 PWA
     markdown: {
+        extractHeaders: [ 'h2', 'h3', 'h4','h5','h6' ],
         lineNumbers: true // 代码块是否显示行号
     },
     plugins: [['vuepress-plugin-code-copy', {
-        align: 'top', // top和bottom
+        align: 'bottom', // top 和 bottom
         staticIcon: true,
         successText: '复制成功'
-    }]],
+    }], '@vuepress/plugin-active-header-links'],
     theme: 'reco',
     port: 8080, //  指定 dev server 的端口。
     themeConfig: {
@@ -45,11 +46,19 @@ module.exports = {
             {text: '自己的网站', link: 'http://120.77.15.133'},
             {text: 'TimeLine', link: '/timeline/', icon: 'reco-date'}
         ],
+        displayAllHeaders: false, // 默认值：false
         // sidebar: [
+        //     {
+        //         title: "前端基础资料",
+        //         path: '/base-js/',
+        //         collapsable: true, // 不折叠,
+        //         sidebarDepth: 5,    // 可选的, 默认值是 1
+        //     },
         //     {
         //         title: "Markdown学习笔记",
         //         path: '/md-study-note/',
-        //         collapsable: false, // 不折叠
+        //         collapsable: true, // 不折叠
+        //         sidebarDepth: 5,    // 可选的, 默认值是 1
         //     }
         // ],
         // subSidebar: 'auto',
