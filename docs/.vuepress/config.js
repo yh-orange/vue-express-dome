@@ -17,7 +17,7 @@ module.exports = {
         successText: '复制成功'
     }], '@vuepress/plugin-active-header-links'],
     theme: 'reco',
-    port: 8080, //  指定 dev server 的端口。
+    port: 8888, //  指定 dev server 的端口。
     themeConfig: {
         logo: '/images/hero.jpg',
         author: 'yh-orange',
@@ -42,6 +42,8 @@ module.exports = {
         // },
         nav: [ // 导航栏配置
             {text: '前端基础资料', link: '/base-js/'},
+            {text: 'typeScript基础资料', link: '/typeScript/'},
+            {text: 'VSCode基础配置', link: '/VSCode/'},
             {text: 'Markdown学习笔记', link: '/md-study-note/'},
             {text: '自己的网站', link: 'http://120.77.15.133'},
             {text: 'TimeLine', link: '/timeline/', icon: 'reco-date'}
