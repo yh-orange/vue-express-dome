@@ -182,4 +182,111 @@ vscode  作为一款逐渐火热的编辑器。它的特点免费、开源、多
 * 预览markdown Ctrl+Shift+V
 ### 其他
  
-* 自动保存：File -> AutoSave ，或者Ctrl+Shift+P，输入 auto
+编辑器 `vscode` 提供了用户自定义的代码片段功能。 在配置了代码段后，通过输入某些单词快速生成配置的模板
+
+
+## 设置用户代码片段
+
+>可以通过以下两个方法打开配置用户代码片段的窗口
+> * 文件 → 首选项 → 用户代码片段
+> * Ctrl + Shift + P → 首选项：配置用户代码片段
+
+* 用户代码片段可以配置到全局，或者某个工作区中
+* 判断文件名可以随意定义。比如：vuets，会自动生成文件vuets.code-snippets
+> **注意事项**
+> 
+> * 配置完之后需要重启vscode
+> * 代码片段中有特殊字符需要转义。比如"content",需要转换为\"content\"；
+> * 需要缩进需要在代码前加空格或者\t;
+> * $1、$2表示tab键停留的位置
+
+### 配置示例
+
+* 打开配置用户代码片段的窗口
+* 选择某个工作区下。输入文件名，比如：log
+* 在工作区下面会出现一个目录.vscode/。目录下有个文件.vscode/log.code-snippets
+* 修改.vscode/log.code-snippets文件内容
+
+```json
+{
+	"Print to console": {
+    "scope": "javascript,typescript",
+    "prefix": "log",
+    "body": [
+      "console.log('$1');"
+    ],
+    "description": "console.log()"
+  }
+}
+```
+* 随便打开一个该工作区下面的文件，输入`log` → `回车`。会快速出现`console.log()`;
+
+>备注：
+>快捷键是`.vscode/log.code-snippets`文件中的`prefix`配置的值
+
+### 快速生成模板
+
+* 打开配置用户代码片段的窗口
+* 选择某个工作区下。输入文件名，比如：vuets
+* 在工作区下面会出现一个目录.vscode/。目录下有个文件.vscode/vuets.code-snippets
+* 修改.vscode/vuets.code-snippets文件内容
+
+```json
+{
+	
+	"Print to console": {
+		"prefix": "vuets",
+		"body": [
+			"<template>",
+			"  <div></div>",
+			"</template>",
+			"",
+			"<script lang='ts'>",
+			"import { defineComponent, ref, Prop } from 'vue'",
+			"export default defineComponent ({",
+			"\tname: 'xxxx',",
+			"\temits: [],",
+			"\trops: [],",
+			"\tsetup(Prop, context) {",
+				"\t\t$1",
+				"\t\treturn {}",
+			"}",
+			"})",
+			"</script>",
+			"",
+			"<style lang='less' scoped>",
+			"",
+			"</style>",
+			""
+		],
+		"description": "basic vue typescript template"
+	}
+}
+```
+
+* 在该工作区下面的某个目录，新建一个vue文件
+* 输入`vuets` → `回车`。会快速配置的模板
+
+```vue
+<template>
+  <div></div>
+</template>
+
+<script lang='ts'>
+import { defineComponent, ref, Prop } from 'vue'
+export default defineComponent ({
+  name: 'xxxx',
+  emits: [],
+  rops: [],
+  setup(Prop, context) {
+    
+    return {}
+}
+})
+</script>
+
+<style lang='less' scoped>
+
+</style>
+
+```

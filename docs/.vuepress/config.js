@@ -42,9 +42,11 @@ module.exports = {
         // },
         nav: [ // 导航栏配置
             {text: '前端基础资料', link: '/base-js/'},
-            {text: 'typeScript基础资料', link: '/typeScript/'},
-            {text: 'VSCode基础配置', link: '/VSCode/'},
-            {text: 'Markdown学习笔记', link: '/md-study-note/'},
+            {text: 'typeScript', link: '/typeScript/'},
+            {text: 'VSCode', link: '/VSCode/'},
+            {text: 'ZJ笔记', link: '/ZJ笔记/'},
+            {text: 'vue3', link: '/vue3-base/'},
+            {text: 'Markdown', link: '/md-study-note/'},
             {text: '自己的网站', link: 'http://120.77.15.133'},
             {text: 'TimeLine', link: '/timeline/', icon: 'reco-date'}
         ],
