@@ -1077,7 +1077,7 @@ export default component
 
 ```
 
-#### ` customRef`
+### ` customRef`
 
 * 创建一个自定义的 ref，并对其依赖项跟踪和更新触发进行显式控制
 * 需求: 使用 customRef 实现 debounce 的示例
@@ -1262,5 +1262,224 @@ export default defineComponent({
 })
 </script>
 ```
+
+## 手写 `API`
+
+* `shallowReactive` (浅的劫持,浅的监视,浅的响应数据) 与 `reactive` (深的)
+
+```js
+// 定义一个reactiveHandler处理对象 proxy 对象的毁掉处理方式
+const reactiveHandler = {
+  // 获取属性值
+  get (target, prop) {
+    if (prop === '_is_reactive') return true
+    const result = Reflect.get(target, prop)
+    console.log('拦截了读取数据', prop, result)
+    return result
+  },
+  // 修改属性值或者是添加属性
+  set (target, prop, value) {
+    const result = Reflect.set(target, prop, value)
+    console.log('拦截了修改数据或者是添加属性', prop, value)
+    return result
+  },
+  // 删除某个属性
+  deleteProperty (target, prop) {
+    const result = Reflect.deleteProperty(target, prop)
+    console.log('拦截了删除数据', prop)
+    return result
+  }
+}
+// 定义一个shallowReactive函数,传入一个目标对象
+function shallowReactive (target) {
+  // 判断当前的目标对象是不是object类型(对象/数组)
+  if (target && typeof target === 'object') {
+    return new Proxy(target, reactiveHandler)
+  }
+  // 如果传入的数据是基本类型的数据,那么就直接返回
+  return target
+}
+// 定义一个reactive函数,传入一个目标对象
+function reactive (target) {
+  // 判断当前的目标对象是不是object类型(对象/数组)
+  if (target && typeof target === 'object') {
+    // 对数组或者是对象中所有的数据进行reactive的递归处理
+    // 先判断当前的数据是不是数组
+    if (Array.isArray(target)) {
+      // 数组的数据要进行遍历操作
+      target.forEach((item, index) => {
+        target[index] = reactive(item)
+      })
+    } else {
+      // 再判断当前的数据是不是对象
+      // 对象的数据也要进行遍历的操作
+      Object.keys(target).forEach(key => {
+        target[key] = reactive(target[key])
+      })
+
+    }
+    return new Proxy(target, reactiveHandler)
+  }
+  // 如果传入的数据是基本类型的数据,那么就直接返回
+  return target
+}
+
+/* 测试自定义shallowReactive */
+const proxy = shallowReactive({
+  a: {
+    b: 3
+  }
+})
+
+proxy.a = {b: 4} // 劫持到了
+proxy.a.b = 5 // 没有劫持到
+
+
+/* 测试自定义reactive */
+const obj = {
+  a: 'abc',
+  b: [{x: 1}],
+  c: {x: [11]},
+}
+
+const proxy = reactive(obj)
+console.log(proxy)
+proxy.b[0].x += 1
+proxy.c.x[0] += 1
+```
+* `shallowRef` 与 `ref`
+
+```js
+/*
+自定义shallowRef
+*/
+function shallowRef(target) {
+  const result = {
+    _value: target, // 用来保存数据的内部属性
+    _is_ref: true, // 用来标识是ref对象
+    get value () {
+      return this._value
+    },
+    set value (val) {
+      this._value = val
+      console.log('set value 数据已更新, 去更新界面')
+    }
+  }
+
+  return result
+}
+
+/* 
+自定义ref
+*/
+function ref(target) {
+  if (target && typeof target==='object') {
+    target = reactive(target)
+  }
+
+  const result = {
+    _value: target, // 用来保存数据的内部属性
+    _is_ref: true, // 用来标识是ref对象
+    get value () {
+      return this._value
+    },
+    set value (val) {
+      this._value = val
+      console.log('set value 数据已更新, 去更新界面')
+    }
+  }
+
+  return result
+}
+
+/* 测试自定义shallowRef */
+const ref3 = shallowRef({
+  a: 'abc',
+})
+ref3.value = 'xxx'
+ref3.value.a = 'yyy'
+
+
+/* 测试自定义ref */
+const ref1 = ref(0)
+const ref2 = ref({
+  a: 'abc',
+  b: [{x: 1}],
+  c: {x: [11]},
+})
+ref1.value++
+ref2.value.b[0].x++
+console.log(ref1, ref2)
+```
+
+*  `shallowReadonly` 与 `readonly`
+
+```js
+ const readonlyHandler = {
+   get (target, key) {
+     if (key==='_is_readonly') return true
+ 
+     return Reflect.get(target, key)
+   },
+ 
+   set () {
+     console.warn('只读的, 不能修改')
+     return true
+   },
+ 
+   deleteProperty () {
+     console.warn('只读的, 不能删除')
+     return true
+   },
+ }
+ 
+ /* 
+ 自定义shallowReadonly
+ */
+ function shallowReadonly(obj) {
+   return new Proxy(obj, readonlyHandler)
+ }
+ 
+ /* 
+ 自定义readonly
+ */
+ function readonly(target) {
+   if (target && typeof target==='object') {
+     if (target instanceof Array) { // 数组
+       target.forEach((item, index) => {
+         target[index] = readonly(item)
+       })
+     } else { // 对象
+       Object.keys(target).forEach(key => {
+         target[key] = readonly(target[key])
+       })
+     }
+     const proxy = new Proxy(target, readonlyHandler)
+ 
+     return proxy 
+   }
+ 
+   return target
+ }
+ 
+ /* 测试自定义readonly */
+ /* 测试自定义shallowReadonly */
+ const objReadOnly = readonly({
+   a: {
+     b: 1
+   }
+ })
+ const objReadOnly2 = shallowReadonly({
+   a: {
+     b: 1
+   }
+ })
+ 
+ objReadOnly.a = 1
+ objReadOnly.a.b = 2
+ objReadOnly2.a = 1
+ objReadOnly2.a.b = 2
+```
+
 
 

@@ -15,7 +15,7 @@ module.exports = {
         align: 'bottom', // top 和 bottom
         staticIcon: true,
         successText: '复制成功'
-    }], '@vuepress/plugin-active-header-links'],
+    }], '@vuepress/plugin-active-header-links', 'permalink-pinyin', ['autobar', {'pinyinNav': true}]],
     theme: 'reco',
     port: 8888, //  指定 dev server 的端口。
     themeConfig: {
@@ -51,24 +51,30 @@ module.exports = {
             {text: 'TimeLine', link: '/timeline/', icon: 'reco-date'}
         ],
         displayAllHeaders: false, // 默认值：false
-        // sidebar: [
-        //     {
-        //         title: "前端基础资料",
-        //         path: '/base-js/',
-        //         collapsable: true, // 不折叠,
-        //         sidebarDepth: 5,    // 可选的, 默认值是 1
-        //     },
-        //     {
-        //         title: "Markdown学习笔记",
-        //         path: '/md-study-note/',
-        //         collapsable: true, // 不折叠
-        //         sidebarDepth: 5,    // 可选的, 默认值是 1
-        //     }
-        // ],
+        sidebar: {
+            '/base-js': [
+                {
+                    title:'前端基础资料',
+                    collapsable: true,
+                    sidebarDepth: 3,
+                    // path: 'base-js',
+                    children:[
+                        { title: '文档对象模型', path: '/base-js/文档对象模型' },
+                        { title: 'javaScript基础知识', path: '/base-js/javaScript基础知识' },
+                        { title: '浏览器对象', path: '/base-js/浏览器对象' }
+                        // { title: '第三节', path: '/study/study03' }
+                        // '/base-js/javaScript基础知识',
+                        // '/base-js/javaScript基础知识',
+                        // '/base-js/文档对象模型',
+                        // '/base-js/浏览器对象',
+                    ]
+                }
+                ]
+        },
         // subSidebar: 'auto',
         lastUpdated: 'Last Updated', // string | boolean
-        sidebar: 'auto', // 侧边栏配置
-        sidebarDepth: 3
+        // sidebar: 'auto', // 侧边栏配置
+        // sidebarDepth: 3
     },
     configureWebpack: {
         resolve: {
