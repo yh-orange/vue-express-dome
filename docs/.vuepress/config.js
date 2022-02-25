@@ -41,7 +41,7 @@ module.exports = {
         //     ]
         // },
         nav: [ // 导航栏配置
-            {text: '前端基础资料', link: '/base-js/'},
+            {text: '前端基础资料', link: '/base-js/', sidebarDepth: 5},
             {text: 'typeScript', link: '/typeScript/'},
             {text: 'VSCode', link: '/VSCode/'},
             {text: 'ZJ', link: '/ZJ/'},
@@ -50,16 +50,15 @@ module.exports = {
             {text: '自己的网站', link: 'http://120.77.15.133'},
             {text: 'TimeLine', link: '/timeline/', icon: 'reco-date'}
         ],
-        displayAllHeaders: false, // 默认值：false
+        displayAllHeaders: true, // 默认值：false
         sidebar: {
             '/base-js': [
                 {
                     title:'前端基础资料',
                     collapsable: true,
-                    sidebarDepth: 3,
                     // path: 'base-js',
                     children:[
-                        { title: '文档对象模型', path: '/base-js/文档对象模型' },
+                        { title: '文档对象模型', path: '/base-js/文档对象模型'},
                         { title: 'javaScript基础知识', path: '/base-js/javaScript基础知识' },
                         { title: '浏览器对象', path: '/base-js/浏览器对象' }
                         // { title: '第三节', path: '/study/study03' }
@@ -71,10 +70,10 @@ module.exports = {
                 }
                 ]
         },
-        // subSidebar: 'auto',
+        subSidebar: 'auto',
         lastUpdated: 'Last Updated', // string | boolean
         // sidebar: 'auto', // 侧边栏配置
-        // sidebarDepth: 3
+        sidebarDepth: 5
     },
     configureWebpack: {
         resolve: {

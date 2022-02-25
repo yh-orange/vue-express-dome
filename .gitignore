@@ -1,4 +1,4 @@
-// .gitignore文件
 node_modules/
 dist/
 .idea/
+package-lock.json

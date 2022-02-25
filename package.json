@@ -17,7 +17,9 @@
   },
   "devDependencies": {
     "@vuepress/plugin-active-header-links": "^1.9.7",
-    "vuepress": "^1.9.6",
+    "less": "^4.1.2",
+    "less-loader": "^7.3.0",
+    "vuepress": "^1.9.7",
     "vuepress-plugin-permalink-pinyin": "^1.0.0",
     "vuepress-theme-reco": "^1.6.10"
   }
