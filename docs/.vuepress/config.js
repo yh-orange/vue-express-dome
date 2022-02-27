@@ -59,8 +59,8 @@ module.exports = {
                     // path: 'base-js',
                     children:[
                         { title: '文档对象模型', path: '/base-js/文档对象模型'},
-                        { title: 'javaScript基础知识', path: '/base-js/javaScript基础知识' },
-                        { title: '浏览器对象', path: '/base-js/浏览器对象' }
+                        { title: '浏览器对象', path: '/base-js/浏览器对象' },
+                        { title: 'javaScript基础知识', path: '/base-js/javaScript基础知识' }
                         // { title: '第三节', path: '/study/study03' }
                         // '/base-js/javaScript基础知识',
                         // '/base-js/javaScript基础知识',
