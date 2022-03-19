@@ -44,7 +44,7 @@ module.exports = {
             {text: '前端基础资料', link: '/base-js/', sidebarDepth: 5},
             {text: 'typeScript', link: '/typeScript/'},
             {text: 'VSCode', link: '/VSCode/'},
-            {text: 'ZJ', link: '/ZJ/'},
+            {text: '随笔', link: '/informal-essay/'},
             {text: 'vue3', link: '/vue3-base/'},
             {text: 'Markdown', link: '/md-study-note/'},
             {text: '自己的网站', link: 'http://120.77.15.133'},
