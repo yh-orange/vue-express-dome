@@ -1,4 +1,4 @@
-# `javaScript` 基础知识
+`# `javaScript` 基础知识
 
 ## `script`标签
 
@@ -816,6 +816,495 @@ undefined == false; // false
        });
 ```
 :::
+
+## 数值类型转换
+
+### 装箱和拆箱
+* 装箱转换：把基本类型转换为对应的包装类型。
+* 拆箱操作：把引用类型转换为基本类型。
+
+**原始类型不能扩展属性和方法，那么我们是如何使用原始类型调用方法的呢？**
+
+每当我们操作一个基础类型时，后台就会自动创建一个包装类型的对象，从而让我们能够调用一些方法和属性，例如下面的代码：
+
+```js
+const name = "Linda";
+const name2 = name.substring(2);
+```
+
+上述代码的执行过程:
+
+1. 创建一个String的包装类型实例.
+2. 在实例上调用substring方法.
+3. 销毁实例.
+
+也就是说，我们使用基本类型调用方法，就会自动进行 `装箱` 和 `拆箱` 操作，相同的，我们使用 `Number` 和 `Boolean` 类型时，也会发生这个过程。
+
+::: tip TIP
+
+从引用类型到基本类型转换(拆箱)的过程中，会遵循 `ECMAScript` 规范规定的 `toPrimitive` 原则，一般会调用引用类型的 `valueOf` 和 `toString` 方法，我们也可以直接重写 `toPeimitive` 方法。
+:::
+
+一般转换成不同类型的值遵循的原则不同，例如：
+
+* 引用类型转换为 `Number` 类型，先调用 `valueOf`，再调用 `toString`。
+* 引用类型转换为 `String` 类型，先调用 `toString`，再调用 `valueOf`。
+
+::: warning WARNING
+            
+若 `valueOf` 和 `toString` 都不存在，或者没有返回基本类型，则抛出 `TypeError` 异常。
+:::
+
+```js
+const obj = {
+  valueOf: () => { console.log('valueOf'); return 123; },
+  toString: () => { console.log('toString'); return 'Linda'; },
+};
+console.log(obj - 1);   // valueOf 122
+console.log(`Hello ${obj}`); // toString  Hello Linda
+
+const obj2 = {
+  [Symbol.toPrimitive]: () => { console.log('toPrimitive'); return 123; },
+};
+console.log(obj2 - 1);   // valueOf   122
+
+const obj3 = {
+  valueOf: () => { console.log('valueOf'); return {}; },
+  toString: () => { console.log('toString'); return {}; },
+};
+console.log(obj3 - 1);  
+// valueOf  
+// toString
+// TypeError
+```
+
+除了程序中的自动拆箱和自动装箱，我们还可以手动进行拆箱和装箱操作。我们可以直接调用包装类型的 `valueOf` 或 `toString`，实现拆箱操作。
+
+```js
+const num = new Number("123");  
+console.log( typeof num.valueOf() ); // number
+console.log( typeof num.toString() ); // string
+```
+
+## 连续赋值的问题
+
+关于 `javascript` 连续赋值问题,我们先来看一段代码:
+
+```js
+let a = {n : 1};
+let b = a;
+a.x = a = {n: 2};       
+console.log(a.x)  // undefined
+console.log(b.x)  // {n:2}
+console.log(a === b.x)  // true
+```
+
+首先`let a = {n : 1};`定义了一个引用类型变量`a`,在栈中存储了一个变量`a`的内存地址,在堆(内存)中开辟了一个空间存放对应的值`{n:1}`。
+
+其次`let b = a;`在栈中写入了`b`,并将`a`指向堆中的地址索引赋值给了`b`。但是并没有开辟新的存储空间。
+
+接下来执行`a.x = a = {n:2};`这段代码的执行顺序遵循如下原则:
+
+`“.”的优先级高于“=”`  , 所以先计算a.x`，也就是在`a`中添加属性 `x`(此时这个`x`是`undefined`).`a-->{n:1,x:undefined}`)
+
+这也是为什么直接引用一个未定义的变量会报错，但是直接引用一个对象的不存在的成员时，会返回 `undefined`。 
+
+然后依循`从右往左`的复制运算顺序执行 `a = {n:2}`这时候，`a`指向的对象发生了改变，变成了新对象`{n:2}`。(可能你在这会有疑惑（重点），之前`a`不是指向了`{n:1,x:undefined}`吗，赋值不会影响他吗？原因是因为在执行（`a.x=`）的时候已经被挂起来等待赋值了，即使`a`发生了指向的变化，但也不再影响此刻的（`a.x`）了，因为已经对（`a.x`）进行了指向的确定，只不过他现在正在等待被赋值。`a`被重新赋值，此时`a`的指向也就变化了）
+此时变成了 `a-->{n:2}，b-->{n:1,x:undefined} `
+
+继续执行`a`.`x=a`相当于`a.x = {n: 2}`，由于在第三步时`a.x`已经被创建，并且等待赋值，所以`x = {n: 2}` 。
+（`a.x`由于一直等待赋值一直被挂起，也就是一直保持着`{n:1,x:undefined}`对象`x`属性的访问，对象`{n:1,x:undefined}`由于一直有一个`b`的指向，所以不会被`JS`的垃圾回收机制给回收，赋值后对象变为了`{n:1,x:{n:2}}` ）
+
+```js
+let a = {n : 1};  
+a.x = a = {n: 2};       
+console.log(a.x)  // undefined
+```
+
+::: tip TIP
+        
+总结:
+
+基础类型的存储是存在栈中的,引用类型的存储是在栈中存储堆的索引,在堆中开辟空间存储变量的值。
+
+当访问一个对象的属性的时候,如果属性不存在会被赋值为 `undefined`。
+
+当进行连续赋值的时候,.属性访问优先级会大于=赋值,且当成员等待赋值的时候,锁定的赋值目标是成员，而非对象。
+
+对象重新赋值时，并非是修改原堆内存的值，而是重新分配堆内存，栈内存中的指针会做相应修改。
+
+如果原堆内存有多个栈内存指向它，由于引用还存在，原堆内存的数据不会消失。如果堆内存再无其它引用，则会被`JS`的垃圾回收机制回收。对象的成员对象也一样。
+:::
+
+## toString 方法介绍
+
+**要把一个值转换为一个字符串有两种方式。**
+
+1. 第一种是使用几乎每个值都有的 `toString()`方法
+2. 还可以使用转型函数 `String()`，这个函数能够将任何类型的值转换为字符串。
+
+`数值`、`布尔值`、`对象` 和 `字符串值` 都有`toString()`方法。但`null`和 `undefined` 值没有这个方法。
+
+多数情况下，调用`toString()`方法不必传递参数。但是，在调用数值的`toString()`方法时，可以传递一个参数：输出数值的基数。
+
+```js
+let num = 10;
+alert(num.toString()); // "10"
+alert(num.toString(2)); // "1010"
+alert(num.toString(8)); // "12"
+alert(num.toString(10)); // "10"
+alert(num.toString(16)); // "a"
+```
+
+**`String()`函数遵循下列转换规则：**
+如果值有`toString()`方法，则调用该方法（没有参数）并返回相应的结果；
+如果值是`null`，则返回`null`；
+如果值是`undefined`，则返回`undefined`。
+
+```js
+let value1 = 10;
+let value2 = true;
+let value3 = null;
+let value4;
+alert(String(value1)); // "10"
+alert(String(value2)); // "true"
+alert(String(value3)); // "null"
+alert(String(value4)); // "undefined"
+```
+
+::: tip TIP
+        
+`toString()`方法与`String()`方法的一个区别就是转换`null`与`undefiend`类型时的区别。
+
+`String()`方法可以执行,`toString()`方法则会报错。
+:::
+
+**引申: 字符串是否有最大长度?**
+
+`String` 用于表示文本数据。`String` 有个最大长度是 `2^53 - 1`,有趣的是这个所谓的最大长度,并不是我们理解中的字符数。
+
+因为 `String` 的意义并非字符串,二是字符串的 `UTF16` 编码,我们字符串的操作 `charAt`、`charCodeAt`、`length` 等方法针对的都是 `UTF16` 编码。所以,字符串的最大长度,实际上是受字符串的编码长度影响的。
+
+然而,现在字符集国际标准,字符是以 `Unicode` 的方式表示的,每一个 Unicode 的码表示一个字符,理论上 `Unicode` 的范围是无限的。
+
+试题: `12.toString()`输出结果是什么?为什么?
+
+```js
+// Uncaught SyntaxError: Invalid or unexpected token
+12.toString();
+
+// 12
+12 .toString();
+
+// 12
+12..toString();
+
+// Uncaught SyntaxError: Invalid or unexpected token
+12...toString();
+```
+
+`12.` 会被当作省略了小数点后面部分的数字，而单独看成一个整体,所以我们要想让点单独成为一个 `token`，就要加入空格。
+
+**使用小技巧**
+
+::: tip TIP
+在 `Javascript` 中,可以使用反斜杠进行字符串的折行编写，有些时候这样做可以使你的代码看起来更加漂亮，示例如下:
+
+```js
+// 使用反斜杠进行字符串的折行
+var text =
+  "啊哈哈哈哈\
+  你猜我是谁?\
+  猜对了我就给你一颗糖\
+";
+```
+:::
+
+## `Object` 类型
+
+对象可以通过执行`new`操作符后跟要创建的对象类型的名称来创建。
+
+而创建`Object`类型的实例并为其添加属性和（或）方法，就可以创建自定义对象，如下所示：
+
+```js
+let o = new Object(); 
+```
+
+`Object` 的每个实例都具有下列属性和方法:
+
+* `constructor`：保存着用于创建当前对象的函数。对于前面的例子而言，就是`Object()`。
+
+* `hasOwnProperty(propertyName)`：用于检查给定的属性在当前对象实例中（而不是在实例的原型中)是否存在。 其中，作为参数的属性`propertyName`必须以字符串形式指定（例如：`o.hasOwnProperty("name")`)。
+
+* `isPrototypeOf(object)`：用于检查传入的对象是否是传入对象的原型。
+
+* `propertyIsEnumerable(propertyName)`：用于检查给定的属性是否能够使用`for-in`语句来枚举。与 `hasOwnProperty()`方法一样，作为参数的属性名必须以字符串形式指定。
+
+* `toLocaleString()`：返回对象的字符串表示，该字符串与执行环境的地区对应。
+
+* `toString()`：返回对象的字符串表示。
+
+* `valueOf()`：返回对象的字符串、数值或布尔值表示。通常与`toString()`方法的返回值相同。
+
+由于在`ECMAScript`中`Object`是所有对象的基础，因此所有对象都具有这些基本的属性和方法。
+
+### 创建`object`类型的方式
+
+1. new + Object构造函数。
+2. 对象字面量方法。
+
+```js
+// new + constructor
+let person = new Object(); // //与 var person = {} 相同
+person.name = "Nicholas"; 
+person.age = 29;
+
+// 对象字面量
+let person = { 
+ name : "Nicholas", 
+ age : 29 
+};
+```
+
+**Object.create(null)**
+```js
+// 当我们使用Object.create(null)创建的对象不是Object的子类
+
+const a = {};
+const b = Object.create(null);
+
+a == b // false
+
+typeof a;// object
+typeof b;// object
+
+a instanceof Object;// true
+b instanceof Object;// false
+
+a.toString();// [object Object]
+b.toString();// VM274:1 Uncaught TypeError: b.toString is not a function
+```
+
+### `javascript` 对象的特征
+
+`JavaScript` 对象的本质有如下几个特点:
+
+对象具有唯一标识性: 即使完全相同的两个对象,也并非同一个对象。
+
+对象有状态: 对象具有状态,同一对象可能处于不同的状态之下。
+
+对象具有行为: 即对象的状态,可能因为它的行为产生变迁。
+
+### 对象具有唯一标识性
+
+一般而言,各种语言的对象唯一标识性都是用内存地址来实现的，对象具有唯一的内存地址，所以具有唯一的标识。
+
+在`javascript`中对象其实是互不相等的,如下这个示例, O1 和 O2乍看起来是两个一模一样的对象,但是结果是不相等的。
+
+```js
+var o1 = { a: 1};
+var o2 = { a: 1};
+
+o1 == o2 // false
+```
+
+### 对象有状态和行为
+
+在`javascript`中，将状态和行为统一抽象为属性。将函数设计成一种特殊对象，所以`Javascript`中的行为和状态都能用属性来抽象。
+
+```js
+let obg = {
+    a: 1,
+    f(){
+        console.log(this.a);
+    }
+}
+```
+
+## `Array`类型
+
+除了 `Object` 之外，`Array` 类型恐怕是 `ECMAScript` 中最常用的类型了。
+
+**创建Array类型的方式**
+
+1. `new` + `Array` 构造函数。
+2. 用数组字面量表示法。
+
+```js
+let colors = new Array(3);
+let colors = ["red", "blue", "green"];
+```
+
+数组的项数保存在其 `length` 属性中，这个属性始终会返回 0 或更大的值.
+
+```js
+let colors = ["red", "blue", "green"]; // 创建一个包含 3 个字符串的数组
+let names = []; // 创建一个空数组
+alert(colors.length); //3 
+alert(names.length); //0
+```
+
+数组的 `length` 属性很有特点——它不是只读的。因此，通过设置这个属性，可以从数组的末尾移 除项或向数组中添加新项。请看下面的例子：
+
+```js
+let colors = ["red", "blue", "green"]; // 创建一个包含 3 个字符串的数组
+colors.length = 2; 
+alert(colors[2]); // undefined 
+```
+
+这个例子中的数组 `colors` 一开始有 3 个值。将其 `length` 属性设置为 2 会移除最后一项），结果再访问 `colors[2]`就会显示 `undefined` 了。
+
+如果将其 `length` 属性设置为大于数组项数的值，则新增的每一项都会取得 `undefined` 值，如下所示：
+
+```js
+let colors = ["red", "blue", "green"]; // 创建一个包含 3 个字符串的数组
+colors.length = 4; 
+alert(colors[3]);// undefined
+```
+
+### 数组常用方法
+
+1. `push()`向数组的末尾添加一个或多个元素，返回新的数组长度。原数组改变。
+2. `pop()` 删除并返回数组的最后一个元素，若该数组为空，则返回 `undefined`。原数组改变。
+3. `unshift()`向数组的开头添加一个或多个元素，返回新的数组长度。原数组改变。
+4. `shift()`删除数组的第一项，并返回第一个元素的值。若该数组为空，则返回 `undefined`。原数组改变。
+5. `concat(arr1,arr2...)`，合并两个或多个数组，生成一个新的数组。原数组不变。
+6. `join(type)` 将数组的每一项用指定字符连接返回一个字符串。默认连接字符为逗号。原数组不变。
+7. `reverse()`将数组倒序，返回倒序后的数组，原数组改变。
+8. `sort()`，对数组元素进行排序,返回排序后的数组。按照字符串UniCode码排序，原数组改变。从小到大 a-b，从到到小 b-a。
+9. `map(currentItem,index,array)`，原数组的每一项执行函数后，返回一个新的数组。原数组不变。
+10. `slice(start,end)`从`start`开始，`end`之前结束，不到`end`；如果不给`end`值，从`start`开始到数组结束。`start`可以给负值，-1表示数组最后位置，-2表示倒数第二个，以此类推，顾前不顾后。原数组不变。
+11. `splice(index,howmany,arr1,arr2...)` 删除元素并添加元素，从  `index` 位置开始删除  `howmany` 个元素，并将`arr1、arr2...`数据从`index`位置依次插入。`howmany` 为0时，则不删除元素。原数组改变。
+12. `forEach(item,callback)`，用于调用数组的每个元素，并将元素传递给回调函数。原数组不变。
+13. `filter(function)`，过滤数组中，符合条件的元素并返回一个新的数组。原数组不变。
+14. `every(function)`，对数组中的每一项进行判断，若都符合则返回true，否则返回false。原数组不变。
+15. `some(function)`，对数组中的每一项进行判断，若都不符合则返回false，否则返回true。原数组不变。
+16. `reduce(prev,cur,index,array)`，`reduce()` 方法接收一个函数作为累加器，数组中的每个值（从左到右）开始缩减，最终计算为一个值。原数组不变。
+
+## 或与非 || && ！
+
+逻辑非操作符也可以用于将一个值转换为与其对应的布尔值。而同时使用两个逻辑非操作符，实际上就会模拟`Boolean()`转型函数的行为。
+
+其中，第一个逻辑非操作会基于无论什么操作数返回一个布尔值，而第二个逻辑非操作则对该布尔值求反，于是就得到了这个值真正对应的布尔值。
+
+```js
+alert(!!"blue"); // true 
+alert(!!0); // false 
+alert(!!NaN); // false 
+alert(!!""); // false 
+alert(!!12345); // true 
+null == undefined; // true
+null === undefined; // false
+```
+
+## `try.catch` 简单介绍
+
+`dome`如下
+```js
+function foo (){
+    try {
+        return 0;
+    }catch(err){
+        console.error(err);
+    }finally{
+        console.log('finally');
+    }
+}
+
+// finally return 0;
+console.log(foo());
+```
+
+```js
+function foo (){
+    try {
+        return 0;
+    }catch(err){
+        console.error(err);
+    }finally{
+        return 'finally';
+    }
+}
+
+// finally 
+console.log(foo());
+```
+
+上述代码的执行结果是: `finally` 中的 `return` 覆盖了 `try` 中的 `return`。在一个函数中执行了两次 `return`,这已经超出了很多人的常识,也是其他语言中不会出现的一种行为。 
+
+产生上述执行结果的实质原因是背后运行的`Completion Record`机制。
+
+**Completion Record机制**
+
+
+表示一个语句执行完成之后的结果,它有3个字段:
+
+1. `type`: 表示完成的类型,有 `break`、`continue`、`return`、`throw` 和 `normal` 几种类型。
+
+2. `value`: 表示语句的返回值,如果语句没有返回值,则是 `empty`。
+
+3. `target`: 表示语句的目标,通常是一个 `javascript` 标签。
+
+`Javascript` 正是依靠语句的`CompletionRecord`类型才可以在语句的复杂嵌套结构中 ,实现各种控制。
+
+![base-js15](/images/base-js15.png)
+
+**普通语句**
+
+这些语句在执行时,从前到后顺次执行,没有任何分支或者重复执行逻辑。
+
+普通语句执行完成后,会得到`type`为`normal`的`Completion Record`, `javascript` 引擎遇到这样的记录就会执行下一条语句。
+
+这些语句中只有表达式语句会产生 `value` ,从引擎的角度,这个 `value` 并没有什么用处,这就像我们在 `Chrome` 的控制台调式工具中输入一个表达式是可以得到结果的,但是在表达式前面加上 `var`,就变成了 `undefined`。这也说明了 `Chrome` 控制台输出的是语句的 `Completion Record` 的`value`值。
+
+**语句块**
+
+
+语句块就是拿大括号括起来的一组语句,它是一种语句的复合结构,可以嵌套。
+
+在使用语句块的时候,我们需要注意的是语句块内部的`Completion Recordtype`如果不是`normal`的话,就会打断语句块后续的执行。
+
+**控制型语句**
+控制型语句带有 `if`、`switch` 关键字,它们会对不同类型的`Completion Record`产生反应。
+
+![base-js16.png](/images/base-js16.png)
+
+通过这个表我们发现,因为 `finally` 中的内容必须保证执行,所以`try/catch`执行完毕,即使得到的结果是非`normal`类型的完成记录,也必须要执行 `finally`。
+
+而当 `finally` 执行也得到了了非 `normal` 的记录,则会是 `finally` 中的记录作为整个 `try` 结构的结果。
+
+**带标签的语句**
+
+
+前文阐述了一些 `type` 在语句中的作用,接下来涉及到 `target`。
+
+实际上,任何 `javascript` 语句是可以加标签的,在语句前面加冒号即可:
+
+```js
+firstStatement: let a = 1;
+```
+大部分的时候,这个东西类似于注释,没有任何作用。唯一有作用的时候是: 与完成记录类型中的`target`相配合,用于跳出多层循环。
+
+```js
+outer: while(true){
+    inner: while(true){
+        break outer;
+    }
+}
+
+console.log('finished');
+```
+
+`break/continue` 语句如果后跟了关键字,会产生带`target`的完成记录。一旦完成记录带了`target`,那么只有拥有对应`label`的循环语句会消费它。
+
+::: tip TIP
+        
+总结:
+
+因为 `Javascript` 语句存在嵌套关系,所以只需过程实际上主要在一个树形结构上进行,树形结构的每一个节点执行后产生`Completion Record`,根据语句的结构和`Completion Record`,`Javascript` 实现了各种分支合跳出逻辑。
+:::
+
+
 
 
 
