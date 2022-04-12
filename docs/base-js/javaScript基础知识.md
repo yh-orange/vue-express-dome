@@ -2555,7 +2555,203 @@ alert(person.getName()); // "Greg"
  `JavaScript` 中的`函数表达式`和`闭包`都是极其有用的特性，利用它们可以实现很多功能。
  
  不过，因为创建闭包必须维护额外的作用域，所以过度使用它们可能会占用大量内存。
+ 
+ ## url编码方式
+ 
+ url编码方式主要有两种：
+ 
+ 1. `encodeURI()`主要用于整个 URI（例如，http://www.wrox.com/illegal value.htm）。
+ 2. `encodeURIComponent()`主要用于对 URI 中的某一段（例如前面 URI 中的 illegal value.htm）。
+ 
+ ::: tip TIP
 
+`encodeURI()`不会对本身属于 `URI` 的特殊字符进行编码，例如冒号、正斜杠、问号和井字号； `encodeURIComponent()`则会对它发现的任何非标准字符进行编码。 对应解码方式为`decodeURI()`与`decodeURIComponent()`。
+:::
+
+```js
+var uri = "http://www.wrox.com/illegal value.htm#start"; 
+// "http://www.wrox.com/illegal%20value.htm#start" 
+alert(encodeURI(uri)); 
+alert(decodeURI(uri)); // 解码 
+
+// "http%3A%2F%2Fwww.wrox.com%2Fillegal%20value.htm%23start" 
+alert(encodeURIComponent(uri));
+alert(decodeURIComponent(uri)); // 解码 
+```
+
+## Math对象
+
+### 常用方法
+
+* `min()`和` max()`方法
+
+```js
+var values = [1, 2, 3, 4, 5, 6, 7, 8]; 
+var max = Math.max.apply(Math, values);
+var min = Math.min.apply(Math, values);
+```
+
+* `Math.ceil()`执行向上舍入，即它总是将数值向上舍入为最接近的整数；
+
+* `Math.floor()`执行向下舍入，即它总是将数值向下舍入为最接近的整数；
+
+* `Math.round()`执行标准舍入，即它总是将数值四舍五入为最接近的整数。
+
+* `Math.random()`返回大于等于0小于1的一个随机数。
+
+* `Math.abs(num)`返回`num`的绝对值。
+
+* `Math.pow(num,power)` 返回 `num` 的 `power` 次幂。 // 可以用来解决小数精度丢失的问题或者是去小数点位数的处理
+
+```js
+// 返回指定区间的数
+function selectFrom(lowerValue, upperValue) { 
+    let choices = upperValue - lowerValue + 1; 
+    return Math.floor(Math.random() * choices + lowerValue); 
+} 
+const num = selectFrom(2, 10); 
+alert(num); // 介于 2 和 10 之间（包括 2 和 10）的一个数值
+```
+
+## 面向对象编程(oop重点)
+
+面向对象编程(`Object Orient Programming`)简称`OOP`，是一种编程技术。
+
+`JavaScript` 本身并没有类的概念，js中创建自定义对象的最简单方式就是创建一个 `Object` 的实例，然后再为它添加属性和方法，如下所示：
+
+```js
+var person = new Object(); 
+person.name = "Nicholas"; 
+person.age = 29; 
+person.job = "Software Engineer"; 
+person.sayName = function(){ 
+    alert(this.name); 
+};
+```
+
+早期的 `JavaScript` 开发人员经常使用这个模式创建新对象。几年后，对象字面量成为创建这种对象的首选模式。前面的例子用对象字面量语法可以写成这样：
+
+```js
+var person = { 
+ name: "Nicholas", 
+ age: 29, 
+ job: "Software Engineer", 
+ sayName: function(){ 
+ 	alert(this.name); 
+ } 
+};
+```
+*`ECMAScript`中有两种属性：`数据属性`和`访问器属性`*
+
+### 数据属性
+
+**数据属性包含一个数据值的位置。在这个位置可以读取和写入值。数据属性有 4 个描述其行为的特性：**
+
+1. `Configurable`：表示能否通过`delete`删除属性从而重新定义属性，能否修改属性的特性，或者能否把属性修改为访问器属性。直接在对象上定义的属性，它们的这个特性默认值为 `true`。
+2. `Enumerable`: 表示能否通过 `for-in` 循环返回属性。直接在对象上定义的属性，它们的这个特性默认值为 `true`。
+3. `Writable`：表示能否修改属性的值。直接在对象上定义的属性，它们的这个特性默认值为 `true`。
+4. `Value`:包含这个属性的数据值。读取属性值的时候，从这个位置读；写入属性值的时候，把新值保存在这个位置。这个特性的默认值为 `undefined`。
+
+:::warning WARNING
+
+要修改属性默认的特性，必须使用 `ECMAScript5` 的`Object.defineProperty()`方法。
+:::
+
+这个方法接收三个参数：`属性所在的对象`、`属性的名字`和`一个描述符对象`。
+
+其中，描述符对象的属性必须是：`configurable`、`enumerable`、`writable` 和 `value`。设置其中的一或多个值，可以修改对应的特性值。
+
+```js
+var person = {}; 
+Object.defineProperty(person, "name", { 
+ writable: false, 
+ value: "Nicholas" 
+}); 
+alert(person.name); // "Nicholas" 
+person.name = "Greg"; 
+alert(person.name); // "Nicholas"
+```
+
+### 访问器属性
+
+**访问器属性不包含数据值；它们包含一对儿 `getter` 和 `setter` 函数（不过，这两个函数都不是必需的）。**
+
+访问器属性有如下4个特性:
+
+1. `Configurable`：表示能否通过 `delete` 删除属性从而重新定义属性，能否修改属性的特性，或者能否把属性修改为数据属性。对于直接在对象上定义的属性，这个特性的默认值为true。
+2. `Enumerable`：表示能否通过 `for-in` 循环返回属性。对于直接在对象上定义的属性，这个特性的默认值为 `true`。
+3. `Get`：在读取属性时调用的函数。默认值为 `undefined`。
+4. `Set`：在写入属性时调用的函数。默认值为 `undefined`。
+
+::: warning WARNING
+
+访问器属性不能直接定义，必须使用`Object.defineProperty()`来定义。
+:::
+
+```js
+var book = { 
+    _year: 2004, 
+    edition: 1 
+}; 
+Object.defineProperty(book, "year", { 
+    get: function(){ 
+ 	    return this._year; 
+    }, 
+    set: function(newValue){ 
+	    if (newValue > 2004) { 
+		    this._year = newValue; 
+		    this.edition += newValue - 2004; 
+	    } 
+    } 
+}); 
+book.year = 2005; 
+alert(book.edition); //2
+```
+
+### 读取属性的特性
+
+使用 `ECMAScript5` 的 `Object.getOwnPropertyDescriptor()`方法，可以取得给定属性的描述符。
+
+这个方法接收两个参数：`属性所在的对象` 和 `要读取其描述符的属性名称`,返回值是一个对象。
+
+::: tip TIP
+
+如果是访问器属性，这个对象的属性有 `configurable`、`enumerable`、`get` 和 `set`。
+
+如果是数据属性，这个对象的属性有 `configurable`、`enumerable`、`writable` 和 `value`。
+:::
+```js
+var book = {}; 
+Object.defineProperties(book, { 
+    _year: { 
+ 	    value: 2004 
+    }, 
+    edition: { 
+ 	    value: 1 
+    }, 
+    year: { 
+	    get: function(){ 
+	 	    return this._year; 
+	    }, 
+	    set: function(newValue){ 
+		    if (newValue > 2004) { 
+		        this._year = newValue; 
+		        this.edition += newValue - 2004; 
+            } 
+        }
+    }
+}); 
+
+var descriptor = Object.getOwnPropertyDescriptor(book, "_year"); 
+alert(descriptor.value); // 2004 
+alert(descriptor.configurable); // false
+alert(typeof descriptor.get); // "undefined" 
+
+var descriptor = Object.getOwnPropertyDescriptor(book, "year"); 
+alert(descriptor.value); // undefined 
+alert(descriptor.enumerable); // false 
+alert(typeof descriptor.get); // "function"
+```
 
 
 
