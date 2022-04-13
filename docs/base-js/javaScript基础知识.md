@@ -3122,3 +3122,531 @@ friend.sayName(); // "Nicholas"
 **如前所述，由于函数没有签名，在 `ECMAScript` 中无法实现接口继承。`ECMAScript` 只支持实现继承，而且其实现继承主要是依靠原型链来实现的。
 
 1. **原型链继承**
+
+>其基本思想是利用原型让一个引用类型继承另一个引用类型的属性和方法。
+
+每个构造函数都有一个原型对象，原型对象都包含一个指向构造函数的指针，而实例都包含一个指向原型对象的内部指针。
+
+那么，假如我们让原型对象等于另一个类型的实例，结果会怎么样呢？
+
+显然，此时的原型对象将包含一个指向另一个原型的指针，相应地，另一个原型中也包含着一个指向另一个构造函数的指针。假如另一个原型又是另一个类型的实例，那么上述关系依然成立，如此层层递进，就构成了实例与原型的链条。这就是所谓原型链的基本概念。
+
+```js
+// parent
+function SuperType(){ 
+    this.property = true; 
+}
+
+SuperType.prototype.getSuperValue = function(){
+	return this.property;
+}
+// children
+function SubType(){
+	this.subproperty = false; 
+}
+
+SubType.prototype = new SuperType();
+SubType.prototype.getSubValue = function(){
+	return this.subproperty;
+}
+
+var instance = new SubType()
+alert(instance.getSuperValue()); // true
+alert(instance.getSubValue()); // false
+alert(instance instanceof SuperType); // true
+alert(instance.constructor); // SuperType
+
+```
+
+实际上，不是`SubType`的原型的`constructor`属性被重写了，而是`SubType`的原型指向了另一个对象——`SuperType`的原型，而这个原型对象的 `constructor` 属性指向的是 `SuperType`。
+
+关系图如下:
+
+![base-js30](/images/base-js30.png)
+
+事实上，前面例子中展示的原型链还少一环。我们知道，所有引用类型默认都继承了 `Object`，而这个继承也是通过原型链实现的。大家要记住，**所有函数的默认原型都是 `Object` 的实例**，因此默认原型都会包含一个内部指针，指向`Object.prototype`。这也正是所有自定义类型都会继承`toString()`、`valueOf()`等默认方法的根本原因。所以，我们说上面例子展示的原型链中还应该包括另外一个继承层次。
+
+
+![base-js31](/images/base-js31.png)
+
+还有一点需要提醒读者，**即在通过原型链实现继承时，不能使用对象字面量创建原型方法**。因为这样做就会重写原型链，如下面的例子所示:
+
+```js
+function SuperType(){ 
+    this.property = true; 
+} 
+SuperType.prototype.getSuperValue = function(){ 
+    return this.property; 
+}; 
+function SubType(){ 
+    this.subproperty = false; 
+} 
+//继承了 SuperType 
+SubType.prototype = new SuperType(); 
+//使用字面量添加新方法，会导致上一行代码无效
+SubType.prototype = { 
+ getSubValue : function (){ 
+    return this.subproperty; 
+ }, 
+ someOtherMethod : function (){ 
+    return false; 
+ } 
+}; 
+var instance = new SubType(); 
+alert(instance.getSuperValue()); //error!
+```
+
+:::warning WARNING
+
+原型链虽然很强大，可以用它来实现继承，但它也存在一些问题。
+
+其中，最主要的问题来自包含引用类型值的原型。想必大家还记得，我们前面介绍过包含引用类型值的原型属性会被所有实例共享。
+
+而这也正是为什么要在构造函数中，而不是在原型对象中定义属性的原因。在通过原型来实现继承时，原型实际上会变成另一个类型的实例。于是，原先的实例属性也就顺理成章地变成了现在的原型属性了。
+:::
+
+```js
+function SuperType(){ 
+    this.colors = ["red", "blue", "green"];
+} 
+function SubType(){ } 
+// 继承了 SuperType 
+SubType.prototype = new SuperType(); 
+var instance1 = new SubType(); 
+instance1.colors.push("black"); 
+alert(instance1.colors); //"red,blue,green,black" 
+var instance2 = new SubType(); 
+alert(instance2.colors); //"red,blue,green,black"
+```
+
+原型链的第二个问题是：**在创建子类型的实例时，不能向超类型的构造函数中传递参数**。
+
+实际上应该说是没有办法在不影响所有对象实例的情况下，给超类型的构造函数传递参数。有鉴于此，再加上前面刚刚讨论过的由于原型中包含引用类型值所带来的问题，实践中很少会单独使用原型链。
+
+2. **借用构造函数继承**
+
+>这种技术的基本思想相当简单，即在子类型构造函数的内部调用超类型构造函数。
+
+别忘了，函数只不过是在特定环境中执行代码的对象，因此通过使用 apply()和 call()方法也可以在（将来）新创建的对象上执行构造函数，如下所示：
+
+```js
+function SuperType(){ 
+ this.colors = ["red", "blue", "green"]; 
+} 
+function SubType(){ 
+ //继承了 SuperType 
+ SuperType.call(this); 
+} 
+var instance1 = new SubType(); 
+instance1.colors.push("black"); 
+alert(instance1.colors); //"red,blue,green,black" 
+var instance2 = new SubType(); 
+alert(instance2.colors); //"red,blue,green"
+```
+
+通过使用 `call()`方法（或 `apply()`方法也可以）修改this指向实例本身，避免公用原型数据，我们实际上是在（未来将要）新创建的 `SubType` 实例的环境下调用了 `SuperType` 构造函数。
+
+**这样一来，就会在新 `SubType` 对象上执行 `SuperType()`函数中定义的所有对象初始化代码。结果，`SubType` 的每个实例就都会具有自己的 `colors` 属性的副本了。**
+
+**传递参数**
+
+相对于原型链而言，借用构造函数有一个很大的优势，**即可以在子类型构造函数中向超类型构造函数传递参数**。看下面这个例子:
+
+```js
+function SuperType(name){ 
+    this.name = name; 
+} 
+function SubType(name, age){ 
+    // 继承了 SuperType，同时还传递了参数
+    SuperType.call(this, name); 
+    // 实例属性
+    this.age = age; 
+} 
+var instance = new SubType('yh', 18); 
+alert(instance.name); //"Nicholas"; 
+alert(instance.age); //29
+```
+
+**借用构造函数的问题**
+
+如果仅仅是借用构造函数，那么也将无法避免构造函数模式存在的问题——方法都在构造函数中定义，函数复用就无从谈起了。而且，在超类型的原型中定义的方法，对子类型而言也是不可见的，结果所有类型都只能使用构造函数模式。考虑到这些问题，借用构造函数的技术也是很少单独使用的。
+
+3. **组合继承**
+
+`组合继承（combination inheritance）`，有时候也叫做`伪经典继承`，指的是将原型链和借用构造函数的技术组合到一块，从而发挥二者之长的一种继承模式。
+
+>其背后的思路是使用原型链实现对原型属性和方法的继承，而通过借用构造函数来实现对实例属性的继承。
+
+这样，既通过在原型上定义方法实现了函数复用，又能够保证每个实例都有它自己的属性。下面来看一个例子:
+
+```js
+function SuperType(name){ 
+	this.name = name; 
+	this.colors = ["red", "blue", "green"]; 
+} 
+SuperType.prototype.sayName = function(){ 
+	alert(this.name);
+}
+function SubType(name, age){
+	// 继承属性
+	SuperType.call(this,name)
+	this.age = age
+}
+// 继承方法
+SubType.prototype = new SuperType();
+SubType.prototype.constructor = SubType;
+SubType.prototype.sayAge = function(){
+	alert(this.age);
+}
+
+var instance1 = new SubType("Nicholas", 29); 
+instance1.colors.push("black"); 
+alert(instance1.colors); //"red,blue,green,black" 
+instance1.sayName(); //"Nicholas"; 
+instance1.sayAge(); //29 
+var instance2 = new SubType("Greg", 27); 
+alert(instance2.colors); //"red,blue,green" 
+instance2.sayName(); //"Greg"; 
+instance2.sayAge(); //27
+```
+
+:::tip TIP
+
+组合继承避免了原型链和借用构造函数的缺陷，融合了它们的优点，成为JavaScript中最常用的继承模式。
+:::
+
+4. **原型式继承**
+
+>这种方法并没有使用严格意义上的构造函数。他的想法是借助原型可以基于已有的对象创建新对象，同时还不必因此创建自定义类型。
+
+```js
+function object(o){ 
+	function F(){} 
+	F.prototype = o; 
+	return new F(); 
+}
+```
+
+在`object()`函数内部，先创建了一个临时性的构造函数，然后将传入的对象作为这个构造函数的原型，最后返回了这个临时类型的一个新实例。从本质上讲，`object()`对传入其中的对象执行了一次浅复制。来看下面的例子:
+
+```js
+var person = {
+	name : "Nicholas",
+	frineds: ["Shelby", "court", "Van"]
+}
+
+var anotherPerson = object(person);
+anotherPerson.name = "Greg";
+anotherPerson.friends.push("Rob");
+
+var yetAnotherPerson = object(person);
+yetAnotherPerson.name = "Linda";
+yetAnotherPerson.friends.push("Barbie");
+
+alert(person.friends);// "Shelby,Court,Van,Rob,Barbie"
+```
+
+:::tip TIP
+
+`Object.create()`方法规范化了原型式继承。
+
+这个方法接收两个参数：一个用作新对象原型的对象和（可选的）一个为新对象定义额外属性的对象。在传入一个参数的情况下，`Object.create()`与 `object()`方法的行为相同。
+:::
+       
+5. **寄生式继承**
+
+>寄生式继承的思路与寄生构造函数和工厂模式类似，即创建一个仅用于封装继承过程的函数，该函数在内部以某种方式来增强对象，最后再像真地是它做了所有工作一样返回对象。
+
+```js
+function createAnother(original){
+	var clone = Object.create(original);
+	clone.sayHi = function(){
+		alert("Hi");
+	}
+	return clone
+}
+```
+
+在这个例子中，`createAnother()`函数接收了一个参数，也就是将要作为新对象基础的对象。然后，把这个对象（`original`）传递给 `object()`函数，将返回的结果赋值给 `clone`。再为 `clone` 对象添加一个新方法 `sayHi()`，最后返回 `clone` 对象。可以像下面这样来使用 `createAnother()`函数：
+       
+```js
+var person = { 
+    name: "Nicholas", 
+    friends: ["Shelby", "Court", "Van"] 
+}; 
+var anotherPerson = createAnother(person); 
+anotherPerson.sayHi(); //"hi"
+```
+
+6. **寄生组合式继承** 
+
+前面说过，组合继承是 `JavaScript` 最常用的继承模式；不过，它也有自己的不足。
+
+组合继承最大的问题就是**无论什么情况下，都会调用两次超类型构造函数**：一次是在创建子类型原型的时候，另一次是在子类型构造函数内部。没错，子类型最终会包含超类型对象的全部实例属性，但我们不得不在调用子类型构造函数时重写这些属性。
+
+>所谓`寄生组合式继承`，即通过借用构造函数来继承属性，通过原型链的混成形式来继承方法。其背后的基本思路是：不必为了指定子类型的原型而调用超类型的构造函数，我们所需要的无非就是超类型原型的一个副本而已。本质上，就是使用寄生式继承来继承超类型的原型，然后再将结果指定给子类型的原型
+
+```js
+function inheritPrototype(subType, superType){ 
+    var prototype = Object.create(superType.prototype); //创建对象
+    prototype.constructor = subType; //增强对象
+    subType.prototype = prototype; //指定对象
+}
+
+function SuperType(name){ 
+    this.name = name; 
+    this.colors = ["red", "blue", "green"]; 
+} 
+SuperType.prototype.sayName = function(){ 
+    alert(this.name); 
+}; 
+function SubType(name, age){ 
+    SuperType.call(this, name); 
+    this.age = age; 
+} 
+inheritPrototype(SubType, SuperType); 
+SubType.prototype.sayAge = function(){ 
+    alert(this.age); 
+};
+let person = new SubType('yh', 18);
+console.log(person)
+```
+
+这个例子的高效率体现在它只调用了一次`SuperType`构造函数，并且因此避免了在 `SubType.prototype` 上面创建不必要的、多余的属性。与此同时，原型链还能保持不变；因此，还能够正常使用`instanceof`和 `isPrototypeOf()`。开发人员普遍认为寄生组合式继承是引用类型最理想的继承范式。
+
+## 原型链
+
+`JavaScript` 中没有类的概念的，主要通过原型链来实现继承。通常情况下，继承意味着复制操作，然而 `JavaScript` 默认并不会复制对象的属性，相反，`JavaScript` 只是在两个对象之间创建一个关联（原型对象指针），这样，一个对象就可以通过委托访问另一个对象的属性和函数，所以与其叫继承，委托的说法反而更准确些。
+
+### 原型
+***
+
+>当我们 `new` 了一个新的对象实例，明明什么都没有做，就直接可以访问 `toString` 、`valueOf` 等原生方法。那么这些方法是从哪里来的呢？答案就是`原型`。
+
+![base-js32](/images/base-js32.png)
+
+在控制台打印一个空对象时，我们可以看到，有很多方法，已经`“初始化”`挂载在内置的 `__proto__` 对象上了。
+
+这个内置的 `__proto__` 是一个**指向原型对象的指针**，它会在创建一个新的引用类型对象时（显示或者隐式）自动创建，并挂载到新实例上。
+
+当我们尝试访问实例对象上的某一属性或者方法时，如果实例对象上有该属性或者方法时，就返回实例属性或者方法。
+
+如果没有，就去 `__proto__` 指向的原型对象上查找对应的属性或者方法。这就是为什么我们尝试访问空对象的 `toString` 和 `valueOf` 等方法依旧能访问到的原因，`JavaScript` `正是以这种方式为基础来实现继承的`。
+
+### 构造函数
+****
+
+如果说实例的 `__proto__` 只是一个指向原型对象的指针，那就说明在此之前原型对象就已经创建了，那么原型对象是什么时候被创建的呢？这就要引入`构造函数`的概念。
+
+其实构造函数也就只是一个普通的函数而已，如果这个函数可以使用 `new` 关键字来创建它的实例对象，那么我们就把这种函数称为 构造函数。
+
+原型对象正是在构造函数被声明时一同创建的。构造函数被申明时，原型对象也一同完成创建，然后挂载到构造函数的 `prototype` 属性上：
+
+![base-js33](/images/base-js33.png)
+
+原型对象被创建时，会自动生成一个 `constructor` 属性，指向创建它的构造函数。这样它俩的关系就被紧密地关联起来了。
+
+:::tip TIP
+
+细心的话，你可能会发现，原型对象也有自己的 `__proto__` ，这也不奇怪，毕竟万物皆对象嘛。
+
+原型对象的 `__proto__` 指向的是 `Object.prototype`。那么 `Object.prototype.__proto__` 存不存在呢？其实是不存在的，打印的话会发现是 `null` 。这也证明了 `Object` 是 `JavaScript` 中数据类型的起源。
+:::
+
+我们可以用一张图来表示这个关系：
+
+![base-js34](/images/base-js34.png)
+
+### 原型链
+***
+
+说完了原型，就可以来说说原型链了，如果理解了原型机制，原型链就很好解释了。其实上面一张图上，那条被 `__proto__` 链接起来的链式关系，就称为**原型链**。
+
+原型链的作用：原型链如此的重要的原因就在于它决定了 `JavaScript` 中继承的实现方式。当我们访问一个属性时，查找机制如下：
+
+* 访问对象实例属性，有则返回，没有就通过 `__proto__` 去它的原型对象查找。
+
+* 原型对象找到即返回，找不到，继续通过原型对象的 `__proto__` 查找。
+
+* 一层一层一直找到 `Object.prototype` ，如果找到目标属性即返回，找不到就返回 `undefined`，不会再往下找，因为在往下找 `__proto__` 就是 `null` 了。
+
+通过上面的解释，对于构造函数生成的实例，我们应该能了解它的原型对象了。`JavaScript` 中万物皆对象，那么构造函数肯定也是个对象，是对象就有 `__proto__` ，那么构造函数的 `__proto__` 是什么？
+
+通过上面的解释，对于构造函数生成的实例，我们应该能了解它的原型对象了。`JavaScript` 中万物皆对象，那么构造函数肯定也是个对象，是对象就有 `__proto__` ，那么构造函数的 `__proto__` 是什么？
+
+```js
+function Person () {}
+Person.prototype === Function.prototype // false
+Person.__proto__  === Function.__proto__ // true
+```
+
+这里需要注意的是: `Function.__proto__ === Function.prototype`。
+
+```js
+String.__proto__ === Function.prototype
+// true
+Number.__proto__ === Function.prototype
+// true
+Boolean.__proto__ === Function.prototype
+// true
+Array.__proto__ === Function.prototype
+// true
+Function.__proto__ === Function.prototype
+// true
+```
+
+至于为什么 `Function.__proto__` 等于 `Function.prototype` 有这么几种说法：
+
+1. 为了保持与其他函数保持一致。
+2. 为了说明一种关系，比如证明所有的函数都是 `Function` 的实例。
+3. 函数都是可以调用 `call`、`bind` 这些内置 `API` 的，这么写可以很好的保证函数实例能够使用这些 `API`。
+
+::: warning WARNING
+            
+**关于原型、原型链和构造函数有几点需要注意**：
+
+*  `__proto__` 是非标准属性，如果要访问一个对象的原型，建议使用 `ES6` 新增的 `Reflect.getPrototypeOf` 或者 `Object.getPrototypeOf()` 方法，而不是直接 `obj.__proto__`，因为非标准属性意味着未来可能直接会修改或者移除该属性。同理，当改变一个对象的原型时，最好也使用 `ES6` 提供的 `Reflect.setPrototypeOf` 或 `Object.setPrototypeOf`。
+```md
+let target = {};
+let newProto = {};
+Reflect.getPrototypeOf(target) === newProto; // false
+Reflect.setPrototypeOf(target, newProto);
+Reflect.getPrototypeOf(target) === newProto; // true
+```
+* 函数都会有 `prototype` ，除了 `Function.prototype.bind()` 之外。
+
+* 对象都会有 `__proto__` ，除了 `Object.prototype` 之外（其实它也是有的，之不过是 `null`）。
+
+* 所有函数都由 `Function` 创建而来，也就是说他们的` __proto__` 都等于 `Function.prototype`。
+
+* `Function.prototype` 等于 `Function.__proto__` 。
+:::
+
+### 原型污染
+***
+
+>原型污染是指：攻击者通过某种手段修改 `JavaScript` 对象的原型。
+
+举个例子,如果我们把 `Object.prototype.toString` 改成这样：
+
+```js
+Object.prototype.toString = function() {
+  alert("Hello World");
+};
+let obj = {};
+obj.toString();
+```
+
+那么当我们运行这段代码的时候浏览器就会弹出一个 `alert`，对象原生的 `toString` 方法被改写了，所有对象当调用 `toString` 时都会受到影响。
+
+你可能会说，怎么可能有人傻到在源码里写这种代码，这不是搬起石头砸自己的脚么？没错，没人会在源码里这么写，但是攻击者可能会通过表单或者修改请求内容等方式使用原型污染发起攻击，来看下面一种情况：
+
+```js
+"use strict";
+
+const express = require("express");
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+const path = require("path");
+
+const isObject = (obj) => obj && obj.constructor && obj.constructor === Object;
+
+function merge(a, b) {
+  for (var attr in b) {
+    if (isObject(a[attr]) && isObject(b[attr])) {
+      merge(a[attr], b[attr]);
+    } else {
+      a[attr] = b[attr];
+    }
+  }
+  return a;
+}
+
+function clone(a) {
+  return merge({}, a);
+}
+
+// Constants
+const PORT = 8080;
+const HOST = "0.0.0.0";
+const admin = {};
+
+// App
+const app = express();
+app.use(bodyParser.json());
+app.use(cookieParser());
+
+app.use("/", express.static(path.join(__dirname, "views")));
+app.post("/signup", (req, res) => {
+  var body = JSON.parse(JSON.stringify(req.body));
+  var copybody = clone(body);
+  if (copybody.name) {
+    res.cookie("name", copybody.name).json({
+      done: "cookie set",
+    });
+  } else {
+    res.json({
+      error: "cookie not set",
+    });
+  }
+});
+app.get("/getFlag", (req, res) => {
+  var аdmin = JSON.parse(JSON.stringify(req.cookies));
+  if (admin.аdmin == 1) {
+    res.send("hackim19{}");
+  } else {
+    res.send("You are not authorized");
+  }
+});
+app.listen(PORT, HOST);
+console.log(`Running on http://${HOST}:${PORT}`);
+```
+
+如果服务器中有上述的代码片段，攻击者只要将 `cookie` 设置成{`__proto__: {admin: 1}`} 就能完成系统的侵入。
+
+### 原型污染的解决方案
+***
+
+在看原型污染的解决方案之前，我们可以看下 `lodash` 团队之前解决原型污染问题的手法：
+
+![base-js35](/images/base-js35.png)
+***
+![base-js36](/images/base-js36.png)
+
+代码很简单，只要是碰到有 `constructor` 或者 `__proto__` 这样的敏感词汇，就直接退出执行了。这当然是一种防止原型污染的有效手段，当然我们还有其他手段：
+
+1. 使用 `Object.create(null)`， 方法创建一个原型为 `null` 的新对象，这样无论对 原型做怎样的扩展都不会生效：
+
+```js
+const obj = Object.create(null);
+obj.__proto__ = { hack: "污染原型的属性" };
+console.log(obj); // => {}
+console.log(obj.hack); // => undefined
+```
+
+2. 使用 `Object.freeze(obj)` 冻结指定对象，使之不能被修改属性，成为不可扩展对象：
+
+```js
+Object.freeze(Object.prototype);
+
+Object.prototype.toString = "evil";
+
+console.log(Object.prototype.toString);
+// => ƒ toString() { [native code] }
+```
+
+3. 建立 `JSON schema` ，在解析用户输入内容时，通过 `JSON schema` 过滤敏感键名。
+4. 规避不安全的递归性合并。这一点类似 `lodash` 修复手段，完善了合并操作的安全性，对敏感键名跳过处理。
+
+## form表单脚本
+***
+
+###表单的基础知识
+
+
+
+
+
+
+
+
