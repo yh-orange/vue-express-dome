@@ -4215,7 +4215,7 @@ console.log('script end');
 ```html
 <div ref="light" class="traffic-light" :class="[className]" />
 ```
-
+方法 1: 思路最简单,使用 `setTimeout` 来显示递归显示。
 ```js
 let that = this;
 
@@ -4235,23 +4235,397 @@ const fn = function() {
 fn();
 ```
 
+方法 2： `setTimeout` 与 `Promise` 结合,本质上没什么区别
+
+```js
+const fn = function() {
+  that.className = "green";
+  setTimeout(() => {
+    return new Promise((res, rej) => {
+      that.className = "yellow";
+      res(
+        setTimeout(() => {
+          return new Promise((res, rej) => {
+            that.className = "red";
+            setTimeout(() => {
+              res(fn());
+            }, 2000);
+          });
+        }, 1000)
+      );
+    });
+  }, 3000);
+};
+```
+
+## 深拷贝与浅拷贝
+
+众所周知，`基本类型` 赋值的话并不会影响原有对象，`Object` 是`引用数据类型`，存储在内存的`堆`中，浅拷贝只是拷贝了另一个对象的内存地址，所以在修改时会同时修改另一个对象，而深拷贝会开辟新的内存地址，所以不会影响另一个对象。
+
+* **基本数据类型的深拷贝** 
+JS对象分为基础类型和引用类型，基础类型(`Number`, `String`, `Boolean`…)直接存储于栈中，引用类型(`Object`…)栈中存储指向存储在堆中的对象的指针。
+
+弱引用：
+弱引用与强引用相对， 一个对象若只被弱引用所引用，则被认为是不可访问（或弱可访问）的，并因此可能在任何时刻被回收。
+因此使用弱引用可以防止内存泄漏。
+在 `JavaScript` 中弱引用的 `WeakMap` 和 `WeakSet`。
+WeakMap是一组键/值对的集合，其中的键是弱引用的。其键必须是对象，而值可以是任意的。WeakMap是对对象的弱引用：
+```js
+const wm = new WeakMap();
+let obj = { b: 2 };
+wm.set(obj, '2');
+obj = null; // 将obj置为 null 后，尽管 wm 依然引用了{ b: 2 }，但是由于是弱引用，{ b: 2 } 会在某一时刻被GC。
+```
+正由于这样的弱引用，`WeakMap` 的 `key` 是不可枚举的 (没有方法能给出所有的 `key`)。如果 `key` 是可枚举的话，其列表将会受垃圾回收机制的影响，从而得到不确定的结果。
+
+`JavaScript` 的 `WeakMap` **并不是真正意义上的弱引用**：实际上，只要键仍然存活，它就强引用其内容。`WeakMap` 仅在键被垃圾回收之后，才弱引用它的内容。这种关系更准确地称为 `ephemeron` 。
 
 
+强引用：
+`JavaScript` 中最常见的就是声明一个变量并且将一个引用类型数据（对象）赋值给这个变量,这种情况就是强引用。只要该对象还被引用，垃圾回收机制GC就不会回收该对象或者属性。
+对于一个普通对象，将全部引用该对象的变量关系相应设置为 `null`,便能等待垃圾回收机制GC回收。
 
+`Map` 对象保存键值对，并且能够记住键的原始插入顺序。任何值(对象或者原始值) 都可以作为一个键或一个值。
+```js
+let obj = {
+    name: "江流儿",
+    age: 18
+}
+obj = null;//上面的对象等待GC垃圾回收
 
+const m = new Map();
+let obj = { a: 1 };
+m.set(obj, 'a');
+obj = null; // 将obj置为null并不会使 { a: 1 } 被垃圾回收，因为还有map引用了 { a: 1 }
+```
 
+***
 
+```js
+let a = 1;
+let b = a;
 
+b = 2;
+// a:1, b:2
+```
 
+* **一维数组和一维对象的深拷贝**
+`Object.assign()`方法用于对象的合并，将源对象（`source`）的所有可枚举属性，复制到目标对象（`target`）
 
+```js
+const arr1 = [1, 2, 3];
+const arr2 = arr1
+const arr3 = arr1.slice(0)
 
+arr2[1] = 4
+// arr1:[1,4,3] arr2:[1,4,3]
+arr3[1] = 5
+// arr1:[1,4,3] arr2:[1,4,3] arr3:[1,5,3]
+// Array.slice(),Array.concat()都能实现一维数组的深拷贝
 
+const obj1 = {
+    'name':'xm',
+    'age':24
+}
 
+const obj2 = Object.assign({},obj1);
+obj2.name = 'dm';
 
+/**
+ * obj1 = {
+ *  'name':'xm',
+ *  'age':24
+ * }
+ * 
+ * obj2 = {
+ *  'name':'dm',
+ *  'age':24
+ * }
+ * Object.assign()可以实现一维对象的深拷贝
+ */
 
+const fobj1 = {
+    'id':1,
+    'name':{
+        'firstName':'Bruce',
+        'lastName':'Li'
+    }
+}
 
+const fobj2 = Object.assign({}, fobj1)
 
+fobj2['name']['lastName'] = 'Hu'
+// fobj2 = fobj1 
+// Object.assign()如果对象内部仍然存在对象的话 不能进行深拷贝
+```
 
+**实现深拷贝**
+
+1. 采用 `JSON.stringify()` 和 `JSON.parse()` 实现
+
+```js
+function deepClone(obj){
+    let newObj = obj.constructor === Array ? [] : {};
+    if(typeof obj !== 'object'){
+        return obj
+    }
+    if(window.JSON){
+        newObj = JSON.parse(JSON.stringify(obj);
+    }
+    return newObj
+}
+```
+
+::: warning WARNING
+
+`JSON.parse(JSON.stringify(obj))`方法在序列化过程中，`undefined`、`function`、`symbol` 等值在序列化过程中会被忽略(出现在非数组对象的属性中时)或者被转换成null(出现在数组中)。
+:::
+
+```js
+let obj1 = {
+    x:[1, undefined, Symbol('3310')],
+    y:undefined,
+    z:function(){
+        console.log(111)
+    },
+    a:Symbol('11111')
+};
+
+const obj2 = JSON.parse(JSON.stringify(obj1))
+
+// obj2: { x: [1, null, null] }
+```
+虽然使用 `JSON` 相关方法的深拷贝不能解决这些问题，但是也可以适用绝大部分`90%`的场景。
+
+2. 递归深拷贝
+
+如果是浅拷贝的话，我们可以很容易写出下面的代码：
+
+````js
+// 创建一个新的对象，遍历需要克隆的对象，将需要克隆对象的属性依次添加到新对象上，返回。
+function clone(target) {
+    let cloneTarget = {};
+    for (const key in target) {
+        cloneTarget[key] = target[key];
+    }
+    return cloneTarget;
+};
+````
+
+如果是`深拷贝`的话，考虑到我们要拷贝的对象是不知道有多少层深度的，我们可以用递归来解决问题，稍微改写上面的代码：
+
+* 如果是`原始类型`，无需继续拷贝，直接返回。
+
+* 如果是`引用类型`，创建一个新的对象，遍历需要克隆的对象，将需要克隆对象的属性执行深拷贝后依次添加到新对象上。
+
+很容易理解，如果有更深层次的对象可以继续递归直到属性为原始类型，这样我们就完成了一个最简单的深拷贝：
+
+```js
+function deepClone(target) {
+    if (typeof target === 'object') {
+        let cloneTarget = Array.isArray(target) ? [] : {};
+        for (const key in target) {
+            cloneTarget[key] = deepClone(target[key]);
+        }
+        return cloneTarget;
+    } else {
+        return target;
+    }
+};
+```
+
+上述代码可以解决常用的95%场景,但是在对象循环引用自身的时候还是会报错。我们来看下面这个测试用例:
+
+```js
+function deepClone(target) {
+    if (typeof target === 'object') {
+        let cloneTarget = Array.isArray(target) ? [] : {};
+        for (const key in target) {
+            cloneTarget[key] = deepClone(target[key]);
+        }
+        return cloneTarget;
+    } else {
+        return target;
+    }
+};
+const target = {
+    field1: 1,
+    field2: undefined,
+    field3: {
+        child: 'child'
+    },
+    field4: [2, 4, 8]
+};
+target.target = target
+const obj = deepClone(target)
+```
+
+**由于上面的对象存在循环引用的情况，即对象的属性间接或直接的引用了自身的情况,递归进入死循环导致栈内存溢出了.**
+
+:::tip TIP
+
+解决循环引用问题，我们可以额外开辟一个存储空间，来存储当前对象和拷贝对象的对应关系，当需要拷贝当前对象时，先去存储空间中找，有没有拷贝过这个对象，如果有的话直接返回，如果没有的话继续拷贝，这样就巧妙化解的循环引用的问题。
+:::
+
+这个存储空间，需要可以存储key-value形式的数据，且key可以是一个引用类型，我们可以选择Map这种数据结构：
+
+1. 检查map中有无克隆过的对象
+2. 有 - 直接返回
+3. 没有 - 将当前对象作为key，克隆对象作为value进行存储
+4. 继续克隆
+
+因此我们的代码可以修改为:
+
+```js
+function deepClone(target, map = new Map()) {
+    if (typeof target === 'object') {
+        let cloneTarget = Array.isArray(target) ? [] : {};
+        if (map.get(target)) {
+            return map.get(target);
+        }
+        map.set(target, cloneTarget);
+        for (const key in target) {
+            cloneTarget[key] = deepClone(target[key], map);
+        }
+        return cloneTarget;
+    } else {
+        return target;
+    }
+};
+```
+
+修改后执行成功,此时obj2中的target变为了一个 `Circular` 类型，即循环应用的意思。
+
+上述代码中我们使用Map来存储循环引用的对象,实际上浪费了一部分的空间,现在我们优化下上述代码,将 `Map` 改成 `WeakMap`。
+
+```js
+function deepClone(target, map = new WeakMap()) {
+    if (typeof target === 'object') {
+        let cloneTarget = Array.isArray(target) ? [] : {};
+        if (map.get(target)) {
+            return map.get(target);
+        }
+        map.set(target, cloneTarget);
+        for (const key in target) {
+            cloneTarget[key] = deepClone(target[key], map);
+        }
+        return cloneTarget;
+    } else {
+        return target;
+    }
+};
+```
+
+当我们创建一个对象时：`const obj = {}`，就默认创建了一个强引用的对象，我们只有手动将 `obj = null`，它才会被`垃圾回收机制`进行回收，如果是 `弱引用对象`，垃圾回收机制会自动帮我们回收。
+
+```js
+let obj = { name : 'Linda'}
+const target = new Map();
+target.set(obj,'Hello I am Linda');
+obj = null;
+```
+
+虽然我们手动将 `obj`，进行释放，但是 `target` 依然对 `obj` 存在强引用关系，所以这部分内存依然无法被释放。
+
+如果是 `WeakMap` 的话，`target` 和 `obj` 存在的就是`弱引用关系`，当下一次垃圾回收机制执行时，这块内存就会被释放掉。
+
+::: tip TIP
+
+因此,我们在进行深拷贝的时候,我们只是在拷贝过程中使用到了该对象,等拷贝结束后就可以进行回收。
+
+设想一下，如果我们要拷贝的对象非常庞大时，使用 `Map` 会对内存造成非常大的额外消耗，而且我们需要手动清除 `Map` 的属性才能释放这块内存，而WeakMap会帮我们巧妙化解这个问题。
+:::
+
+到这里为止我们已经可以完成对数组和对象的深拷贝了,但是上述方法中我们使用到了for...in...循环,它的执行效率是比较低的。
+
+在 `for循环`、`while循环`、`for-in`循环中,`while` 循环的效率是最高的。我们先实现个自定义循环方法。
+
+```js
+/**
+ * @param {array} array 需要循环的数组
+ * @param {function} iteratee 遍历的回调函数
+*/
+function forEach(array, iteratee) {
+    let index = -1;
+    const length = array.length;
+    while (++index < length) {
+        iteratee(array[index], index);
+    }
+    return array;
+}
+```
+
+代替方式如下
+
+```js
+function deepClone(target, map = new WeakMap()) {
+    if (typeof target === 'object') {
+        const isArray = Array.isArray(target);
+        let cloneTarget = isArray ? [] : {};
+
+        if (map.get(target)) {
+            return map.get(target);
+        }
+        map.set(target, cloneTarget);
+
+        const keys = isArray ? undefined : Object.keys(target);
+        forEach(keys || target, (value, key) => {
+            if (keys) {
+                key = value;
+            }
+            cloneTarget[key] = deepClone(target[key], map);
+        });
+
+        return cloneTarget;
+    } else {
+        return target;
+    }
+}
+```
+
+到此我们已经完成了对普通的`object`和`array`两种数据类型的深拷贝方法并且进行了性能调优。
+
+3. 使用 `loadsh` 插件
+
+```js
+function deepClone(obj) {
+  var copy;
+
+  if (null == obj || "object" != typeof obj) return obj;
+
+  if (obj instanceof Date) {
+    copy = new Date();
+    copy.setTime(obj.getTime());
+    return copy;
+  }
+
+  if (obj instanceof Array) {
+    copy = [];
+    for (var i = 0, len = obj.length; i < len; i++) {
+        copy[i] = deepClone(obj[i]);
+    }
+    return copy;
+  }
+
+  if (obj instanceof Function) {
+    copy = function() {
+      return obj.apply(this, arguments);
+    }
+    return copy;
+  }
+
+  if (obj instanceof Object) {
+      copy = {};
+      for (var attr in obj) {
+          if (obj.hasOwnProperty(attr)) copy[attr] = deepClone(obj[attr]);
+      }
+      return copy;
+  }
+
+  throw new Error("Unable to copy obj as type isn't supported " + obj.constructor.name);
+}
+
+```
 
 
 
