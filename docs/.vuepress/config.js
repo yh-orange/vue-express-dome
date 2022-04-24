@@ -11,7 +11,7 @@ module.exports = {
         extractHeaders: [ 'h2', 'h3', 'h4','h5','h6' ],
         lineNumbers: true // 代码块是否显示行号
     },
-    plugins: [['vuepress-plugin-code-copy', {
+    plugins: ['cursor-effects',['vuepress-plugin-code-copy', {
         align: 'bottom', // top 和 bottom
         staticIcon: true,
         successText: '复制成功'
@@ -60,7 +60,8 @@ module.exports = {
                     children:[
                         { title: '文档对象模型', path: '/base-js/文档对象模型'},
                         { title: '浏览器对象', path: '/base-js/浏览器对象' },
-                        { title: 'javaScript基础知识', path: '/base-js/javaScript基础知识' }
+                        { title: 'javaScript基础知识', path: '/base-js/javaScript基础知识' },
+                        { title: 'ES6-ES12特性总结', path: '/base-js/ES6-ES12特性总结' }
                         // { title: '第三节', path: '/study/study03' }
                         // '/base-js/javaScript基础知识',
                         // '/base-js/javaScript基础知识',
