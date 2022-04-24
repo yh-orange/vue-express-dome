@@ -47,7 +47,7 @@ module.exports = {
             {text: '随笔', link: '/informal-essay/'},
             {text: 'vue3', link: '/vue3-base/'},
             {text: 'Markdown', link: '/md-study-note/'},
-            {text: '自己的网站', link: 'http://120.77.15.133'},
+            // {text: '自己的网站', link: 'http://120.77.15.133'},
             {text: 'TimeLine', link: '/timeline/', icon: 'reco-date'}
         ],
         displayAllHeaders: true, // 默认值：false

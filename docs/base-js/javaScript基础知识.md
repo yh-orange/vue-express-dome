@@ -5723,6 +5723,765 @@ axios.get('/user/12345', {
 })
 ```
 
+## 节流与防抖
+
+>在前端开发的过程中，我们经常会需要绑定一些持续触发的事件，如 resize、scroll、mousemove、touchmove 等等，但有些时候我们并不希望在事件持续触发的过程中那么频繁地去执行函数。这时候就用到防抖与节流。
+ 
+ **函数防抖（`debounce`）：**
+
+>给一个固定时间例如5s，如果触发动作后，并且在这个固定时间内不再触发，那么就执行相应的回调，否则会重新开始计时。
+
+**防抖应用场景**
+
+1. 搜索框输入查询，如果用户一直在输入中，没有必要不停地调用去请求服务端接口，等用户停止输入的时候，再调用，设置一个合适的时间间隔，有效减轻服务端压力。
+
+2. 表单验证。
+
+3. 按钮提交事件。
+
+4. 浏览器窗口缩放，`resize` 事件(如窗口停止改变大小之后重新计算布局)等。
+
+**防抖(非立即执行版)**
+
+```js
+// 非立即执行版的意思是触发事件后函数不会立即执行，而是在 n 秒后执行
+// 如果在 n 秒内又触发了事件，则会重新计算函数执行时间。
+function debounce(func, delay){
+    let timer = null;
+    return function(){
+        let context = this;
+        let args = arguments;
+        if(timer){
+            clearTimeout(timer)
+        }
+        timer = setTimeout(()=>{
+            func.apply(context, args)
+        }, delay)
+    }     
+}
+```
+
+**防抖(立即执行版)**
+
+```js
+// 立即执行版的意思是触发事件后函数会立即执行，然后 n 秒内不触发事件才能继续执行函数的效果
+function debounce(func, delay){
+    let timer = null;
+    return function () {
+        let context = this;
+        let args = arguments;
+        if (timer) {
+            clearTimeout(timer);
+        }
+        let callNow = !timer;
+        timer = setTimeout(() => {
+            timer = null;
+        }, delay)
+        if (callNow) func.apply(context, args)
+    }
+}
+```
+
+**函数节流(`throttle`)**
+
+>规定在一个指定时间内，函数只会触发一次。如果在这个时间内多次触发调用函数的事件，只有一次会生效。
+
+**函数节流应用场景**
+
+1. 按钮点击事件
+
+2. 拖拽事件
+
+3. `onScoll` 事件
+
+4. 计算鼠标移动的距离(`mousemove`)
+
+::tip TIP
+
+函数节流主要有两种实现方法：时间戳和定时器
+:::
+
+**函数节流时间戳版**
+
+```js
+function throttle(func, delay) {
+    let previous = 0;
+    return function() {
+        let now = Date.now();
+        let context = this;
+        let args = arguments;
+        if (now - previous > delay) {
+            func.apply(context, args);
+            previous = now;
+        }
+    }
+}
+```
+
+**函数节流定时器版**
+
+```js
+function throttle(func, delay) {
+    let timer = null;
+    return function() {
+        let context = this;
+        let args = arguments;
+        if (!timer) {
+            timer = setTimeout(() => {
+                timer = null;
+                func.apply(context, args)
+            }, delay)
+        }
+    }
+}
+```
+
+**总结**
+
+* `函数防抖`：将几次操作合并为一此操作进行。原理是维护一个计时器，规定在delay时间后触发函数，但是在delay时间内再次触发的话，就会取消之前的计时器而重新设置。这样一来，只有最后一次操作能被触发。
+
+* `函数节流`：使得一定时间内只触发一次函数。原理是通过判断是否到达一定时间来触发函数。
+
+**区别：**
+
+函数节流不管事件触发有多频繁，都会保证在规定时间内一定会执行一次真正的事件处理函数，而函数防抖只是在最后一次事件后才触发一次函数。 比如在页面的无限加载场景下，我们需要用户在滚动页面时，每隔一段时间发一次 Ajax 请求，而不是在用户停下滚动页面操作时才去请求数据。这样的场景，就适合用节流技术来实现。
+
+## 观察者模式
+
+**简单的观察者模式**
+
+```js
+class EventEmitter (){
+    constructor(){
+        this.maxListener = 20;
+        this.observes = {};
+    }
+
+    on(name, fn){
+        if(this.observes[name]){
+            this.observes[name].push(fn);
+            return this;
+        }
+
+        this.observes[name] = [fn];
+        return this;
+    }
+
+    emit(name, ...args){
+        this.observes[name].forEach(fn=> fn(...args));
+        return this;
+    }
+}
+
+let eventEmitter = new EventEmitter();
+
+```
+
+**使用观察者模式实现**
+
+```js
+function create(fn){
+    let ret = false;
+    return ({ next, complete, error }) => {
+        function nextFn(...args){
+            if (ret) {
+                return ;
+            }
+            next(...args);
+        }
+
+        function completeFn(...args){
+            complete(...args);
+            ret = true;
+        }
+
+        function errorFn(...args){
+            error(...args);
+        }
+
+        fn({
+            next: nextFn,
+            complete: completeFn,
+            error: errorFn
+        })
+
+        return () => (ret = true);
+    }
+}
+
+let observerable = create(observer => {
+    setTimeout(()=>{
+        observer.next(1);
+    }, 1000);
+    observer.next(2);
+    observer.complete(3);
+});
+
+const subject = {
+    next: value => {
+        console.log(value);
+    }
+    complete: console.log,
+    error: console.error
+}
+
+let unsubscribe = observerable(subject);// 2 3
+```
+
+## target和currentTarget的区别
+
+:::tip TIP
+
+* `target` 表示的是当前触发事件的`DOM元素`(事件触发的目标)。
+
+* `currentTarget` 表示引用事件侦听器正在侦听的`DOM元素`(事件的真实注册者)。
+:::
+
+```html
+<ul class="todo-list">
+  <li class="item">Walk your dog</li>
+</ul>
+```
+
+```js
+const list = document.querySelector(".todo-list");
+
+list.addEventListener("click", e => {
+  console.log(e.target);
+  // Output: <li class="item">Walk your dog</li>
+  console.log(e.currentTarget);
+  // Output: <ul class="todo-list"></ul>
+});
+```
+
+上述例子中,我们点击了`li`然后冒泡到`ul`上,触发了`ul`上绑定的事件,这个触发上事件事件的触发目标是`li(target)`,而事件是监听在`ul(currentTarget)`上的。
+
+## `async` 错误捕获
+
+`async/await`很好用，帮助我们用同步的方式去处理异步请求,虽然它仅仅是 `Promise` 的语法糖。在`Promise`中处理错误很容易，使用 `catch` 即可，如：
+
+```js
+function task() {
+  return Promise1()
+    .then((res) => {
+      Promise2(res)
+        .then()
+        .catch(() => "promise2 error");
+    })
+    .catch(() => "promise1 error");
+}
+```
+
+但是，在`async`怎么处理错误呢?
+
+```js
+async function task() {
+  const res1 = await fetch1();
+  const res2 = await fetch2(res1);
+
+  return res2;
+}
+```
+我们总结后有如下几种处理方式:
+
+**集中处理**
+
+1. 在调用的地方处理
+
+```js
+async function task() {
+  const res1 = await fetch1();
+  const res2 = await fetch2(res1);
+
+  return res2;
+}
+task().catch(() => {
+  console.log("fetch error");
+});
+```
+
+::: tip TIP
+
+使用该种方式处理的话,处理起来是比较方便的,异常处理逻辑和请求逻辑进行了拆分,但是这种方式不利于我们排查错误,只要 `promise` 发生了异常,就都会被 `catch` 到,但是我们不知道是哪个请求报错异常,难道我们还要去维护每个请求的 `error` 信息?
+
+我们试着使用 `try {} catch {}`的方式去处理。
+:::
+
+2. 使用 `try catch`
+
+```js
+async function task() {
+  try {
+    const res1 = await fetch1();
+    const res2 = await fetch2(res1);
+
+    return res2;
+  } catch (e) {
+    console.log("fetch error");
+
+    return "error";
+  }
+}
+```
+
+:::tip TIP
+
+统一处理方式下的 `try-catch` 方式与在调用的方式 `catch` 无太大的异常都无法解决定位错误信息的问题。
+
+单独处理
+:::
+
+**单独处理**
+
+1. 使用 try catch 单独处理
+
+```js
+async function task() {
+  let res1, res2;
+
+  try {
+    res1 = await fetch1();
+  } catch (e) {
+    console.log("fetch1 error");
+  }
+
+  try {
+    res2 = await fetch2(res1);
+  } catch (e) {
+    console.log("fetch2 error");
+  }
+}
+```
+
+:::tip TIP
+
+使用单独的 `try-catch` 可以解决上述的定位问题,但是假如我们的请求比较多,篇幅就会很长，代码不美观、不优雅。
+
+是否还有更加优雅的处理方式呢?
+:::
+
+2. 使用 `Promise` 处理 `async` 异常
+
+```js
+async function task() {
+  const res1 = await fetch1()
+    .then((res) => res)
+    .catch((err) => err);
+  const res2 = await fetch2(res1)
+    .then((res) => res)
+    .catch((err) => err);
+
+  return res2;
+}
+```
+
+然后我们把抛出的异常再处理一下:
+
+```js
+async function task() {
+  const [err1, res1] = await fetch1()
+    .then((res) => [null, res])
+    .catch((err) => [err, null]);
+
+  if (err1) {
+    return "fetch1 error" + err1;
+  }
+
+  const [err2, res2] = await fetch2(res1)
+    .then((res) => [null, res])
+    .catch((err) => [err, null]);
+
+  if (err2) {
+    return "fetch2 error" + err2;
+  }
+
+  return res2;
+}
+```
+
+这样我们就可以把错误信息和正确返回的数据都进行了处理,但是如果每个请求都这样去写的话,代码量和可阅读性就不高了。是的,通用的方法我们可以进行封装,于是又有了下面的版本:
+
+```js
+function asyncPromise(promise) {
+  if (!promise || !Promise.prototype.isPrototypeOf(promise)) {
+    return new Promise((res, rej) => {
+      rej(new Error("参数必须是 promise"));
+    }).catch((err) => {
+      return [err, null];
+    });
+  }
+
+  return promise
+    .then((data) => {
+      return [null, data];
+    })
+    .catch((err) => {
+      return [err, null];
+    });
+}
+
+async function task() {
+  const [err1, res1] = await asyncPromise(fetch1());
+
+  if (err1) {
+    return "fetch1 error" + err1;
+  }
+
+  const [err2, res2] = await asyncPromise(fetch2(res1));
+
+  if (err2) {
+    return "fetch2 error" + err2;
+  }
+
+  return res2;
+}
+```
+
+## 空值合并运算符 ??
+
+> 空值合并运算符（`nullish coalescing operator`）的写法为两个问号 ??。
+
+:::tip TIP
+
+本文中，我们将值既不是 `null` 也不是 `undefined` 的表达式称为已定义的（`defined`）。
+:::
+我们来看看执行的结果，`a ?? b` 的结果是：
+
+如果 `a` 是已定义的，则结果为 `a`。
+如果 `a` 不是已定义的，则结果为 `b`。
+换句话说也就是,如果第一个参数不是 `null`、`undefined`，则 ?? 返回第一个参数。否则，返回第二个参数。
+
+换做以前的写法也就是:
+
+```js
+result = a !== null && a !== undefined ? a : b;
+```
+
+**使用场景**
+
+通常 ?? 的使用场景是，为可能是未定义的变量提供一个默认值。
+
+比如，由于 user 没有定义赋值一个默认值。
+
+```js
+(function() {
+  let user;
+
+  return user ?? "Jack"; // Jack
+})();
+```
+
+当然，如果 `user` 的值为除 `null`、`undefined` 外的任意值，那么我们看到的将是它：
+
+```js
+(function() {
+  let user = "";
+
+  return user ?? "Jack"; // 空字符串
+})();
+```
+
+**与 `||` 运算符 比较**
+
+某些场景下或运算符 `||` 可以以与 `??` 运算符相同的方式使用。
+
+```js
+(function() {
+  let user;
+
+  return user || "Jack"; // Jack
+})();
+```
+**但是它们之间重要的区别是：**
+
+* || 返回第一个 真 值。会根据数据真假进行判断，布尔的隐式转换
+
+* ?? 返回第一个 已定义的 值。
+
+:::tip TIP
+
+换句话说，`||` 无法区分 `false`、`0`、`空字符串`, `""` 和 `null`、`undefined`。它们都一样 —— 假值（`falsy values`）。如果其中任何一个是 `||` 的第一个参数，那么我们将得到第二个参数作为结果。
+
+不过在实际中，我们可能只想在变量的值为 `null`、`undefined` 时使用默认值。也就是说，当该值确实未知或未被设置时。
+:::
+
+**优先级**
+
+`??` 运算符的优先级相当低：在 `MDN table` 中为 5。因此，`??` 在 `=` 和 `?` 之前计算，但在大多数其他运算符（例如，`+` 和 `*`）之后计算。
+
+因此，如果我们需要在还有其他运算符的表达式中使用 `??` 进行取值，需要考虑加括号：
+
+```js
+let height = null;
+let width = null;
+
+// 重要：使用括号
+let area = (height ?? 100) * (width ?? 50);
+
+alert(area); // 5000
+```
+
+否则，如果我们省略了括号，则由于 `*` 的优先级比 `??` 高，它会先执行，进而导致错误的结果。
+
+```js
+// 没有括号
+let area = height ?? 100 * width ?? 50;
+
+// ……与下面这行代码的计算方式相同（应该不是我们所期望的）：
+let area = height ?? `(100 * width)` ?? 50;
+```
+
+**`??` 与 `&&` 或 `||` 一起使用**
+
+出于安全原因，`JavaScript` 禁止将 `??` 运算符与 `&&` 和 `||` 运算符一起使用，除非使用括号明确指定了优先级。
+
+```js
+let x = 1 && 2 ?? 3; // Syntax error
+```
+
+这个限制无疑是值得商榷的，但它被添加到语言规范中是为了避免人们从 `||` 切换到 `??` 时的编程错误。
+
+可以明确地使用括号来解决这个问题：
+
+```js
+let x = (1 && 2) ?? 3; // 正常工作了
+
+alert(x); // 2
+```
+
+**总结**
+
+* 空值合并运算符 `??` 提供了一种从列表中选择第一个已定义的值的简便方式。
+  
+  它被用于为变量分配默认值：
+
+```js
+// 当 height 的值为 null 或 undefined 时，将 height 的值设置为 100
+height = height ?? 100;
+```
+
+* `??` 运算符的优先级非常低，仅略高于 `?` 和 `=`，因此在表达式中使用它时请考虑添加括号。
+ 
+* 如果没有明确添加括号，不能将其与 `||` 或 && 一起使用。
+
+## JSON数据处理
+
+**JSON.stringify**
+
+>用于将 `JavaScript` 值转换为 JSON 字符串。
+
+```js
+JSON.stringify(value[, replacer[, space]])
+```
+
+* `value`：（必传)。 待转换的值。
+* `replacer`：（可选)。用于转换结果的函数或数组。
+1. 如果该参数是一个函数，则在序列化过程中，被序列化的值的每个属性都会经过该函数的转换和处理；
+2. 如果该参数是一个数组，则只有包含在这个数组中的属性名才会被序列化到最终的 JSON 字符串中；
+3. 如果该参数为 null 或者未提供，则对象所有的属性都会被序列化。
+* `space`：（可选)。指定缩进用的空白字符串，用于美化输出（pretty-print）。
+1. 如果参数是个数字，它代表有多少的空格；上限为10。
+2. 该值若小于1，则意味着没有空格；
+3. 如果该参数为字符串（当字符串长度超过10个字母，取其前10个字母），该字符串将被作为空格；
+4. 如果该参数没有提供（或者为 null），将没有空格。
+
+**基本使用**
+
+```js
+// 1. 用来转化对象
+const obj = {
+    key: 1,
+    value: 22,
+};
+
+JSON.stringify(obj); // '{"key":1,"value":22}'
+
+// 2. 用来转化基本类型
+const num = 1;
+const str = 'hello';
+const none = null;
+const un = undefined;
+const flag = true;
+const sym = Symbol(11);
+const big = BigInt(10);
+
+JSON.stringify(num); // '1' 
+JSON.stringify(str); // 'hello'
+JSON.stringify(none); // 'null'
+JSON.stringify(un);   // undefined
+JSON.stringify(flag); // 'true'
+JSON.stringify(sym); // undefined
+JSON.stringify(big); // Uncaught TypeError: Do not know how to serialize a BigInt at JSON.stringify
+```
+
+使用自定义 `replacer`
+
+```js
+const obj = {
+    key: 1,
+    value: 22,
+    label: undefined,
+    label2: null,
+};
+
+// 1. 如果该参数是一个函数，则在序列化过程中，被序列化的值的每个属性都会经过该函数的转换和处理；
+JSON.stringify(obj, (key, value) => {
+  return typeof value === 'number' ? undefined : value
+}); // '{}'
+
+// 2. 如果该参数是一个数组，则只有包含在这个数组中的属性名才会被序列化到最终的 JSON 字符串中；
+JSON.stringify(obj, ['value']); // '{"value":22}'
+
+// 3. 如果该参数为 `null` 或者未提供，则对象所有的属性都会被序列化。
+JSON.stringify(obj, null); // '{"key":1,"value":22, label2: null}'
+```
+
+**使用美化参数`space`**
+
+```js
+const obj = {
+    key: 1,
+    value: 22,
+    label: undefined,
+};
+
+// 如果参数是个数字，它代表有多少的空格；上限为10。
+JSON.stringify(obj, null, 20); // '{\n          "key": 1,\n          "value": 22\n}'
+
+// 如果该参数为字符串（当字符串长度超过10个字母，取其前10个字母），该字符串将被作为空格；
+JSON.stringify(obj, null, 'hello'); // '{\nhello"key": 1,\nhello"value": 22\n}'
+```
+
+**9大特性**
+
+**特性一**
+
+1. `undefined`、任意的函数以及`symbol`值，出现在非数组对象的属性值中时在序列化过程中会被忽略。
+2. `undefined`、任意的函数以及`symbol`值出现在数组对象中时会被转换成 `null`。
+3. `undefined`、任意的函数以及`symbol`值被单独转换时，会返回 `undefined`。
+
+```js
+let obj1 = {
+    x:[1, undefined, Symbol('3310')],
+    y:undefined,
+    z:function(){
+        console.log(111)
+    },
+    a:Symbol('11111')
+}
+
+const obj2 = JSON.parse(JSON.stringify(obj1))// { x: [1, null, null] }
+```
+
+**特性二**
+>`布尔值`、`数字`、`字符串` 的包装对象在序列化过程中会自动转换成对应的原始值。
+
+```js
+const flag = new Boolean(false);
+const num = new Number(11);
+const str = new String('123');
+
+JSON.stringify(flag); // 'false'
+JSON.stringify(num);  // '11'
+JSON.stringify(str);  // '"123"'
+```
+
+**特性三**
+>`symbol` 类型的值都会被忽略，即便 `replacer` 参数中强制指定包含了它们。
+
+```js
+const obj = {
+    key: 1,
+    value: Symbol('123'),
+};
+
+JSON.stringify(obj);// '{"key":1}'
+
+JSON.stringify(obj, (key, value)=>{
+    if(typeof key === 'symbol'){
+        return value;
+    }
+});// undefined
+```
+
+**特性四**
+>`NaN` 和 `Infinity` 格式的数值及 `null` 都会被当做 `null`。
+
+```js
+JSON.stringify({
+  age: NaN,
+  age2: Infinity,
+  name: null
+});// '{"age":null,"age2":null,"name":null}'
+```
+
+**特性五**
+>转换值如果包含 `toJSON()` 方法，将使用该方法的返回值。
+
+```js
+const obj = {
+    key: 1,
+    toJSON: function(){
+        return 'hello world';
+    }
+}
+
+JSON.stringify(obj); // '"hello world"'
+```
+
+**特性六**
+>对 `Date类型` 调用 `toJSON()` 会将其转化为字符串来处理。
+
+```js
+const d = new Date();
+
+d.toJSON(); // '2021-10-11T12:04:20.224Z'
+JSON.stringify(d); // '"2021-10-11T12:04:20.224Z"'
+```
+
+**特性七**
+>对包含循环引用的对象（对象之间相互引用，形成无限循环）执行此方法，会抛出错误。
+
+```js
+let obj = {
+    key: 1,
+    value: 2,
+};
+
+obj.obj = obj;
+
+JSON.stringify(obj); // Uncaught TypeError: Converting circular structure to JSON
+```
+
+**特性八**
+>Map/Set/WeakMap/WeakSet 等类型，仅会序列化可枚举的属性。
+
+```js
+let obj = {};
+
+Object.defineProperties(obj, { 
+    key: {
+        value: 1,
+        enumerable: true
+    },
+    value: {
+        value: '1234',
+        enumerable: false
+    }
+});
+
+JSON.stringify(obj); // '{"key":1}'
+```
+
+**特性九**
+>尝试去转换 `BigInt` 类型的值会抛出错误
+
+```js
+const big = BigInt(10);
+
+JSON.stringify(big); // Uncaught TypeError: Do not know how to serialize a BigInt
+```
+
 
 
 
