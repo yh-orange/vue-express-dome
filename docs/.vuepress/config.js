@@ -50,18 +50,20 @@ module.exports = {
             // {text: '自己的网站', link: 'http://120.77.15.133'},
             {text: 'TimeLine', link: '/timeline/', icon: 'reco-date'}
         ],
-        displayAllHeaders: true, // 默认值：false
+        displayAllHeaders: false, // 默认值：false
         sidebar: {
             '/base-js': [
                 {
                     title:'前端基础资料',
-                    collapsable: true,
+                    collapsable: false,
                     // path: 'base-js',
                     children:[
                         { title: '文档对象模型', path: '/base-js/文档对象模型'},
                         { title: '浏览器对象', path: '/base-js/浏览器对象' },
                         { title: 'javaScript基础知识', path: '/base-js/javaScript基础知识' },
-                        { title: 'ES6-ES12特性总结', path: '/base-js/ES6-ES12特性总结' }
+                        { title: 'ES6-ES12特性总结', path: '/base-js/ES6-ES12特性总结' },
+                        { title: 'HTTP 相关知识', path: '/base-js/HTTP相关知识' },
+                        { title: '浏览器对象', path: '/base-js/浏览器对象' }
                         // { title: '第三节', path: '/study/study03' }
                         // '/base-js/javaScript基础知识',
                         // '/base-js/javaScript基础知识',
