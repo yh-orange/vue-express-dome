@@ -245,9 +245,6 @@
 
 ![四次挥手](/images/base-js47.png)
 
-
-
-
 和建立 `TCP` 连接类似，断开 `TCP` 连接也同样需要客户端于服务端的双向交流，因为整个断开动作需要双端共发送 4 个数据包才能完成，所以简称为“四次挥手”。
 
 * 第一次挥手：客户端认为自己这边的数据已经全部发送完毕了，于是发送一个 FIN 用来关闭客户端到服务端的数据传输，发送完成以后，客户端进入 FIN_WAIT_1 状态。
@@ -266,3 +263,137 @@
 :::
 
 4. **客户机发送请求命令**
+
+一旦端对端成功建立起了 `TCP` 连接，下一步就要开始发送正式的 HTTP 请求了，请求方式的格式为：`统一资源标识符（URL）`、`协议版本号`，后边是`MIME`信息包括`请求修饰符`、`客户机信息`和`可见内容`。
+
+:::tip TIP
+
+流淌在 `TCP Connect` 通道里的 `HTTP` 只负责传输数据包，并没有连接的概念，因此 `HTTP` 也被叫做无状态协议。
+:::
+       
+5. **服务器响应**
+
+服务器接到请求后，给予相应的响应信息，其格式为一个`状态行`，包括信息的`协议版本号`、`一个成功或错误的代码`，后边是`MIME`信息包括服务器信息、实体信息和可能的内容。
+
+实体消息是服务器向浏览器发送头信息后，它会发送一个空白行来表示头信息的发送到此为结束，接着，它就以Content-Type应答头信息所描述的格式发送用户所请求的实际数据。
+
+6. **服务器关闭 `TCP` 连接**
+       
+一般情况下，一旦`Web`服务器向浏览器发送了请求数据，它就要关闭`TCP`连接，然后如果浏览器或者服务器在其头信息加入了这行代码:
+
+```textmate
+Connection: keep - alive;
+```
+
+`TCP`连接在发送后将仍然保持打开状态，于是，浏览器可以继续通过相同的连接发送请求。保持连接节省了为每个请求建立新连接所需的时间，还节约了网络带宽。
+
+### `HTTP` 工作过程用到的概念
+
+**报文格式**
+
+`HTTP1.0` 的报文有两种类型：请求和响应。其报文格式分别为：
+
+:::tip TIP
+
+请求报文格式
+
+* 请求方法 URL HTTP/版本号
+* 请求首部字段(可选)
+* 空行
+* body(只对 Post 请求有效)
+:::
+       
+```textmate
+GET http://m.baidu.com/ HTTP/1.1
+Host m.baidu.com
+Connection Keep-Alive
+...// 其他header
+key=iOS
+```
+
+:::tip TIP
+
+响应报文格式
+
+* HTTP/版本号 返回码 返回码描述
+* 应答首部字段(可选)
+* 空行
+* body
+:::
+
+```textmate
+HTTP/1.1 200 OK
+Content-Type text/html;charset=UTF-8
+...// 其他header
+
+<html>...
+```
+
+### `URL` 的结构
+
+使用 `HTTP` 协议访问资源是通过`URL（Uniform Resource Locator）`统一资源定位符来实现的。`URL` 的格式如下：
+
+```textmate
+scheme://host:port/path?query
+
+scheme: 表示协议，如http, https, ftp等；
+host: 表示所访问资源所在的主机名：如：www.baidu.com;
+port: 表示端口号，默认为80；
+path: 表示所访问的资源在目标主机上的储存路径；
+query: 表示查询条件；
+
+例如： http://www.baidu.com/search?words=Baidu
+```
+
+### `HTTP` 的请求方法
+
+* `GET`: 获取 `URL` 指定的资源。
+* `POST`：一般用于传输实体信息。
+* `PUT`：一般用于上传文件。
+* `DELETE`：删除文件。
+* `HEAD`：获取报文首部，与 `GET` 相比，不返回报文主体部分。
+* `OPTIONS`：用于预检请求中，询问请求 `URI` 资源支持的方法。
+* `TRACE`：追踪请求的路径；。
+* `CONNECT`：要求在与代理服务器通信时建立隧道，使用隧道进行 `TCP` 通信。主要使用 `SSL` 和 `TLS` 将数据加密后通过网络隧道进行传输。
+
+### 报文字段
+
+`HTTP` 首部字段由字段名和字段值组成，中间以":"分隔，如`Content-Type: text/html`.其中，同一个字段名可对应多个字段值。
+
+`HTTP` 的报文字段分为 5 种：
+
+1. 请求报文字段
+2. 应答报文字段
+3. 实体首部字段
+4. 通用报文字段
+5. 其他报文字段
+
+**请求报文字段**
+
+`HTTP` 请求中支持的报文字段。
+
+* `Accept`：客户端能够处理的媒体类型。如`text/html`, 表示客户端让服务器返回`html`类型的数据，如果没有，返回`text`类型的也可以。媒体类型的格式一般为：`type/subType`, 表示优先请求`subType`类型的数据，如果没有，返回 `type` 类型数据也可以。
+
+**常见的媒体类型：**
+
+1. 文本文件：`text/html`, `text/plain`, `text/css`, `application/xml`
+2. 图片文件：`image/jpeg`, `image/gif`, `image/png`
+3. 视频文件：`video/mpeg`
+4. 应用程序使用的二进制文件：`application/octet-stream`, `application/zip`
+
+:::tip TIP
+
+`Accept`字段可设置多个字段值，这样服务器依次进行匹配，并返回最先匹配到的媒体类型，当然，也可通过 q 参数来设置 媒体类型的权重，权重越高，优先级越高。q 的取值为[0, 1], 可取小数点后 3 位，默认为 1.0。例如： `Accept: text/html`,` application/xml; q=0.9, */*`
+:::
+
+* `Accept-Charset`: 表示客户端支持的字符集。例如：`Accept-Charset: GB2312, ISO-8859-1`
+
+* `Accept-Encoding`： 表示客户端支持的内容编码格式。如：`Accept-Encoding：gzip`
+
+**常用的内容编码：**
+
+1. `gzip`: 由文件压缩程序`gzip`生成的编码格式；
+2. `compress`: 由`Unix`文件压缩程序`compress`生成的编码格式；
+3. `deflate`: 组合使用`zlib`和`deflate`压缩算法生成的编码格式；
+4. `identity`：默认的编码格式，不执行压缩。
+
