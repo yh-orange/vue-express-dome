@@ -138,6 +138,129 @@ location = /50x.html {
 }
 ```
 
+* 根据 `URL` 名称过滤，精准匹配 `URL`，不匹配的 `URL` 全部重定向到主页:
+
+```nginx
+location / {
+    rewrite  ^.*$ /index.html  redirect;
+}
+```
+
+* 根据请求类型过滤:
+
+```nginx
+if ( $request_method !~ ^(GET|POST|HEAD)$ ) {
+    return 403;
+}
+
+if ( !-f $request_filename ){
+    rewrite (.*) /index.js;
+}
+```
+
+### 配置Gzip压缩
+
+`GZIP`是规定的三种标准 `HTTP 压缩格式`之一。目前绝大多数的网站都在使用`GZIP`传输 `HTML`、`CSS`、`JavaScript` 等资源文件。
+
+对于文本文件，`GZip` 的效果非常明显，开启后传输所需流量大约会降至 `1/4 ~ 1/3`。
+
+并不是每个浏览器都支持`gzip`的，如何知道客户端是否支持`gzip`呢，请求头中的`Accept-Encoding`来标识对压缩的支持。
+
+![请求头配置](/images/base-js85.png)
+
+```nginx
+gzip                    on; // 开启或者关闭gzip模块 默认为off
+gzip_http_version       1.1;// 启用 `GZip` 所需的`HTTP`最低版本 默认值为HTTP/1.1
+gzip_comp_level         5; // 压缩级别，级别越高压缩率越大，当然压缩时间也就越长（传输快但比较消耗 cpu） 默认值为 1 压缩级别取值为1-9
+gzip_min_length         1000;// 设置允许压缩的页面最小字节数，Content-Length小于该值的请求将不会被压缩 默认值:0  当设置的值较小时，压缩后的长度可能比原文件大，建议设置1000以上
+gzip_types              text/csv text/xml text/css text/plain text/javascript application/javascript application/x-javascript application/json application/xml; // 要采用 gzip 压缩的文件类型 (MIME类型)  默认值:text/html(默认不压缩js/css)
+```
+
+**负载均衡**
+
+>负载均衡就是用来帮助我们将众多的客户端请求合理的分配到各个服务器，以达到服务端资源的充分利用和更少的请求时间。
+
+**Upstream 指定后端服务器地址列表**
+
+```nginx
+upstream balanceServer {
+    server 10.1.22.33:12345;
+    server 10.1.22.34:12345;
+    server 10.1.22.35:12345;
+}
+```
+
+**在 `server` 中拦截响应请求，并将请求转发到 `Upstream` 中配置的服务器列表。**
+
+```nginx
+server {
+    server_name  fe.server.com;
+    listen 80;
+    location /api {
+        proxy_pass http://balanceServer;
+    }
+}
+```
+
+上面的配置只是指定了 `nginx` 需要转发的服务端列表，并没有指定分配策略。
+
+**- 轮询策略**
+默认情况下采用的策略，将所有客户端请求轮询分配给服务端。
+
+这种策略是可以正常工作的，但是如果其中某一台服务器压力太大，出现延迟，会影响所有分配在这台服务器下的用户
+
+**- 最小连接数策略**
+
+将请求优先分配给压力较小的服务器，它可以平衡每个队列的长度，并避免向压力大的服务器添加更多的请求。
+
+```nginx
+upstream balanceServer {
+    least_conn;
+    server 10.1.22.33:12345;
+    server 10.1.22.34:12345;
+    server 10.1.22.35:12345;
+}
+```
+
+**- 最快响应时间策略**
+
+依赖于 `NGINX Plus`，优先分配给响应时间最短的服务器。
+
+```nginx
+upstream balanceServer {
+    fair;
+    server 10.1.22.33:12345;
+    server 10.1.22.34:12345;
+    server 10.1.22.35:12345;
+}
+```
+
+**- 客户端 ip 绑定**
+
+来自同一个 `ip`的请求永远只分配一台服务器，有效解决了动态网页存在的 `session` 共享问题。
+
+```nginx
+upstream balanceServer {
+    ip_hash;
+    server 10.1.22.33:12345;
+    server 10.1.22.34:12345;
+    server 10.1.22.35:12345;
+}
+```
+
+**静态资源服务器**
+
+```nginx
+location ~* \.(png|gif|jpg|jpeg)$ {
+    root    /root/static/;  
+    autoindex on;
+    access_log  off;
+    expires     10h;# 设置过期时间为 10 小时          
+}
+```
+匹配以`png|gif|jpg|jpeg`为结尾的请求，并将请求转发到本地路径，`root`中指定的路径即 `nginx` 本地路径。同时也可以进行一些缓存的设置。
+
+
 
 
 
