@@ -571,3 +571,686 @@ function scheduleObjectLiteralSyntax(){
 
 scheduleObjectLiteralSyntax();
 ```
+
+## Koa2中间件实现原理解析
+
+本文主要是针对koa2内部分中间件实现原理的剖析。先来看官方的一段代码:
+
+```js
+const Koa = require('koa');
+const app = new Koa();
+
+// logger
+app.use(async (ctx, next) => {
+  await next();
+  const rt = ctx.response.get('X-Response-Time');
+  console.log(`${ctx.method} ${ctx.url} - ${rt}`);
+});
+
+// x-response-time
+app.use(async (ctx, next) => {
+  const start = Date.now();
+  await next();
+  const ms = Date.now() - start;
+  ctx.set('X-Response-Time', `${ms}ms`);
+});
+
+// response
+app.use(async ctx => {
+  ctx.body = 'Hello World';
+});
+
+app.listen(3000);
+
+// 执行顺序 类似栈先进后出
+// start--->Hello World--->X-Response-Time--->console.log(`${ctx.method} ${ctx.url} - ${rt}`);
+```
+
+### 实现 app.use
+***
+
+`app.use` ，从使用角度分析它的用意，其实就是注册中间件函数。因此，首先可以这样定义我们自己的 `Koa` 代码，新建一个 `koa.js` ，开始编写：
+```js
+class Koa {
+    constructor() {
+        this.middlewareList = []
+    }
+
+    // 核心方法
+    use(fn) {
+        this.middlewareList.push(fn)
+        return this;
+    }
+}
+```
+
+* 首先定一个类，然后构造函数中初始化 `middelwareList` 数组，用以存储所有的中间件函数。
+
+* `use`中接收中间件函数，然后放到 `middelwareList` 数组中，就算是注册完成。
+
+* 最后 `return this` 是为了能实现链式操作，例如 `app.use(fn1).use(fn2).use(fn3)`。（这个和`jquery`中的链式实现思想是一致的。）
+
+### 实现 app.listen
+***
+
+`app.listen(3000)` 启动服务监听，实质就是使用 `nodejs` 原生的 `http` 处理方式。代码如下：
+
+```js
+const http = require('http');
+
+class Koa {
+    constructor() {
+        this.middlewareList = []
+    }
+
+    // 核心方法
+    use(fn) {
+        this.middlewareList.push(fn)
+        return this
+    }
+
+	// 将 req res 组合成为 ctx
+    createContext(req, res) {
+        // 简单模拟 koa 的 ctx
+        const ctx = {
+            req,
+            res,
+            //...其他属性
+        }
+        return ctx
+    }
+
+	// 生成 http.createServer 需要的回调函数
+	callback() {
+        return (req, res) => {
+            const ctx = this.createContext(req, res)
+        }
+    }
+
+    listen(...args) {
+        const server = http.createServer(this.callback())
+        return server.listen(...args);
+    }
+}
+```
+
+* `node.js` 原生的 `http.createServer` 需要传入一个回调函数，在 `callback()` 中返回。
+
+* 示例代码中中间件函数的第一个参数都是 `ctx` ，其实可以简答理解为 `res` 和 `req` 的集合，通过 `createContext` 合并一下即可。
+
+### compose 组合中间件
+***
+
+`Koa2` 中通过一个 `compose` 函数来组合中间件，以及实现了 `next` 机制。
+
+```js
+// 传入中间件列表
+function compose(middlewareList) {
+	// 返回一个函数，接收 ctx （即 res 和 req 的组合）和 next —— 记住了，下文要用
+    return function (ctx, next) {
+	    // 定义一个派发器，这里面就实现了 next 机制
+        function dispatch(i) {
+	        // 获取当前中间件
+            const fn = middlewareList[i];
+            try {
+                return Promise.resolve(
+	                // 通过 i + 1 获取下一个中间件，传递给 next 参数
+                    fn(ctx, function next(){
+                        return dispatch.bind(null, i + 1);
+                    })
+                )
+            } catch (err) {
+                return Promise.reject(err);
+            }
+        }
+        // 开始派发第一个中间件
+        return dispatch(0);
+    }
+}
+```
+
+* 第一，定义 `compose` 函数，并接收中间件列表。
+
+* 第二，`compose` 函数中返回一个函数，该函数接收 `ctx` ，下文会用这个返回的函数。
+
+* 第三，再往内部，定义了一个 `dispatch函数`，就是一个中间件的派发器，参数 i 就代表派发第几个中间件。执行 `dispatch(0)` 就是开发派发第一个中间件。
+
+* 第四，派发器内部，通过 i 获取当前的中间件，然后执行。执行时传入的第一个参数是 ctx ，第二个参数是 dispatch.bind(null, i + 1) 即下一个中间件函数 —— 也正好对应到示例代码中中间件的 next 参数。
+
+用 Promise.resolve 封装起来，是为了保证函数执行的结果必须是 Promise 类型。
+
+### 完善 callbaclk
+***
+
+有了 `compose` 之后，`callback` 即可被完善起来,部分代码如下:
+```js
+// 处理中间件的 http 请求
+handleRequest(ctx, middleWare) {
+    // 这个 middleWare 就是 compose 函数返回的 fn
+    // 执行 middleWare(ctx) 其实就是执行中间件函数，然后再用 Promise.resolve 封装并返回
+    return middleWare(ctx)
+}
+  
+callback() {
+    const fn = compose(this.middlewareList)
+
+    return (req, res) => {
+        const ctx = this.createContext(req, res)
+        return this.handleRequest(ctx, fn)
+    }
+}
+```
+
+### 完整代码
+***
+
+```js
+const http = require('http');
+
+// 组合中间件
+function compose(middlewareList) {
+    return function (ctx, next) {
+        function dispatch(i) {
+            const fn = middlewareList[i]
+            try {
+                return Promise.resolve(
+                    fn(ctx, function next(){
+                        return dispatch.bind(null, i + 1);
+                    })
+                )
+            } catch (err) {
+                return Promise.reject(err)
+            }
+        }
+        return dispatch(0)
+    }
+}
+
+class Koa {
+    constructor() {
+        this.middlewareList = []
+    }
+
+    // 核心方法
+    use(fn) {
+        this.middlewareList.push(fn)
+        return this
+    }
+
+    // 处理中间件的 http 请求
+    handleRequest(ctx, middleWare) {
+        // 这个 middleWare 就是 compose 函数返回的 fn
+        // 执行 middleWare(ctx) 其实就是执行中间件函数，然后再用 Promise.resolve 封装并返回
+        return middleWare(ctx)
+    }
+
+    // 将 req res 组合成为 ctx
+    createContext(req, res) {
+        // 简单模拟 koa 的 ctx ，不管细节了
+        const ctx = {
+            req,
+            res
+        }
+        return ctx
+    }
+
+    callback() {
+        const fn = compose(this.middlewareList)
+
+        return (req, res) => {
+            const ctx = this.createContext(req, res)
+            return this.handleRequest(ctx, fn)
+        }
+    }
+
+    listen(...args) {
+        const server = http.createServer(this.callback())
+        return server.listen(...args);
+    }
+}
+
+module.exports = Koa;
+```
+
+## koa2中集成jwt认证
+
+### 定义
+***
+>json web token 简称JWT，是基于JSON的一种开放标准。服务器和客户端可以通过JWT来建立一座通信的桥梁。
+
+`JWT`主要分为三部分。`header(头部)`，`payload(载体)`， `signature(签名)`。
+
+* `header: 头部`: 声明加密方式和声明类型
+
+* `payload: 载体`: 存放JWT定义的一些声明（例如：过期时间，签发者等等），我们将用户的一些信息存放在这里（例如：用户名，用户ID等，千万不要存在用户密码等敏感信息）
+
+* `signature: 签名`:
+
+```text
+signature = [header(加密方式)](base64编码(header) + '.' + base64编码(payload), [服务器的私钥])
+```
+
+最后将上面三个组成部分用'.'连接起来就构成了`JWT`：
+
+```text
+JWT = base64编码(header) + '.' + base64编码(payload) + '.' + signature
+```
+
+### 实现jwt认证
+***
+
+本示例是基于koa2实现的，默认你已安装koa2相关包。
+
+1. 下载node-jsonwebtoken
+```text
+npm i jsonwebtoken  // 一个实现jwt的包
+```
+2. 下载koa/jwt
+```text
+npm i koa-jwt  //验证jwt的koa中间价
+```
+3. 修改app.js
+```js
+const Koa = require('koa')
+const Router = require('koa-router')
+const bodyParser = require('koa-bodyparser')
+const jwt = require('jsonwebtoken')
+const jwtKoa = require('koa-jwt')
+const util = require('util')
+const verify = util.promisify(jwt.verify) // 解密
+const secret = 'jwt demo'
+const app = new Koa()
+const router = new Router()
+
+app.use(bodyParser())
+app.use(jwtKoa({secret}).unless({
+    path: [/^\/api\/login/], // 数组中的路径不需要通过jwt验证
+    path: [/^\/api\/register/],
+}))
+
+router
+    .post('/api/login', async (ctx, next) => {
+        const user = ctx.request.body
+        if(user?.name) {
+            let userToken = {
+                name: user.name
+            }
+            const token = jwt.sign(userToken, secret, {expiresIn: '2h'})  // token签名 有效期为2小时
+            ctx.body = {
+                message: '获取token成功',
+                code: 1,
+                token
+            }
+        } else {
+            ctx.body = {
+                message: '参数错误',
+                code: -1
+            }
+        }
+    })
+    .get('/api/userInfo', async (ctx) => {
+        const token = ctx.header.authorization  // 获取jwt
+        let payload
+        if (token) {
+            payload = await verify(token.split(' ')[1], secret)  // // 解密，获取payload
+            ctx.body = {
+                payload
+            }
+        } else {
+            ctx.body = {
+                message: 'token 错误',
+                code: -1
+            }
+        }
+    })
+app
+    .use(router.routes())
+    .use(router.allowedMethods())
+app.listen(3000, () => {
+    console.log('app listening 3000...')
+})
+```
+
+## async模块简介以及在mysql中的应用
+
+### 定义
+***
+>async模块是node中的异步流程控制模块
+ 
+### 安装
+***
+```text
+npm install async
+```
+### 使用
+***
+`async`模块有几个常用的`api`。
+
+1. series(tasks,[callback])
+>多个函数从上到下依次执行,相互之间没有数据交互.
+
+```js
+const task1 = callback => {
+	console.log("task1");
+	callback(null,"task1");
+}
+
+const task2 = callback => {
+	console.log("task2");
+	callback(null,"task2");
+}
+    
+const task3 = callback => {
+	console.log("task3");
+	callback(null,"task3");
+}
+
+async.series([task1,task2,task3],function(err, result){
+	console.log("series");
+	if (err) {
+		console.log(err);
+	}
+	console.log(result);
+})
+/**
+ * 1. task1
+ * 2. task2
+ * 3. task3
+ * 4. series
+ * 5. [ 'task1', 'task2', 'task3' ]
+```
+如果中途发生错误,则将错误传递到回调函数,并停止执行后面的函数
+
+```js
+// 修改 task2
+const task2 = callback => {
+	console.log("task2");
+	callback(err,"task2");
+}
+
+/**
+ * 1. task1
+ * 2. task2
+ * 3. series
+ * 4. err
+ * 5. [ 'task1', 'task2']
+**/
+```
+
+2. `parallel(tasks,[callback])`
+
+>多个函数并行执行,不会等待其他函数,最终把结果存在一个数据中去的，是有先后顺序的
+
+```js
+const task1 = callback => {
+    console.log("task1", new Date().getTime());
+    callback(null,"task1");
+}
+    
+const task2 = callback => {
+    console.log("task2", new Date().getTime());
+    callback(null, "task2")
+}
+        
+const task3 = callback => {
+    console.log("task3", new Date().getTime());
+    callback(null,"task3");
+}
+    
+async.parallel([task1,task2,task3],function(err, result){
+    console.log("parallel");
+    if (err) {
+        console.log(err);
+    }
+    console.log(result);
+})
+
+/**
+ * 1. task1 1587045158058
+ * 2. task2 1587045158060
+ * 3. task3 1587045158060
+ * 4. parallel
+ * 5. [ 'task1', 'task2', 'task3' ]
+**/
+```
+
+3. `waterfall(tasks,[callback]) :瀑布流`
+
+>依次执行,前一个函数的输出为后一个函数的输入
+
+```js
+const task1 = callback => {
+    console.log("task1", new Date().getTime());
+    callback(null,"task1");
+}
+    
+const task2 = (input, callback) => {
+    console.log(input, "task2", new Date().getTime());
+    callback(null, "task2")
+}
+        
+const task3 = (input, callback) => {
+    console.log(input, "task3", new Date().getTime());
+    callback(null,"task3");
+}
+    
+async.waterfall([task1,task2,task3],function(err, result){
+    console.log("waterfall");
+    if (err) {
+        console.log(err);
+    }
+    console.log(result);
+})
+/**
+ * 1. task1 1587045497048
+ * 2. task1 task2 1587045497050
+ * 2. task2 task3 1587045497050
+ * 3. waterfall
+ * 4. task3
+**/
+```
+
+4. `parallelLimit(tasks,limit,[callback])`
+
+>和`parallel`类似,只是`limit`参数限制了同时并发执行的个数,不再是无限并发
+
+```js
+const task1 = callback => {
+  console.log("task1", new Date().getTime());
+  setTimeout(()=>callback(null, "task1"), 1000);
+}
+
+const task2 = callback => {
+  console.log("task2", new Date().getTime());
+  setTimeout(()=>callback(null, "task2"), 2000);
+}
+
+const task3 = callback => {
+  console.log("task3", new Date().getTime());
+  setTimeout(()=>callback(null, "task3"), 3000);
+}
+
+console.time("parallelLimit执行");
+
+async.parallelLimit([task1, task2, task3], 2, function (err, result) {
+  console.log("parallelLimit");
+  if (err) {
+    console.log(err);
+  }
+  console.log(result);
+  console.timeEnd("parallelLimit执行");
+})
+/**
+ * 1. task1 1587045939489
+ * 2. task2 1587045939491
+ * 3. task3 1587045940491
+ * 4. parallelLimit执行
+ * 5. [ 'task1', 'task2', 'task3' ]
+ * 6. parallelLimit执行: 4.015s
+ **/
+```
+
+上面三个函数分别延迟1s、2s、3s执行，总共执行结果为4.015s。
+
+我们设置了并行数量为2,首先执行函数1和2。
+
+1s后函数1和2执行完成,这时函数3开始执行。
+
+3s后函数3执行完毕，总共耗时4.015s。
+
+5. `compose(fn1,fn2,fn3...)`
+
+> 这个类似中间件，创建一个异步的集合函数,执行的顺序是倒序.前一个fn的输出是后一个fn的输入.有数据交互
+
+```js
+const task1 = (m, callback) => {
+  console.log("task1", m);
+  callback(null, m*2);
+}
+
+const task2 = (m, callback) => {
+  console.log("task2", m);
+  callback(null, m*3);
+}
+
+const task3 = (m, callback) => {
+  console.log("task3", m);
+  callback(null, m*4);
+}
+
+const _fn = async.compose(task3, task2, task1);
+
+_fn(2, function (err, result) {
+  console.log("compose");
+  if (err) {
+    console.log(err);
+  }
+  console.log(result);
+})
+
+/**
+ * 1. task1 2
+ * 2. task2 4
+ * 3. task3 12
+ * 4. compose
+ * 5. 48
+ **/
+```
+
+### 在mysql事务中使用
+***
+
+```js
+// mysql.js
+var db    = {};
+var mysql = require('mysql');
+var pool  = mysql.createPool({
+    connectionLimit : 10,
+    host            : 'localhost',
+    user            : 'root',
+    password        : '123456',
+    database        : 'demo'
+})
+
+//获取连接
+db.getConnection = function(callback){
+	pool.getConnection(function(err, connection) {
+		if (err) {
+			callback(null);
+			return;
+		}
+		callback(connection);
+	});
+} 
+module.exports = db;
+```
+在model中使用
+```js
+var db = require('./mysql.js');
+var async = require('async');
+
+// 事务执行
+db.getConnection(function(connection){
+  connection.beginTransaction(function(err) {
+    if (err) { 
+      console.log(err);
+      return;
+    }
+
+    var task1 = function(callback){
+      connection.query(`insert into user (name) values('a')`, function(err, result) {
+        if (err) {
+          console.log(err);
+          callback(err,null);
+          return;
+        }
+        console.log('第一次插入成功!');
+        callback(null,result);
+      })
+    }
+
+    var task2 = function(callback){
+      connection.query(`insert into user (name) values('b')`, function(err, result) {
+        if (err) {
+          console.log(err);
+          callback(err,null);
+          return;
+        }
+        console.log('第二次插入成功!');
+        callback(null,result);
+      })
+    }
+
+    var task3 = function(callback){
+      connection.query(`insert into user (name) values('c')`, function(err, result) {
+        if (err) {
+          console.log(err);
+          callback(err,null);
+          return;
+        }
+        console.log('第三次插入成功!');
+        callback(null,result);
+      })
+    }
+
+    async.series([task1, task2, task3],function(err,result){
+      if (err) {
+        console.log(err);
+        //回滚
+        connection.rollback(function() {
+          console.log('出现错误,回滚!');
+          //释放资源
+          connection.release();
+        });
+        return;
+      }
+      //提交
+      connection.commit(function(err) {
+        if (err) {
+          console.log(err);
+          return;
+        }
+          
+        console.log('成功,提交!');
+        //释放资源
+        connection.release();
+      });
+    })
+  });
+});
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
