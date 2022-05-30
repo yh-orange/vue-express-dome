@@ -47,6 +47,8 @@ module.exports = {
             {text: '随笔', link: '/informal-essay/'},
             {text: 'vue3', link: '/vue3-base/'},
             {text: 'Markdown', link: '/md-study-note/'},
+            {text: '前端工程化', link: '/front-end-engineering/'},
+            {text: 'Node', link: '/node/'},
             // {text: '自己的网站', link: 'http://120.77.15.133'},
             {text: 'TimeLine', link: '/timeline/', icon: 'reco-date'}
         ],
@@ -72,7 +74,16 @@ module.exports = {
                         // '/base-js/浏览器对象',
                     ]
                 }
-                ]
+            ],
+            '/front-end-engineering': [
+                {
+                    title:'前端工程化',
+                    collapsable: false,
+                    children:[
+                        { title: 'webpack', path: '/front-end-engineering/webpack'}
+                    ]
+                }
+            ]
         },
         subSidebar: 'auto',
         lastUpdated: 'Last Updated', // string | boolean
