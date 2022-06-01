@@ -1625,7 +1625,34 @@ const puppeteer = require('puppeteer');
 })();
 ```
 
+* **场景四：爬取页面(静态)**
+***
 
+```js
+const puppeteer = require('puppeteer');
+const fs = require('fs');
+(async function main() {
+    try {
+        const browser = await puppeteer.launch();
+        const [page] = await browser.pages();
+
+        await page.goto('https://www.antdu.net/', { waitUntil: 'networkidle0' });
+        const data = await page.evaluate(() => document.querySelector('*').outerHTML);
+
+        console.log(data);
+
+        fs.appendFile('dome.html', data, function(err) {
+            if (err) { console.log(err); } else {
+                console.log('写入成功');
+            }
+        })
+
+        await browser.close();
+    } catch (err) {
+        console.error(err);
+    }
+})();
+```
 
 
 
