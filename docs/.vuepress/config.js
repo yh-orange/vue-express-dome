@@ -80,7 +80,8 @@ module.exports = {
                     title:'前端工程化',
                     collapsable: false,
                     children:[
-                        { title: 'webpack', path: '/front-end-engineering/webpack'}
+                        { title: 'webpack', path: '/front-end-engineering/webpack'},
+                        { title: 'nginx', path: '/front-end-engineering/nginx'}
                     ]
                 }
             ]

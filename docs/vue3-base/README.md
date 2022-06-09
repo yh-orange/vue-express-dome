@@ -984,7 +984,7 @@ export default {
 </script>
 ```
 
-### `toef`
+### `toRef`
 
 * 为源响应式对象上的某个属性创建一个 `ref` 对象, 二者内部操作的是同一个数据值, 更新时二者是同步的
 * 区别`ref`: 拷贝了一份新的数据值单独操作, 更新时相互不影响
@@ -1712,4 +1712,185 @@ export default {
 </script>
 ```
 
+### vue3中vuex的配置
 
+老写法就不过举例了，不过因为没有 `setup` 中没有 `this` 的 引入方式有点区别
+基本使用如下
+
+**store/index.js 创建store对象并导出store**
+```js
+import { createStore } from 'vuex'
+
+export default createStore({
+   state: {
+     count: 100,
+     num: 10
+   },
+  // ...state定义count
+  mutations: {
+    sum (state, num) {
+      state.count += num
+    }
+  },
+  actions: {
+  // context 上下文对象，可以理解为store
+  sum_actions (context, num) {
+    setTimeout(() => {
+      context.commit('sum', num)  // 通过context去触发mutions中的sum
+    }, 1000)
+  }
+  },
+  modules: {
+  }
+})
+```
+
+**main.js 引入并使用**
+
+```js
+...
+import store from './store';
+...
+app.use(store)
+```
+`vue2` 中可以通过 `this.$store.xxx` 的方式拿到 `store` 的实例对象。
+
+`vue3` 中的 `setup` 在 `beforecreate` 和 `created` 前执行，此时 `vue` 对象还未被创建，没有了之前的 `this`，所以此处我们需要用到另一种方法来获取到 `store` 对象。
+
+```js
+import { useStore } from 'vuex' // 引入useStore 方法
+const store = useStore()  // 该方法用于返回store 实例
+console.log(store)  // store 实例对象
+// 使用 store.commit('mution中函数名', '需要传递的参数' ) 在commit里添加参数的方式进行传递
+store.commit('increment')
+store.dispatch('sum_actions', sum)
+```
+
+顺带一提 `vuex` 的按需加载，避免首页初始化所有数据
+
+1. 第一步：把.`vue` 文件对应的 `vuex` 拆分出来
+
+![1](/images/vuex.png)
+
+2. 在`xxx.vue`文件里面添加 `name` 和 `isNeedVuex` 属性
+
+![2](/images/vuex2.png)
+注意：为了保证引入 `store` 下的文件名字跟组件命名一样，请自行选择合理的命名方式
+
+3. 在main.js中添加如下代码：
+```js
+Vue.use(function() {
+    Vue.mixin({
+        beforeCreate: function() {
+            // $options是组件选项，包含组件.vue文件的 `export default` 的属性
+            // 为了拿到在组件定义的是否按需加载的属性值 `isNeedVuex`
+            if(this.$options.isNeedVuex) {
+                // 需要设置.vue文件的name属性，跟单文件组件名字命名一样
+                let name = this.$options.name;
+                import("./store/modules/" + name).then((res) => {
+                    console.log(res);
+                    // res.default就是代表我们在store/modules文件夹下对应文件的export default对象
+                    // registerModule是vuex自带的方法，请自行搜索
+                    // 第一个参数是动态注入的模块名，第二个参数是模块导出对象
+                    this.$store.registerModule(name, res.default);
+                });
+            }
+        }
+    });
+});
+```
+
+在vue3中我们推荐使用 `pinia`
+
+**一、pinia是什么？**
+`Pinia` 是 `Vue` 的状态管理存储库，可以跨页面存储，使用 `pinia-plugin-persist` 可以在本地存储。
+
+**二、使用步骤**
+
+1. **引入库**
+
+```text
+npm install pinia 
+npm install pinia-plugin-persist //存储插件
+npm install @vue/composition-api 
+```
+
+2. 新建piniaStore.js文件
+
+```js
+import { defineStore } from 'pinia'
+import piniaPluginPersist from 'pinia-plugin-persist'
+export const useCounterStore = defineStore('counter', {
+  state: () => {
+    return { 
+        piniaCount: 1 
+    }
+  },
+  persist: {
+    enabled: true, // 开启缓存默认会存储在本地localstorage
+    strategies: [
+        {
+            key: 'pinaStore',//定义key值
+            storage: localStorage,//本地存储
+            path:['piniaCount']//缓存字段
+        }
+    ]
+  }
+})
+```
+
+3. **在main.js中添加引入全局使用**
+
+```js
+import {createPinia,PiniaVuePlugin } from 'pinia';
+import piniaPluginPersist from 'pinia-plugin-persist';
+import { piniaStore } from '@/utils/pinia.js';
+Vue.use(PiniaVuePlugin);
+const pinia = createPinia();
+pinia.use(piniaPluginPersist);
+new Vue({
+  el: '#app',
+  pinia,
+  render: h => h(App)
+})
+Vue.prototype.piniaStore = piniaStore();设置全局引用
+```
+
+4. **在组件中的使用**
+
+```vue
+<template>
+    <div>
+      {{ piniaStore.piniaCount }}
+    </div>
+</template>
+<script>
+export default {
+    data() {
+      return{}
+    },
+    methods:{
+        editValue(){
+           this.piniaStore.piniaCount++  //可直接修改值，同时本地存储一起修改
+        }
+    }
+}
+</script>
+```
+
+5. **出现报错类似`Can't import the named export 'watch' from non EcmaScript module (only default export is available)`**
+
+```js
+在vue.config.js添加
+configureWebpack: {
+    module: {
+      rules: [
+        {
+          test: /\.mjs$/,
+          include: /node_modules/,
+          type: "javascript/auto"
+        }
+      ] 
+    }
+}
+```

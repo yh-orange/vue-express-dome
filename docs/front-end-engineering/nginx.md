@@ -40,7 +40,7 @@
 
 ### nginx基本结构
 
-![正向代理与反向图文说明](/images/base-js83.png)
+![正向代理与反向图文说明](/images/base-js84.png)
 
 ```nginx
 user nginx;
