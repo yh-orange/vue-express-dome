@@ -356,4 +356,60 @@ let data = '';
     })
 ```
 
+## 与操作目录相关的 `Linux` 命令
+
+1. `cd`
+`cd`，`change directory`，切换当前工作目录。
+
+除指定目录外，还有以下特殊目录。
+
+    * .: 当前工作目录。
+
+    * ..: 父级工作目录。
+
+    * /: 根目录。
+
+    * ~: home 目录，即当前的用户目录，同时也可用环境变量 `$HOME` 表示。假设当前用户为 `shanyue`，则 ~ 目录为 `/Users/shanyue` (mac系统)。
+
+另外，`cd -` 为进入上一次的工作目录，如同 `git checout -` 切回上次的分支一样。
+除 `cd` 外，有一个拥有强大功能切换目录的小工具 `autojump`
+
+2. `pwd`
+`pwd`，`print working directory`，打印当前工作目录。
+
+```text
+# 打印当前路径，该目录为 react 源码内容
+$ pwd
+/Users/shanyue/Documents/react
+```
+
+3. `ls`
+`ls`，列出某个工作目录的内容。
+
+`ls` 单指令不会列出以 . 开头的文件，比如 `.git`、 `.babelrc`、`.eslintrc` 均不会默认显示。「而使用 `-a`，将会把所有文件列出。」
+
+在日常工作中，常使用 `ls -lah` 列出工作目录内容。
+
+```text
+# -l: 使用长列表格式
+# -a: 列出所有文件，包括以 . 开头的文件
+# -h: 以可读的形式表示文件体积，比如 100M
+$ ls -lah
+total 2176
+```
+
+4. `tree`
+
+`tree`，以树状图的形式列出文件。
+
+该命令需要手动下载。
+
+```text
+# macos
+$ brew install tree
+
+# centos
+$ yum install tree
+```
+
 
