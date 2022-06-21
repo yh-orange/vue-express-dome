@@ -82,7 +82,8 @@ module.exports = {
                     children:[
                         { title: 'webpack', path: '/front-end-engineering/webpack'},
                         { title: '前端错误监控体系搭建', path: '/front-end-engineering/前端错误监控体系搭建'},
-                        { title: 'nginx', path: '/front-end-engineering/nginx'}
+                        { title: 'nginx', path: '/front-end-engineering/nginx'},
+                        { title: 'docker', path: '/front-end-engineering/docker'}
                     ]
                 }
             ]
