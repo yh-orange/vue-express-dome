@@ -17,15 +17,15 @@
 
 我需要盖一个房子，于是我搬石头、砍木头、画图纸、盖房子。一顿操作，终于把这个房子盖好了。
 
-![讲个故事.](https://mmbiz.qpic.cn/mmbiz_png/A1HKVXsfHNlwgSFtFxtcSIDswt94ibibvxhYkADIJ51cwu8HvoeEwtIAfJ81O2wz83KPgYY3STCc6OztHYVaZOXA/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
+![讲个故事.](/images/docker1.png)
 
 结果，住了一段时间，心血来潮想搬到海边去。这时候按以往的办法，我只能去海边，再次搬石头、砍木头、画图纸、盖房子。
 
-![讲个故事2](https://mmbiz.qpic.cn/mmbiz_png/A1HKVXsfHNlwgSFtFxtcSIDswt94ibibvxILzUyicrySlcRqsMm2QRf4GenravtEGPjB2W1KuLbVCFiaTgaWVu17Tw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
+![讲个故事2](/images/docker2.png)
 
 烦恼之际，跑来一个魔法师教会我一种魔法。这种魔法可以把我盖好的房子复制一份，做成「镜像」，放在我的背包里。
 
-![讲个故事3](https://mmbiz.qpic.cn/mmbiz_png/A1HKVXsfHNlwgSFtFxtcSIDswt94ibibvx0eiceVIxicnIQ0QYRjWgQ0I2UVYv30vlliap9AC9IlvmWM9tv1Q6qsVEw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
+![讲个故事3](/images/docker3.png)
 
 等我到了海边，就用这个「镜像」，复制一套房子，拎包入住。
 
@@ -95,7 +95,7 @@
  
 5. `Docker` 技术使用 `Linux` 内核和内核功能（例如 `Cgroups` 和 `namespaces`）来分隔进程，以便各进程相互独立运行。
  
-6. 由于 `Namespace` 和 `Cgroups` 功能仅在 `Linux` 上可用，因此容器无法在其他操作系统上运行。那么 `Docker` 如何在 `macOS` 或 `Windows` 上运行？ `Docker` 实际上使用了一个技巧，并在非 `Linux` 操作系统上安装 `Linux` 虚拟机，然后在虚拟机内运行容器。另外，搜索公众号 `python` 人工智能技术后台回复“名著”，获取一份惊喜礼包。
+6. 由于 `Namespace` 和 `Cgroups` 功能仅在 `Linux` 上可用，因此容器无法在其他操作系统上运行。那么 `Docker` 如何在 `macOS` 或 `Windows` 上运行？ `Docker` 实际上使用了一个技巧，并在非 `Linux` 操作系统上安装 `Linux` 虚拟机，然后在虚拟机内运行容器。
  
 7. 镜像是一个可执行包，其包含运行应用程序所需的代码、运行时、库、环境变量和配置文件，容器是镜像的**运行时实例**。
 
@@ -166,7 +166,7 @@ docker -v
  
 1. 首先需要大致了解一下我们将会用到的 11 个命令
 
-![11 个命令](https://mmbiz.qpic.cn/mmbiz_jpg/A1HKVXsfHNlwgSFtFxtcSIDswt94ibibvxLysngVGqHH8rf3QXRHlhiaTym1xDm068AFFYGOI9Mf4bsDDkia7emYDw/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1)
+![11 个命令](![讲个故事3](/images/docker4.png))
 
 2. 新建项目
 
@@ -304,7 +304,7 @@ CONTAINER ID IMAGE              COMMAND                  CREATED       STATUS PO
 ab1375befb0b jartto-docker-demo "/docker-entrypoint.…"   8 minutes ago Up 7 minutes  0.0.0.0:3000->80/tcp  docker-vue
 ```
 如果你使用桌面端，那么打开 Docker Dashboard 就可以看到容器列表了，如下图：
-![查看Container的ID](https://mmbiz.qpic.cn/mmbiz_png/A1HKVXsfHNlwgSFtFxtcSIDswt94ibibvxexqbCbEcZrzvaJV7aDu5ZPDeliaWaicCAlhyKSQcfrsiavYqPGQsNBicow/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
+![查看Container的ID](![讲个故事3](/images/docker5.png)
 
 8. 访问项目
 
