@@ -65,7 +65,7 @@ module.exports = {
                         { title: 'javaScript基础知识', path: '/base-js/javaScript基础知识' },
                         { title: 'ES6-ES12特性总结', path: '/base-js/ES6-ES12特性总结' },
                         { title: 'HTTP 相关知识', path: '/base-js/HTTP相关知识' },
-                        { title: 'Nginx相关知识', path: '/base-js/Nginx' },
+                        // { title: 'Nginx相关知识', path: '/base-js/Nginx' },
                         { title: 'git基本操作', path: '/base-js/git' }
                         // { title: '第三节', path: '/study/study03' }
                         // '/base-js/javaScript基础知识',
@@ -83,6 +83,7 @@ module.exports = {
                         { title: 'webpack', path: '/front-end-engineering/webpack'},
                         { title: '前端错误监控体系搭建', path: '/front-end-engineering/前端错误监控体系搭建'},
                         { title: 'nginx', path: '/front-end-engineering/nginx'},
+                        { title: '前端mock数据', path: '/front-end-engineering/mock'},
                         { title: 'docker', path: '/front-end-engineering/docker'}
                     ]
                 }
