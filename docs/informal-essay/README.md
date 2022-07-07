@@ -430,7 +430,6 @@ $ yum install tree
 通过在 `package.json`中指定 `engines` 字段，可限定项目使用的 `node` 版本。下面配置仅允许用户使用 14 或者 16的版本。更多的配置可以参考 ` package.json` | `npm Docs` 、`semver`
 
 ```json
-  // package.json 
   "engines": {
     "node": "14.x || 16.x"
   },
@@ -451,11 +450,91 @@ engine-strict = true
 步骤二：在 `package.json` 文件中进行配置 `scripts.preinstall` ， 允许输入的值 `only-allow npm`、`only-allow pnpm`、`only-allow yarn`
 
 ```json
-// package.json
 "scripts": {
     "preinstall": "only-allow npm",
     ...
 }
 ```
 以上配置完成后，可以再乱用 （`yarn`、`npm`、`pnpm`） 试试
+
+## 文件系统中的目录与切换操作命令
+
+**cd**
+
+`cd`，`change directory`，切换当前工作目录。
+
+除指定目录外，还有以下特殊目录。
+
+* .: 当前工作目录。
+
+* ..: 父级工作目录。
+
+* /: 根目录。
+
+* ~: `home目录`，即当前的用户目录，同时也可用环境变量 `$HOME` 表示。假设当前用户为 `shanyue`，则 ~ 目录为 `/Users/shanyue` (`mac系统`)。
+
+另外，cd - 为进入上一次的工作目录，如同 git checout - 切回上次的分支一样。
+
+**pwd**
+
+`pwd`，`print working directory`，打印当前工作目录。
+
+```text
+PS C:\Users\HC0500017> pwd
+
+Path
+----
+C:\Users\HC0500017
+```
+
+**ls**
+ls，列出某个工作目录的内容。
+
+ls 单指令不会列出以 . 开头的文件，比如 .git、 .babelrc、.eslintrc 均不会默认显示。「而使用 -a，将会把所有文件列出。」
+
+在日常工作中，常使用 ls -lah 列出工作目录内容。
+
+**exa**
+
+一个 ls 的替代品，拥有更友好的色彩更丰富的输出，同时支持更丰富的选项。
+
+```text
+# 支持查看 git 情况
+$ exa -lah --git
+```
+
+**tree**
+
+tree，以树状图的形式列出文件。
+
+该命令需要手动下载。
+
+```text
+# macos
+$ brew install tree
+
+# centos
+$ yum install tree
+```
+
+* 可通过 -L 指定层级，平常工作可使用以下指令。
+
+* 同时，也可以使用更高级的 exa -T 打印树状文件。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
