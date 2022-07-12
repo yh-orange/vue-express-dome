@@ -83,6 +83,7 @@ module.exports = {
                         { title: 'webpack', path: '/front-end-engineering/webpack'},
                         { title: '前端错误监控体系搭建', path: '/front-end-engineering/前端错误监控体系搭建'},
                         { title: 'nginx', path: '/front-end-engineering/nginx'},
+                        { title: 'Babel', path: '/front-end-engineering/Babel'},
                         { title: '前端mock数据', path: '/front-end-engineering/mock'},
                         { title: 'js模块化', path: '/front-end-engineering/js模块化'},
                         { title: 'docker', path: '/front-end-engineering/docker'}
