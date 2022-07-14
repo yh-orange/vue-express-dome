@@ -86,6 +86,8 @@ module.exports = {
                         { title: 'Babel', path: '/front-end-engineering/Babel'},
                         { title: '前端mock数据', path: '/front-end-engineering/mock'},
                         { title: 'js模块化', path: '/front-end-engineering/js模块化'},
+                        { title: '前端轻量自动化构建方案', path: '/front-end-engineering/前端轻量自动化构建方案'},
+                        { title: '前端代码规范', path: '/front-end-engineering/前端代码规范'},
                         { title: 'docker', path: '/front-end-engineering/docker'}
                     ]
                 }
