@@ -521,9 +521,36 @@ $ yum install tree
 
 * 同时，也可以使用更高级的 exa -T 打印树状文件。
 
+# 如何创建.gitignore文件
 
+为什么要创建`.gitignore`文件?
 
+因为`.gitignore`可以排除提交时携带的不必要文件，比如Java中的.class文件。同时还可以排除其他不想提交或者提交没这个必要的文件等等。
 
+创建步骤如下:
+
+1.打开`git bash`
+
+2.进入对应的目录，确保与`.git`在同一目录下
+
+3.执行 `touch .gitignore`
+
+4.编辑`.gitignore`文件 将提交需要排除的文件夹放入`.gitignore`文件中
+
+# .gitignore文件不生效
+
+```text
+# 清除缓存文件
+git rm -r --cached .
+git add .
+git commit -m ".gitignore重写缓存成功"
+git push
+
+```
+**原理解读**
+`.gitignore`文件只会在第一次提交项目的时候写入缓存，也就是说如果你第一次提交项目时候忘记写`.gitignore`文件，后来再补上是没有用的，`.gitignore`文件是不生效的。因为在缓存中已经标记该项目不存在`ignore`文件了（`boolean`）
+
+所以我们使用`git rm -r --cached` .去清除所有的缓存。然后再次提交代码就可以了，这样`.gitignore`文件就会生效了。
 
 
 
