@@ -49,6 +49,7 @@ module.exports = {
             {text: 'Markdown', link: '/md-study-note/'},
             {text: '前端工程化', link: '/front-end-engineering/'},
             {text: 'Node', link: '/node/'},
+            {text: 'Web安全问题', link: '/web-security-problem/'},
             {text: 'photoStudy', link: '/photo-study/'},
             // {text: '自己的网站', link: 'http://120.77.15.133'},
             {text: 'TimeLine', link: '/timeline/', icon: 'reco-date'}
