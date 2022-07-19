@@ -1,0 +1,48 @@
+/gradle/wrapper/gradle-wrapper.properties
+##----------Android----------
+# build
+*.apk
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+build/
+
+# gradle
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+build/
+
+local.properties
+
+##----------idea----------
+*.iml
+.idea/
+*.ipr
+*.iws
+
+# Android Studio Navigation editor temp files
+.navigation/
+
+##----------Other----------
+# osx
+*~
+.DS_Store
+gradle.properties
+
+ # A：#为注释
+ # B：可以使用shell所使用的正则表达式来进行模式匹配
+ # C：匹配模式最后跟"/"说明要忽略的是目录
+ # D：使用！取反（例如目录中包含  test.a，并且gitignore文件中包含  *.[oa]，如果在文件中加入 ！test.a   表明忽略除test.a文件以外的后缀名为.a或者.o的文件）
+# 此为注释 – 将被 Git 忽略
+
+# *.a       # 忽略所有 .a 结尾的文件
+# !lib.a    # 但 lib.a 除外
+# /TODO     # 仅仅忽略项目根目录下的 TODO 文件，不包括 subdir/TODO
+# build/    # 忽略 build/ 目录下的所有文件
+# doc/*.txt # 会忽略 doc/notes.txt 但不包括 doc/server/arch.txt
+node-modules/
+docs/.vuepress/dist/
+node_modules

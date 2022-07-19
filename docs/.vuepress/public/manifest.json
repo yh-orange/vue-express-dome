@@ -1,0 +1,9 @@
+{
+  "name": "告鸟",
+  "short_name": "告鸟",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#2196f3",
+  "description": "告鸟技术栈",
+  "theme_color": "blue"
+}
