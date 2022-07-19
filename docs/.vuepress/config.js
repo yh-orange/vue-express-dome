@@ -51,6 +51,7 @@ module.exports = {
             {text: 'Node', link: '/node/'},
             {text: 'Web安全问题', link: '/web-security-problem/base'},
             {text: 'photoStudy', link: '/photo-study/'},
+            {text: 'ps', link: '/ps/quick'},
             // {text: '自己的网站', link: 'http://120.77.15.133'},
             {text: 'TimeLine', link: '/timeline/', icon: 'reco-date'}
         ],
