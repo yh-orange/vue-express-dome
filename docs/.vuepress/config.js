@@ -49,7 +49,7 @@ module.exports = {
             {text: 'Markdown', link: '/md-study-note/'},
             {text: '前端工程化', link: '/front-end-engineering/'},
             {text: 'Node', link: '/node/'},
-            {text: 'Web安全问题', link: '/web-security-problem/'},
+            {text: 'Web安全问题', link: '/web-security-problem/base'},
             {text: 'photoStudy', link: '/photo-study/'},
             // {text: '自己的网站', link: 'http://120.77.15.133'},
             {text: 'TimeLine', link: '/timeline/', icon: 'reco-date'}
@@ -93,7 +93,18 @@ module.exports = {
                         { title: 'docker', path: '/front-end-engineering/docker'}
                     ]
                 }
-            ]
+            ],
+            '/web-security-problem': [
+                {
+                    title:'Web安全问题',
+                    collapsable: false,
+                    children:[
+                        { title: 'XSS 攻击', path: '/web-security-problem/xss'},
+                        { title: 'CSRF 攻击', path: '/web-security-problem/csrf' },
+                        { title: 'JavaScript 混淆安全加固', path: '/web-security-problem/javascript' }
+                    ]
+                }
+            ],
         },
         subSidebar: 'auto',
         lastUpdated: 'Last Updated', // string | boolean
