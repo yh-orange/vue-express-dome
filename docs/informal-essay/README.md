@@ -572,6 +572,13 @@ node -v
 npm -v
 
 ```
+**查看npm全局安装的包**
+`npm list -g --depth 0`
+**卸载npm全局安装的包**
+```text
+# 例如要卸载 jshint 这个包
+npm uninstall -g xxxx
+```
 
 ## 配置环境变量
 
