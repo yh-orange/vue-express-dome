@@ -552,16 +552,79 @@ git push
 
 所以我们使用`git rm -r --cached` .去清除所有的缓存。然后再次提交代码就可以了，这样`.gitignore`文件就会生效了。
 
+# windows10下安装和配置nodejs环境
+
+## 下载安装node.js
+
+* 官方下载地址:下载最新LTS windows版本: 16.15.0 (includes npm 8.5.5)  [Node.js](https://nodejs.org/en/) ,如下图
+
+* 安装可以更改安装路径(我的是默认地址`C:\Program Files\`这个地方有隐藏坑，晚点详说) 
+ 
+* 其余的都是选择 下一步, 安装
+
+ 测试是否安装 成功
+
+打开开始菜单中输入cmd，打开cmd命令窗口，分别输入如下命令
+
+```text
+node -v
+
+npm -v
+
+```
+
+## 配置环境变量
+
+配置全局安装的模块路径和缓存路径（不一定是安装路径）
+本文是在安装目录的`nodejs`文件夹下,创建 `node_global`
+本文是在安装目录的`nodejs`文件夹下,创建 `node_cache`
+
+路径的配置命令
+```text
+npm config set prefix "C:\Program Files\nodejs\node_global"
+npm config set cache "C:\Program Files\nodejs\node_cache"
+```
+
+### 配置环境变量
+进入 “我的电脑”-右键-“属性”-“高级系统设置”-“高级”-“环境变量”
+
+选择 系统变量 创建 NODE_PATH 变量
+
+变量名：`NODE_PATH`
+变量值：`C:\Program Files\nodejs\node_modules`(安装的路径，`node_modules` 文件夹 安装后就会有的)
+* 在 系统变量 中 选择 `Path` 添加如下属性：
+
+* 把前半部分的 `nodejs` 路径换成自己的 `nodejs` 的路径
+
+### 测试安装
+
+全局安装最常用的 `express` 模块 进行测试
+```text
+npm install express -g
+```
+
+如果报错
+[环境变量报错](/images/informal-essay.png)
+
+有两种处理方法
+* 方法一
+则表示nodejs的安装目录无权限，根据错误日志的信息，定位到安装目录下，我的安装目录为C:\Program Files\nodejs鼠标右键找到属性->安全 ->编辑，如图：
 
 
+[环境变量报错2](/images/informal-essay1.png)
 
+点击确定，再次执行对应命令，解决问题。 
 
+* 方法二  
+修改缓存和全局的文件夹配置的位置
 
+将node.js复制到一个盘里面，然后修改配置
+路径的配置命令
+```text
+npm config set prefix "E:\ProgramFiles\nodejs\node_global"
+npm config set cache "E:\ProgramFiles\nodejs\node_cache"
+```
 
-
-
-
-
-
-
-
+并且修改环境变量
+[环境变量报错2](/images/informal-essay2.png)
+[环境变量报错3](/images/informal-essay2.png)
