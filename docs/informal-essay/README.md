@@ -628,3 +628,37 @@ npm config set cache "E:\ProgramFiles\nodejs\node_cache"
 并且修改环境变量
 [环境变量报错2](/images/informal-essay2.png)
 [环境变量报错3](/images/informal-essay2.png)
+
+# NPM镜像源查看和切换
+
+全局切换镜像源：
+`npm config set registry http://registry.npm.taobao.org`
+查看镜像源使用状态：
+`npm get registry`
+全局切换官方镜像源：
+`npm config set registry http://www.npmjs.org`
+
+
+## 使用nrm查看和切换镜像
+
+1. 首先通过npm安装nrm：
+
+```text
+npm install -g nrm
+```
+
+2. 通过nrm查看和切换镜像源（命令）：nrm ls
+注意：下面的 * 表示当当前正在使用的源，
+```text
+* npm -------- https://registry.npmjs.org/
+  yarn ------- https://registry.yarnpkg.com/
+  cnpm ------- http://r.cnpmjs.org/
+  taobao ----- https://registry.npm.taobao.org/
+  nj --------- https://registry.nodejitsu.com/
+  npmMirror -- https://skimdb.npmjs.com/registry/
+  edunpm ----- http://registry.enpmjs.org/
+```
+3. 如果想要使用某一个，直接use，比如我要使用淘宝镜像的源：
+```text
+nrm use taobao
+```
