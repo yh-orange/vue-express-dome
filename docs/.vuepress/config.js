@@ -45,7 +45,7 @@ module.exports = {
             {text: 'typeScript', link: '/typeScript/'},
             {text: 'VSCode', link: '/VSCode/'},
             {text: '随笔', link: '/informal-essay/'},
-            {text: 'vue3', link: '/vue3-base/'},
+            {text: 'vue相关知识', link: '/vue-base/vue3'},
             {text: 'Markdown', link: '/md-study-note/'},
             {text: '前端工程化', link: '/front-end-engineering/'},
             {text: 'Node', link: '/node/'},
@@ -106,6 +106,16 @@ module.exports = {
                         { title: 'XSS 攻击', path: '/web-security-problem/xss'},
                         { title: 'CSRF 攻击', path: '/web-security-problem/csrf' },
                         { title: 'JavaScript 混淆安全加固', path: '/web-security-problem/javascript' }
+                    ]
+                }
+            ],
+            '/vue-base': [
+                {
+                    title:'vue相关知识',
+                    collapsable: false,
+                    children:[
+                        { title: 'vue3', path: '/vue-base/vue3'},
+                        { title: 'jsx', path: '/vue-base/jsx'}
                     ]
                 }
             ],
