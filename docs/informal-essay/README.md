@@ -669,3 +669,200 @@ npm install -g nrm
 ```text
 nrm use taobao
 ```
+
+# JavaScript中,{}+{}等于多少?
+
+**JavaScript-wat**
+在 `JavaScript` 中,加法的规则其实很简单,只有两种情况:你只能把数字和数字相加,或者字符串和字符串相加,所有其他类型的值都会被自动转换成这两种类型的值. 为了能够弄明白这种隐式转换是如何进行的,我们首先需要搞懂一些基础知识.注意:在下面的文章中提到某一章节的时候(比如§9.1),指的都是ECMA-262语言规范([ECMAScript 5.1](https://262.ecma-international.org/5.1/))中的章节.
+
+让我们快速的复习一下.在JavaScript中,一共有两种类型的值:原始值(`primitives`)和对象值(`objects`).原始值有:`undefined`, `null`, `布尔值(booleans)`, `数字(numbers)`,还有`字符串(strings)`.其他的所有值都是对象类型的值,包括数组(`arrays`)和函数(`functions`).
+
+## **类型转换**
+加法运算符会触发三种类型转换:将值转换为原始值,转换为数字,转换为字符串,这刚好对应了`JavaScript引擎`内部的三种抽象操作:`ToPrimitive()`,`ToNumber()`,`ToString()`
+
+1. * 通过`ToPrimitive()`将值转换为原始值
+    
+`JavaScript引擎`内部的抽象操作`ToPrimitive()`有着这样的签名:    `ToPrimitive(input, PreferredType?)`
+可选参数 `PreferredType` 可以是 `Number` 或者 `String` ,它只代表了一个转换的偏好,转换结果不一定必须是这个参数所指的类型,但转换结果一定是一个原始值.如果 `PreferredType` 被标志为 `Number` ,则会进行下面的操作来转换输入的值 ([§9.1](https://262.ecma-international.org/5.1/#sec-9.1)):
+    1. 如果输入的值已经是个原始值,则直接返回它.
+    2. 否则,如果输入的值是一个对象.则调用该对象的`valueOf()`方法.如果`valueOf()`方法的返回值是一个原始值,则返回这个原始值.
+    3. 否则,调用这个对象的 `toString()` 方法.如果`toString()`方法的返回值是一个原始值,则返回这个原始值.
+    4. 否则,抛出 `TypeError` 异常.
+    
+如果`PreferredType`被标志为`String`,则转换操作的第二步和第三步的顺序会调换.如果没有`PreferredType`这个参数,则`PreferredType`的值会按照这样的规则来自动设置:`Date类型`的对象会被设置为`String`,其它类型的值会被设置为`Number`.
+
+2. 通过`ToNumber()`将值转换为数字
+下面的表格解释了ToNumber()是如何将原始值转换成数字的
+
+|参数|结果|
+| - | - |
+|undefined |	NaN|
+|null |	+0|
+|布尔值 |	true被转换为1,false转换为+0|
+|数字 |	无需转换|
+|字符串 |	由字符串解析为数字.例如,"324"被转换为324|
+
+如果输入的值是一个对象,则会首先会调用`ToPrimitive(obj, Number)`将该对象转换为原始值,然后在调用`ToNumber()`将这个原始值转换为数字.
+
+3. 通过`ToString()`将值转换为字符串
+下面的表格解释了`ToString()`是如何将原始值转换成字符串的
+|参数 | 结果|
+| - | - |
+|undefined | "undefined"|
+|null | "null"|
+|布尔值 | "true"  或者 "false"|
+|数字 | 数字作为字符串,比如. "1.765"|
+|字符串 | 无需转换|
+如果输入的值是一个对象,则会首先会调用`ToPrimitive(obj, String)`将该对象转换为原始值,然后再调用`ToString()`将这个原始值转换为字符串.
+
+4. 实践一下
+下面的对象可以让你看到引擎内部的转换过程.
+```js
+var obj = {
+    valueOf: function () {
+        console.log("valueOf");
+        return {}; // 没有返回原始值
+    },
+    toString: function () {
+        console.log("toString");
+        return {}; // 没有返回原始值
+    }
+}
+```
+`Number`作为一个函数被调用(而不是作为构造函数调用)时,会在引擎内部调用`ToNumber()`操作:
+```text
+> Number(obj)
+valueOf
+toString
+TypeError: Cannot convert object to primitive value 
+```
+
+## **加法**
+
+有下面这样的一个加法操作.   `value1 + value2`
+在计算这个表达式时,内部的操作步骤是这样的
+1. 将两个操作数转换为原始值 (下面是数学表示法,不是JavaScript代码):
+    ```
+    prim1 := ToPrimitive(value1)
+    prim2 := ToPrimitive(value2)
+    ```
+    `PreferredType` 被省略,因此`Date`类型的值采用`String`,其他类型的值采用Number.
+2. 如果prim1或者prim2中的任意一个为字符串,则将另外一个也转换成字符串,然后返回两个字符串连接操作后的结果.
+3. 否则,将prim1和prim2都转换为数字类型,返回他们的和.
+
+**预料到的结果**
+两个空数组相加时,结果是我们所预料的:
+```text
+> [] + []
+''
+```
+[]会被转换成一个原始值,首先尝试valueOf()方法,返回数组本身(this):
+```text
+> var arr = [];
+> arr.valueOf() === arr
+true
+```
+这样的结果不是原始值,所以再调用`toString()`方法,返回一个空字符串(是一个原始值).因此,`[] + []`的结果实际上是两个空字符串的连接.
+将一个空数组和一个空对象相加,结果也符合我们的预期:
+```text
+> [] + {}
+'[object Object]'
+```
+类似的,空对象转换成字符串是这样的.
+```text
+> String({})
+'[object Object]'
+```
+所以最终的结果是 "" 和 "[object Object]" 两个字符串的连接.
+
+下面是更多的对象转换为原始值的例子,你能搞懂吗:
+```text
+> 5 + new Number(7)
+12
+> 6 + { valueOf: function () { return 2 } }
+8
+> "abc" + { toString: function () { return "def" } }
+'abcdef'
+```
+
+**意想不到的结果**
+如果加号前面的第一个操作数是个空对象字面量,则结果会出乎我们的意料(下面的代码在Firefox控制台中运行):
+```text
+>+ {}
+NaN
+```
+这是怎么一回事?原因就是JavaScript引擎将第一个{}解释成了一个空的代码块并忽略了它.NaN其实是后面的表达式+{}计算的结果 (加号以及后面的{}).这里的加号并不是代表加法的二元运算符,而是一个一元运算符,作用是将它后面的操作数转换成数字,和Number()函数完全一样.例如:
+```text
+> +"3.65"
+3.65
+```
+转换的步骤是这样的:
+```text
++{}
+Number({})
+Number({}.toString())  // 因为{}.valueOf()不是原始值
+Number("[object Object]")
+NaN
+```
+为什么第一个{}会被解析成代码块呢?原因是,整个输入被解析成了一个语句,如果一个语句是以左大括号开始的,则这对大括号会被解析成一个代码块.所以,你也可以通过强制把输入解析成一个表达式来修复这样的计算结果:
+```text
+> ({} + {})
+'[object Object][object Object]'
+```
+另外,一个函数或方法的参数也会被解析成一个表达式:
+```text
+> console.log({} + {})
+[object Object][object Object]
+```
+经过前面的这一番讲解,对于下面这样的计算结果,你也应该不会感到吃惊了:
+```text
+> {} + []
+0
+```
+在解释一次,上面的输入被解析成了一个代码块后跟一个表达式+[].转换的步骤是这样的:
+```text
++[]
+Number([])
+Number([].toString())  // 因为[].valueOf()不是原始值
+Number("")
+0
+```
+有趣的是,`Node.js`的[REPL](http://ww1.cnodejs.net/)在解析类似的输入时,与Firefox和Chrome(和Node.js一样使用V8引擎)的解析结果不同.下面的输入会被解析成一个表达式,结果更符合我们的预料:
+```text
+> {} + {}
+'[object Object][object Object]'
+> {} + []
+'[object Object]'
+```
+下面是 `SpiderMonkey` 和 `nodejs` 中的结果对比.
+
+## 其他
+在大多数情况下,想要弄明白JavaScript中的+号是如何工作的并不难:你只能将数字和数字相加或者字符串和字符串相加.对象值会被转换成原始值后再进行计算.如果你想连接多个数组,需要使用数组的 `concat` 方法:
+```text
+> [1, 2].concat([3, 4])
+[ 1, 2, 3, 4 ]
+```
+`JavaScript`中没有内置的方法来“连接" (合并)多个对象.你可以使用一个`JavaScript`库,比如 [Underscore](http://underscorejs.org/):
+```text
+> var o1 = {eeny:1, meeny:2};
+> var o2 = {miny:3, moe: 4};
+> _.extend(o1, o2)
+{ eeny: 1,
+  meeny: 2,
+  miny: 3,
+  moe: 4 }
+```
+注意:和`Array.prototype.concat()`方法不同,`extend()`方法会修改它的第一个参数,而不是返回合并后的对象:
+```text
+> o1
+{ eeny: 1,
+  meeny: 2,
+  miny: 3,
+  moe: 4 }
+> o2
+{ miny: 3, moe: 4 }
+```
+如果你想了解更多有趣的关于运算符的知识,你可以阅读一下[“Fake operator overloading in JavaScript”](https://2ality.com/2011/12/fake-operator-overloading.html)(已墙).
+
+## 参考
+[JavaScript values: not everything is an object](https://2ality.com/2011/03/javascript-values-not-everything-is.html)
