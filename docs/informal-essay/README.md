@@ -521,7 +521,7 @@ $ yum install tree
 
 * 同时，也可以使用更高级的 exa -T 打印树状文件。
 
-# 如何创建.gitignore文件
+## 如何创建.gitignore文件
 
 为什么要创建`.gitignore`文件?
 
@@ -537,7 +537,7 @@ $ yum install tree
 
 4.编辑`.gitignore`文件 将提交需要排除的文件夹放入`.gitignore`文件中
 
-# .gitignore文件不生效
+## .gitignore文件不生效
 
 ```text
 # 清除缓存文件
@@ -552,9 +552,9 @@ git push
 
 所以我们使用`git rm -r --cached` .去清除所有的缓存。然后再次提交代码就可以了，这样`.gitignore`文件就会生效了。
 
-# windows10下安装和配置nodejs环境
+## windows10下安装和配置nodejs环境
 
-## 下载安装node.js
+### 下载安装node.js
 
 * 官方下载地址:下载最新LTS windows版本: 16.15.0 (includes npm 8.5.5)  [Node.js](https://nodejs.org/en/) ,如下图
 
@@ -580,7 +580,7 @@ npm -v
 npm uninstall -g xxxx
 ```
 
-## 配置环境变量
+### 配置环境变量
 
 配置全局安装的模块路径和缓存路径（不一定是安装路径）
 本文是在安装目录的`nodejs`文件夹下,创建 `node_global`
@@ -636,7 +636,7 @@ npm config set cache "E:\ProgramFiles\nodejs\node_cache"
 [环境变量报错2](/images/informal-essay2.png)
 [环境变量报错3](/images/informal-essay2.png)
 
-# NPM镜像源查看和切换
+## NPM镜像源查看和切换
 
 全局切换镜像源：
 `npm config set registry http://registry.npm.taobao.org`
@@ -670,7 +670,7 @@ npm install -g nrm
 nrm use taobao
 ```
 
-# JavaScript中,{}+{}等于多少?
+## JavaScript中,{}+{}等于多少?
 
 **JavaScript-wat**
 在 `JavaScript` 中,加法的规则其实很简单,只有两种情况:你只能把数字和数字相加,或者字符串和字符串相加,所有其他类型的值都会被自动转换成这两种类型的值. 为了能够弄明白这种隐式转换是如何进行的,我们首先需要搞懂一些基础知识.注意:在下面的文章中提到某一章节的时候(比如§9.1),指的都是ECMA-262语言规范([ECMAScript 5.1](https://262.ecma-international.org/5.1/))中的章节.
@@ -737,7 +737,7 @@ toString
 TypeError: Cannot convert object to primitive value 
 ```
 
-## **加法**
+### **加法**
 
 有下面这样的一个加法操作.   `value1 + value2`
 在计算这个表达式时,内部的操作步骤是这样的
@@ -836,7 +836,7 @@ Number("")
 ```
 下面是 `SpiderMonkey` 和 `nodejs` 中的结果对比.
 
-## 其他
+### 其他
 在大多数情况下,想要弄明白JavaScript中的+号是如何工作的并不难:你只能将数字和数字相加或者字符串和字符串相加.对象值会被转换成原始值后再进行计算.如果你想连接多个数组,需要使用数组的 `concat` 方法:
 ```text
 > [1, 2].concat([3, 4])
@@ -864,10 +864,10 @@ Number("")
 ```
 如果你想了解更多有趣的关于运算符的知识,你可以阅读一下[“Fake operator overloading in JavaScript”](https://2ality.com/2011/12/fake-operator-overloading.html)(已墙).
 
-## 参考
+### 参考
 [JavaScript values: not everything is an object](https://2ality.com/2011/03/javascript-values-not-everything-is.html)
 
-# js中的双问号和“?.“的含义和使用
+## js中的双问号和“?.“的含义和使用
 ？？ 表示：只有左侧的值为null或undefined的时候才使用右侧的值。
 
 ？. 表示：可选链操作符( ?. )允许读取位于连接对象链深处的属性的值，而不必明确验证链中的每           个引用是否有效。操作符的功能类似于 . 链式操作符，不同之处在于，在引用为空(null 或者           undefined) 的情况下不会引起错误，该表达式短路返回值
@@ -886,3 +886,521 @@ const obj = {
      const cat = obj.detail ?. cat ?? 'default name'
         console.log(cat) // huahua
 ```
+
+## JS 手写题系列
+
+### promise篇
+**实现promise.all** :star: :star: :star: :star: :star:
+
+思路：
+1. 首先判断是否传进来的是否是数组
+    * 如果不是就直接报错
+    * 如果是就绩效往下走，然后初始化空数组和指针
+2. 遍历传进来的数据，并调用。
+    * 如果是成功的回调，根据指针插入成功回调的结果，并将指针指向下一位，然后判断结合传入进来的数据长度进行判断，如果是最后以为就将数据通过成功回调出去
+    * 如果失败将结果回调出去
+    
+```js
+function PromiseAll(promises){
+    return new Promise((resolve, reject)=>{
+        if(!Array.isArray(promises)){
+            throw new TypeError("promises must be an array")
+        }
+        let result = [] 
+        let count = 0 
+        promises.forEach((promise, index) => {
+            promise.then((res)=>{
+                result[index] = res
+                count++
+                count === promises.length && resolve(result) 
+            }, (err)=>{
+                reject(err)
+            })
+        })
+    })
+}
+```
+
+**实现 promise.finally** :star: :star: :star: :star: :star:
+
+promise 终态
+
+思路：?
+
+```js
+Promise.prototype.finally = function (cb) {
+  return this.then(function (value) {
+    return Promise.resolve(cb()).then(function () {
+      return value
+    })
+  }, function (err) {
+    return Promise.resolve(cb()).then(function () {
+      throw err
+    })
+  })
+}
+```
+
+**实现promise.allSettled** :star: :star: :star: :star:
+
+修复promise缺陷，只要其中任何一个`promise`失败都会执行`rejecte`，并且 `reject` 的是第一个抛出的错误信息，只有所有的 `promise` 都 `resolve` 时才会调用 `.then` 中的成功回调
+```js
+const p1 = Promise.resolve(1)
+const p2 = Promise.resolve(2)
+const p3 = new Promise((resolve, reject) => {
+  setTimeout(reject, 1000, 'three');
+});
+
+Promise.all([p1, p2, p3])
+.then(values => {
+    console.log('resolve: ', values)
+}).catch(err => {
+    console.log('reject: ', err)
+})    
+
+// reject:  three
+```
+`Promise.allSettled()` 可以获取数组中每个 `promise` 的结果，无论成功或失败
+```js
+const p1 = Promise.resolve(1)
+const p2 = Promise.resolve(2)
+const p3 = new Promise((resolve, reject) => {
+  setTimeout(reject, 1000, 'three');
+});
+
+Promise.allSettled([p1, p2, p3])
+.then(values => {
+    console.log(values)
+})    
+
+/*
+[
+  {status: "fulfilled", value: 1}, 
+  {status: "fulfilled", value: 2}, 
+  {status: "rejected", reason: "three"}
+]
+*/
+```
+当浏览器不支持` Promise.allSettled` ，可以如此 `polyfill`：
+思路：
+1. 如果传入的是一个空数组，那么就直接返回一个resolved的空数组promise对象
+2. 判断是否是promise，如果是promise，计算当前是否所有的 promise 执行完成，执行完毕则resolve
+3. 将执行完毕则resolve数组进行状态判断，如果是成功就定义`fulfilled`，如果失败定义`rejected`
+
+```js
+function allSettled(promises) {
+  if (promises.length === 0) return Promise.resolve([])
+  
+  const _promises = promises.map(
+    item => item instanceof Promise ? item : Promise.resolve(item)
+    )
+  
+  return new Promise((resolve, reject) => {
+    const result = []
+    let unSettledPromiseCount = _promises.length
+    
+    _promises.forEach((promise, index) => {
+      promise.then((value) => {
+        result[index] = {
+          status: 'fulfilled',
+          value
+        }
+        
+        unSettledPromiseCount -= 1
+        // resolve after all are settled
+        if (unSettledPromiseCount === 0) {
+          resolve(result)
+        }
+      }, (reason) => {
+        result[index] = {
+          status: 'rejected',
+          reason
+        }
+        
+        unSettledPromiseCount -= 1
+        // resolve after all are settled
+        if (unSettledPromiseCount === 0) {
+          resolve(result)
+        }
+      })
+    })
+  })
+}
+```
+
+
+**实现promise.race** :star: :star: :star:
+
+作用：`Promise.race()`意为赛跑的意思，也就是数组中的任务哪个获取的块，就返回哪个，不管结果本身是成功还是失败。
+一般用于和定时器绑定，比如将一个请求和三秒的定时器包装成`Promise实例`，加入到`Promise`队列中，
+请求三秒中还没有回应时，给用户一些提示或相应的操作。使用方式如下：
+
+```js
+let p1=new Promise((resolve,reject)=>{
+    setTimeout(()=>{
+            resolve('success');
+        }, 10000);
+});
+
+let p2=new Promise((resolve,reject)=>{
+    setTimeout(()=>{
+        reject('faild');
+    }, 500);
+});
+
+Promise.race([p1,p2]).then(res=>{
+    console.log(res);  
+}).catch(err=>{
+    console.log(err); // 返回的是faild
+})
+```
+思路：
+1. 首先判断是否是数组
+2. 一次调用返回
+
+```js
+Promise.race = function(promiseArr) {
+    if(!Array.isArray(promiseArr)){
+         throw new TypeError("promiseArr must be an array")
+     }
+    return new Promise((resolve, reject) => {
+        promiseArr.forEach(p => {
+            Promise.resolve(p).then(val => {
+                resolve(val)
+            }, err => {
+                rejecte(err)
+            })
+        })
+    })
+}
+```
+
+**promise.any**
+
+`Promise.any()`方法同样是将多个 `Promise` 实例，包装成一个新的 `Promise` 实例。
+
+`Promise.any()`有一个子实例成功就算成功，全部子实例失败才算失败。
+```js
+Promise.any = function(promiseArr) {
+    let index = 0
+    return new Promise((resolve, reject) => {
+        if (promiseArr.length === 0) return 
+        promiseArr.forEach((p, i) => {
+            Promise.resolve(p).then(val => {
+                resolve(val)
+                
+            }, err => {
+                index++
+                if (index === promiseArr.length) {
+                  reject(new AggregateError('All promises were rejected'))
+                }
+            })
+        })
+    })
+}
+```
+
+**总结**：`Promise.all()` 方法是 && 的关系；`Promise.any()` 方法是 || 的关系； `Promise.race()`方法是 赛跑机制;
+**resolve**
+```js
+Promise.resolve = function(value) {
+    if(value instanceof Promise){
+        return value
+    }
+    return new Promise(resolve => resolve(value))
+}
+```
+**reject**
+```js
+Promise.reject = function(reason) {
+    return new Promise((resolve, reject) => reject(reason))
+}
+```
+
+###  Array篇
+
+**数组去重** :star: :star: :star: :star: :star:
+* 使用双重 `for` 和 `splice`
+* 使用 `indexOf` 或 `includes` 加新数组
+* `sort` 排序后，使用快慢指针的思想
+* `ES6` 提供的 `Set` 去重
+* 使用哈希表存储元素是否出现(`ES6` 提供的 `map`)
+* `filter` 配合 `indexOf`
+* `reduce` 配合 `includes`
+
+使用双重 for 和 splice
+将当前循环项跟没想对比，适合简单数据类型的去重
+```js
+function unique(arr){            
+    for(let i=0; i<arr.length; i++){
+        for(let j=i+1; j<arr.length; j++){
+            if(arr[i]==arr[j]){         
+            //第一个等同于第二个，splice方法删除第二个
+                arr.splice(j,1);
+                // 删除后注意回调j
+                j--;
+            }
+        }
+    }
+return arr;
+}
+```
+***
+
+使用 indexOf 或 includes 加新数组
+```js
+//使用indexof
+function unique(arr) {
+    var uniqueArr = []; // 新数组
+    for (let i = 0; i < arr.length; i++) {
+        if (uniqueArr.indexOf(arr[i]) === -1) {
+            //indexof返回-1表示在新数组中不存在该元素
+            uniqueArr.push(arr[i])//是新数组里没有的元素就push入
+        }
+    }
+    return uniqueArr;
+}
+// 使用includes
+function unique(arr) {
+    var uniqueArr = []; 
+    for (let i = 0; i < arr.length; i++) {
+        //includes 检测数组是否有某个值
+        if (!uniqueArr.includes(arr[i])) {
+            uniqueArr.push(arr[i])//
+        }
+    }
+    return uniqueArr;
+}
+```
+***
+
+sort 排序后，使用快慢指针的思想 通过排序将相同数据拍到相同的位置，然后根据邻位相比较进行去重
+```js
+function unique(arr) {
+    arr.sort((a, b) => a - b);
+    var slow = 1,
+        fast = 1;
+    while (fast < arr.length) {
+        if (arr[fast] != arr[fast - 1]) {
+            arr[slow ++] = arr[fast];
+        }
+        ++ fast;
+    }
+    arr.length = slow;
+    return arr;
+}
+```
+***
+
+sort 方法用于从小到大排序(返回一个新数组)，其参数中不带以上回调函数就会在两位数及以上时出现排序错误(如果省略，元素按照转换为的字符串的各个字符的 Unicode 位点进行排序。两位数会变为长度为二的字符串来计算)。
+
+**ES6 提供的 Set 去重**
+```js
+function unique(arr) {
+    const result = new Set(arr);
+    return [...result];
+    //使用扩展运算符将Set数据结构转为数组
+}
+```
+Set 中的元素只会出现一次，即 Set 中的元素是唯一的。
+***
+
+**使用哈希表存储元素是否出现(ES6 提供的 map)**
+```js
+function unique(arr) {
+    let map = new Map();
+    let uniqueArr = new Array();  // 数组用于返回结果
+    for (let i = 0; i < arr.length; i++) {
+      if(map.has(arr[i])) {  // 如果有该key值
+        map.set(arr[i], true); 
+      } else { 
+        map.set(arr[i], false);   // 如果没有该key值
+        uniqueArr.push(arr[i]);
+      }
+    } 
+    return uniqueArr ;
+}
+```
+map 对象保存键值对，与对象类似。但 map 的键可以是任意类型，对象的键只能是字符串类型。
+如果数组中只有数字也可以使用普通对象作为哈希表。
+***
+
+**filter 配合 indexOf**
+```js
+function unique(arr) {
+    return arr.filter(function (item, index, arr) {
+        //当前元素，在原始数组中的第一个索引==当前索引值，否则返回当前元素
+        //不是那么就证明是重复项，就舍弃
+        return arr.indexOf(item) === index;
+    })
+}
+```
+这里有可能存在疑问，我来举个例子：
+```js
+const arr = [1,1,2,1,3]
+arr.indexOf(arr[0]) === 0 // 1 的第一次出现
+arr.indexOf(arr[1]) !== 1 // 说明前面曾经出现过1 后面出现的重复项会被丢弃，因为索引不一致
+```
+***
+
+**reduce 配合 includes**
+```js
+function unique(arr){
+    let uniqueArr = arr.reduce((acc,cur)=>{
+        if(!acc.includes(cur)){
+            acc.push(cur);
+        }
+        return acc;
+    },[]) // []作为回调函数的第一个参数的初始值
+    return uniqueArr
+}
+```
+
+**forEach** :star: :star: :star:
+
+```js
+Array.prototype.myForEach = function (callbackFn) {
+    // 判断this是否合法
+    if (this === null || this === undefined) {
+        throw new TypeError("Cannot read property 'myForEach' of null");
+    }
+    // 判断callbackFn是否合法
+    if (Object.prototype.toString.call(callbackFn) !== "[object Function]") {
+        throw new TypeError(callbackFn + ' is not a function')
+    }
+    // 取到执行方法的数组对象和传入的this对象
+    var _arr = this, thisArg = arguments[1] || window;
+    for (var i = 0; i < _arr.length; i++) {
+        // 执行回调函数
+        callbackFn.call(thisArg, _arr[i], i, _arr);
+    }
+}
+```
+
+**reduce**
+```js
+Array.prototype.myReduce = function(callbackFn) {
+    var _arr = this, accumulator = arguments[1];
+    var i = 0;
+    // 判断是否传入初始值
+    if (accumulator === undefined) {
+        // 没有初始值的空数组调用reduce会报错
+        if (_arr.length === 0) {
+            throw new Error('initVal and Array.length>0 need one')
+        }
+        // 初始值赋值为数组第一个元素
+        accumulator = _arr[i];
+        i++;
+    }
+    for (; i<_arr.length; i++) {
+        // 计算结果赋值给初始值
+        accumulator = callbackFn(accumulator,  _arr[i], i, _arr)
+    }
+    return accumulator;
+}
+```
+
+**map**
+```js
+Array.prototype.myMap = function(callbackFn) {
+    var _arr = this, thisArg = arguments[1] || window, res = [];
+    for (var i = 0; i<_arr.length; i++) {
+        // 存储运算结果
+        res.push(callbackFn.call(thisArg, _arr[i], i, _arr));
+    }
+    return res;
+}
+```
+
+**filter**
+```js
+Array.prototype.myFilter = function(callbackFn) {
+    var _arr = this, thisArg = arguments[1] || window, res = [];
+    for (var i = 0; i<_arr.length; i++) {
+        // 回调函数执行为true
+        if (callbackFn.call(thisArg, _arr[i], i, _arr)) {
+            res.push(_arr[i]);
+        }
+    }
+    return res;
+}
+```
+
+**every**
+```js
+Array.prototype.myEvery = function(callbackFn) {
+    var _arr = this, thisArg = arguments[1] || window;
+    // 开始标识值为true
+    // 遇到回调返回false，直接返回false
+    // 如果循环执行完毕，意味着所有回调返回值为true，最终结果为true
+    var flag = true;
+    for (var i = 0; i<_arr.length; i++) {
+        // 回调函数执行为false，函数中断
+        if (!callbackFn.call(thisArg, _arr[i], i, _arr)) {
+            return false;
+        }
+    }
+    return flag;
+}
+```
+
+**some**
+```js
+Array.prototype.mySome = function(callbackFn) {
+    var _arr = this, thisArg = arguments[1] || window;
+    // 开始标识值为false
+    // 遇到回调返回true，直接返回true
+    // 如果循环执行完毕，意味着所有回调返回值为false，最终结果为false
+    var flag = false;
+    for (var i = 0; i<_arr.length; i++) {
+        // 回调函数执行为false，函数中断
+        if (callbackFn.call(thisArg, _arr[i], i, _arr)) {
+            return true;
+        }
+    }
+    return flag;
+}
+```
+
+**find/findIndex**
+```js
+Array.prototype.myFind = function(callbackFn) {
+    var _arr = this, thisArg = arguments[1] || window;
+    // 遇到回调返回true，直接返回该数组元素
+    // 如果循环执行完毕，意味着所有回调返回值为false，最终结果为undefined
+    for (var i = 0; i<_arr.length; i++) {
+        // 回调函数执行为false，函数中断
+        if (callbackFn.call(thisArg, _arr[i], i, _arr)) {
+            return _arr[i];
+        }
+    }
+    return undefined;
+}
+```
+
+**indexOf**
+```js
+    if (this.length < 1 || beginIndex > findVal.length) {
+        return -1;
+    }
+    if (!findVal) {
+        return 0;
+    }
+    beginIndex = beginIndex <= 0 ? 0 : beginIndex;
+    for (let i = beginIndex; i < this.length; i++) {
+        if (this[i] == findVal) return i;
+    }
+    return -1;
+}
+
+
+```
+
+
+
+
+
+
+
+
+
