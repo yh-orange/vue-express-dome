@@ -866,3 +866,23 @@ Number("")
 
 ## 参考
 [JavaScript values: not everything is an object](https://2ality.com/2011/03/javascript-values-not-everything-is.html)
+
+# js中的双问号和“?.“的含义和使用
+？？ 表示：只有左侧的值为null或undefined的时候才使用右侧的值。
+
+？. 表示：可选链操作符( ?. )允许读取位于连接对象链深处的属性的值，而不必明确验证链中的每           个引用是否有效。操作符的功能类似于 . 链式操作符，不同之处在于，在引用为空(null 或者           undefined) 的情况下不会引起错误，该表达式短路返回值
+
+？.的个人理解 打个比方就是判断对象的某个属性是否存在，如果存在那么就返回整个属性的值，否则返回undefined
+```js
+const obj = {
+      name: 'ceshi',
+      detail: {
+        cat: 'huahua'
+      }
+    }
+    const name = obj.dog ?. name;
+    console.log(name) // undefined
+    // 两者的结合使用
+     const cat = obj.detail ?. cat ?? 'default name'
+        console.log(cat) // huahua
+```
