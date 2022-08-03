@@ -1380,6 +1380,7 @@ Array.prototype.myFind = function(callbackFn) {
 
 **indexOf**
 ```js
+function indexOf(findVal, beginIndex = 0) {
     if (this.length < 1 || beginIndex > findVal.length) {
         return -1;
     }
@@ -1392,15 +1393,575 @@ Array.prototype.myFind = function(callbackFn) {
     }
     return -1;
 }
+```
 
+### 防抖节流
 
+**实现防抖函数** debounce:star: :star: :star: :star: :star:
+```js
+function debounce(func, wait, immediate) {
+
+    var timeout, result;
+
+    var debounced = function () {
+        var context = this;
+        var args = arguments;
+
+        if (timeout) clearTimeout(timeout);
+        if (immediate) {
+            // 如果已经执行过，不再执行
+            var callNow = !timeout;
+            timeout = setTimeout(function(){
+                timeout = null;
+            }, wait)
+            if (callNow) result = func.apply(context, args)
+        }
+        else {
+            timeout = setTimeout(function(){
+                result = func.apply(context, args)
+            }, wait);
+        }
+        return result;
+    };
+
+    debounced.cancel = function() {
+        clearTimeout(timeout);
+        timeout = null;
+    };
+
+    return debounced;
+}
+```
+
+**实现节流函数throttle** debounce :star: :star: :star: :star: :star:
+```js
+// 第四版
+function throttle(func, wait, options) {
+    var timeout, context, args, result;
+    var previous = 0;
+    if (!options) options = {};
+
+    var later = function() {
+        previous = options.leading === false ? 0 : new Date().getTime();
+        timeout = null;
+        func.apply(context, args);
+        if (!timeout) context = args = null;
+    };
+
+    var throttled = function() {
+        var now = new Date().getTime();
+        if (!previous && options.leading === false) previous = now;
+        var remaining = wait - (now - previous);
+        context = this;
+        args = arguments;
+        if (remaining <= 0 || remaining > wait) {
+            if (timeout) {
+                clearTimeout(timeout);
+                timeout = null;
+            }
+            previous = now;
+            func.apply(context, args);
+            if (!timeout) context = args = null;
+        } else if (!timeout && options.trailing !== false) {
+            timeout = setTimeout(later, remaining);
+        }
+    };
+    return throttled;
+}
 ```
 
 
+### Object篇
+**完整的深拷贝** debounce :star: :star: :star: :star: :star:
+```js
+const getType = obj => Object.prototype.toString.call(obj);
 
+const isObject = (target) => (typeof target === 'object' || typeof target === 'function') && target !== null;
 
+const canTraverse = {
+  '[object Map]': true,
+  '[object Set]': true,
+  '[object Array]': true,
+  '[object Object]': true,
+  '[object Arguments]': true,
+};
+const mapTag = '[object Map]';
+const setTag = '[object Set]';
+const boolTag = '[object Boolean]';
+const numberTag = '[object Number]';
+const stringTag = '[object String]';
+const symbolTag = '[object Symbol]';
+const dateTag = '[object Date]';
+const errorTag = '[object Error]';
+const regexpTag = '[object RegExp]';
+const funcTag = '[object Function]';
 
+const handleRegExp = (target) => {
+  const { source, flags } = target;
+  return new target.constructor(source, flags);
+}
 
+const handleFunc = (func) => {
+  // 箭头函数直接返回自身
+  if(!func.prototype) return func;
+  const bodyReg = /(?<={)(.|\n)+(?=})/m;
+  const paramReg = /(?<=\().+(?=\)\s+{)/;
+  const funcString = func.toString();
+  // 分别匹配 函数参数 和 函数体
+  const param = paramReg.exec(funcString);
+  const body = bodyReg.exec(funcString);
+  if(!body) return null;
+  if (param) {
+    const paramArr = param[0].split(',');
+    return new Function(...paramArr, body[0]);
+  } else {
+    return new Function(body[0]);
+  }
+}
 
+const handleNotTraverse = (target, tag) => {
+  const Ctor = target.constructor;
+  switch(tag) {
+    case boolTag:
+      return new Object(Boolean.prototype.valueOf.call(target));
+    case numberTag:
+      return new Object(Number.prototype.valueOf.call(target));
+    case stringTag:
+      return new Object(String.prototype.valueOf.call(target));
+    case symbolTag:
+      return new Object(Symbol.prototype.valueOf.call(target));
+    case errorTag: 
+    case dateTag:
+      return new Ctor(target);
+    case regexpTag:
+      return handleRegExp(target);
+    case funcTag:
+      return handleFunc(target);
+    default:
+      return new Ctor(target);
+  }
+}
 
+const deepClone = (target, map = new WeakMap()) => {
+  if(!isObject(target)) 
+    return target;
+  let type = getType(target);
+  let cloneTarget;
+  if(!canTraverse[type]) {
+    // 处理不能遍历的对象
+    return handleNotTraverse(target, type);
+  }else {
+    // 这波操作相当关键，可以保证对象的原型不丢失！
+    let ctor = target.constructor;
+    cloneTarget = new ctor();
+  }
 
+  if(map.get(target)) 
+    return target;
+  map.set(target, true);
+
+  if(type === mapTag) {
+    //处理Map
+    target.forEach((item, key) => {
+      cloneTarget.set(deepClone(key, map), deepClone(item, map));
+    })
+  }
+  
+  if(type === setTag) {
+    //处理Set
+    target.forEach(item => {
+      cloneTarget.add(deepClone(item, map));
+    })
+  }
+
+  // 处理数组和对象
+  for (let prop in target) {
+    if (target.hasOwnProperty(prop)) {
+        cloneTarget[prop] = deepClone(target[prop], map);
+    }
+  }
+  return cloneTarget;
+}
+```
+
+**实现new** :star: :star: :star: :star: 
+```js
+function createObject(Con) {
+    // 创建新对象obj
+    // var obj = {};也可以
+    var obj = Object.create(null);
+
+    // 将obj.__proto__ -> 构造函数原型
+    // (不推荐)obj.__proto__ = Con.prototype
+    Object.setPrototypeOf(obj, Con.prototype);
+
+    // 执行构造函数，并接受构造函数返回值
+    const ret = Con.apply(obj, [].slice.call(arguments, 1));
+
+    // 若构造函数返回值为对象，直接返回该对象
+    // 否则返回obj
+    return typeof(ret) === 'object' ? ret: obj;
+}
+```
+
+**继承** :star: :star: :star: :star:
+* 原型链继承
+* 借用构造函数(经典继承)
+* 组合继承
+* 原型式继承
+* 寄生式继承
+* 寄生组合式继承
+* Class实现继承(补充一下)
+```js
+class Animal {
+    constructor(name) {
+        this.name = name
+    } 
+    getName() {
+        return this.name
+    }
+}
+class Dog extends Animal {
+    constructor(name, age) {
+        super(name)
+        this.age = age
+    }
+}
+```
+
+**实现object.create**
+```js
+function newCreate(proto, propertiesObject) {
+    if (typeof proto !== 'object' && typeof proto !== 'function') {
+        throw TypeError('Object prototype may only be an Object: ' + proto)
+    }
+    function F() { }
+    F.prototype = proto
+    const o = new F()
+
+    if (propertiesObject !== undefined) {
+        Object.keys(propertiesObject).forEach(prop => {
+            let desc = propertiesObject[prop]
+            if (typeof desc !== 'object' || desc === null) {
+                throw TypeError('Object prorotype may only be an Object: ' + desc)
+            } else {
+                Object.defineProperty(o, prop, desc)
+            }
+        })
+    }
+
+    return o
+}
+```
+
+### Function篇
+
+**call** :star: :star: :star: :star:
+```js
+Function.prototype.myCall = function (thisArg) {
+    thisArg = thisArg || window;
+    thisArg.func = this;
+    const args = []
+    for (let i = 1; i<arguments.length; i++) {
+        args.push('arguments['+ i + ']')
+    }
+    const result = eval('thisArg.func(' + args +')')
+    delete thisArg.func;
+    return result;
+}
+```
+**bind** :star: :star: :star: :star:
+```js
+Function.prototype.sx_bind = function (obj, ...args) {
+    obj = obj || window
+
+    const fn = Symbol()
+    obj[fn] = this
+    const _this = this
+
+    const res = function (...innerArgs) {
+        console.log(this, _this)
+        if (this instanceof _this) {
+            this[fn] = _this
+            this[fn](...[...args, ...innerArgs])
+            delete this[fn]
+        } else {
+            obj[fn](...[...args, ...innerArgs])
+            delete obj[fn]
+        }
+    }
+    res.prototype = Object.create(this.prototype)
+    return res
+}
+```
+**apply** :star: :star: :star: :star:
+```js
+Function.prototype.myApply = function (thisArg, arr) {
+    thisArg = thisArg || window;
+    thisArg.func = this;
+    const args = []
+    for (let i = 0; i<arr.length; i++) {
+        args.push('arr['+ i + ']')
+    }
+    const result = eval('thisArg.func(' + args +')')
+    delete thisArg.func;
+    return result;
+}
+```
+
+###  ajax 与 jsonp
+
+**实现ajax** :star: :star: :star:
+```js
+function ajax({
+    url= null,
+ method = 'GET',
+ dataType = 'JSON',
+ async = true}){
+ return new Promise((resolve, reject) => {
+  let xhr = new XMLHttpRequest()
+  xhr.open(method, url, async)
+  xhr.responseType = dataType
+  xhr.onreadystatechange = () => {
+   if(!/^[23]\d{2}$/.test(xhr.status)) return;
+   if(xhr.readyState === 4) {
+    let result = xhr.responseText
+    resolve(result)
+   }
+  }
+  xhr.onerror = (err) => {
+   reject(err)
+  }
+  xhr.send()
+ })
+}
+```
+**实现jsonp**
+```js
+const jsonp = ({ url, params, callbackName }) => {
+    const generateUrl = () => {
+        let dataSrc = ''
+        for (let key in params) {
+            if (params.hasOwnProperty(key)) {
+                dataSrc += `${key}=${params[key]}&`
+            }
+        }
+        dataSrc += `callback=${callbackName}`
+        return `${url}?${dataSrc}`
+    }
+    return new Promise((resolve, reject) => {
+        const scriptEle = document.createElement('script')
+        scriptEle.src = generateUrl()
+        document.body.appendChild(scriptEle)
+        window[callbackName] = data => {
+            resolve(data)
+            document.removeChild(scriptEle)
+        }
+    })
+}
+```
+
+###  ES6篇
+
+**实现set**
+```js
+class Set {
+  constructor() {
+    this.items = {};
+    this.size = 0;
+  }
+
+  has(element) {
+    return element in this.items;
+  }
+
+  add(element) {
+    if(! this.has(element)) {
+      this.items[element] = element;
+      this.size++;
+    }
+    return this;
+  }
+
+  delete(element) {
+    if (this.has(element)) {
+      delete this.items[element];
+      this.size--;
+    }
+    return this;
+  }
+
+  clear() {
+    this.items = {}
+    this.size = 0;
+  }
+
+  values() {
+    let values = [];
+    for(let key in this.items) {
+      if(this.items.hasOwnProperty(key)) {
+        values.push(key);
+      }
+    }
+    return values;
+  }
+}
+```
+**实现 map**
+```js
+function defaultToString(key) {
+  if(key === null) {
+    return 'NULL';
+  } else if (key === undefined) {
+    return 'UNDEFINED'
+  } else if (Object.prototype.toString.call(key) === '[object Object]' || Object.prototype.toString.call(key) === '[object Array]') {
+    return JSON.stringify(key);
+  }
+  return key.toString();
+}
+
+class Map {
+  constructor() {
+    this.items = {};
+    this.size = 0;
+  }
+
+  set(key, value) {
+    if(!this.has(key)) {
+      this.items[defaultToString(key)] = value;
+      this.size++;
+    }
+    return this;
+  }
+
+  get(key) {
+    return this.items[defaultToString(key)];
+  }
+
+  has(key) {
+    return this.items[defaultToString(key)] !== undefined;
+  }
+
+  delete(key) {
+    if (this.has(key)) {
+      delete this.items[key];
+      this.size--;
+    }
+    return this;
+  }
+
+  clear() {
+    this.items = {}
+    this.size = 0;
+  }
+
+  keys() {
+    let keys = [];
+    for(let key in this.items) {
+      if(this.has(key)) {
+        keys.push(key)
+      }
+    }
+    return keys;
+  }
+
+  values() {
+    let values = [];
+    for(let key in this.items) {
+      if(this.has(key)) {
+        values.push(this.items[key]);
+      }
+    }
+    return values;
+  }
+}
+```
+
+### 其他
+
+**instanceof** :star: :star: :star: :star:
+```js
+function instance_of(Case, Constructor) {
+    // 基本数据类型返回false
+    // 兼容一下函数对象
+    if ((typeof(Case) != 'object' && typeof(Case) != 'function') || Case == 'null') return false;
+    let CaseProto = Object.getPrototypeOf(Case);
+    while (true) {
+        // 查到原型链顶端，仍未查到，返回false
+        if (CaseProto == null) return false;
+        // 找到相同的原型
+        if (CaseProto === Constructor.prototype) return true;
+        CaseProto = Object.getPrototypeOf(CaseProto);
+    }
+}
+```
+
+**实现千分位分隔符**  :star: :star: :star:
+```js
+var str = "100000000000",
+    reg = /(?=(\B\d{3})+$)/g;
+str.replace(reg, ",")
+```
+
+**实现数据类型判断函数**
+```js
+function myTypeof(obj) {
+   return Object.prototype.toString.call(obj).slice(8, -1).toLowerCase() 
+}
+```
+**实现sleep函数**
+```js
+// promise
+const sleep = time => {
+  return new Promise(resolve => setTimeout(resolve,time))
+}
+sleep(1000).then(()=>{
+  console.log(1)
+})
+// ES5
+function sleep(callback,time) {
+  if(typeof callback === 'function')
+    setTimeout(callback,time)
+}
+
+function output(){
+  console.log(1);
+}
+sleep(output,1000);
+```
+**实现发布订阅模式**
+```js
+class EventEmitter {
+    constructor() {
+        this.cache = {}
+    }
+    on(name, fn) {
+        if (this.cache[name]) {
+            this.cache[name].push(fn)
+        } else {
+            this.cache[name] = [fn]
+        }
+    }
+    off(name, fn) {
+        let tasks = this.cache[name]
+        if (tasks) {
+            const index = tasks.findIndex(f => f === fn || f.callback === fn)
+            if (index >= 0) {
+                tasks.splice(index, 1)
+            }
+        }
+    }
+    emit(name, once = false, ...args) {
+        if (this.cache[name]) {
+            // 创建副本，如果回调函数内继续注册相同事件，会造成死循环
+            let tasks = this.cache[name].slice()
+            for (let fn of tasks) {
+                fn(...args)
+            }
+            if (once) {
+                delete this.cache[name]
+            }
+        }
+    }
+}
+```
