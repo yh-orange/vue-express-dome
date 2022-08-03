@@ -46,3 +46,4 @@ gradle.properties
 node-modules/
 docs/.vuepress/dist/
 node_modules
+package-lock.json
