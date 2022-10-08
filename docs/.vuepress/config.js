@@ -98,6 +98,15 @@ module.exports = {
                     ]
                 }
             ],
+            '/informal-essay': [
+                {
+                    title:'随笔-零碎学习记录',
+                    collapsable: false,
+                    children:[
+                        { title: '前端奇奇怪怪的技术', path: '/informal-essay/前端奇奇怪怪的技术'}
+                    ]
+                }
+            ],
             '/web-security-problem': [
                 {
                     title:'Web安全问题',
