@@ -103,7 +103,9 @@ module.exports = {
                     title:'随笔-零碎学习记录',
                     collapsable: false,
                     children:[
-                        { title: '前端奇奇怪怪的技术', path: '/informal-essay/前端奇奇怪怪的技术'}
+                        { title: '零碎', path: '/informal-essay/'},
+                        { title: '前端奇奇怪怪的技术', path: '/informal-essay/前端奇奇怪怪的技术'},
+                        { title: '面试题', path: '/informal-essay/面试题'}
                     ]
                 }
             ],
