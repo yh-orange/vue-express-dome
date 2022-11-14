@@ -53,6 +53,7 @@ module.exports = {
             {text: 'photoStudy', link: '/photo-study/'},
             {text: 'ps', link: '/ps/quick'},
             {text: 'es', link: '/es/'},
+            {text: 'webpack', link: '/webpack/basic'},
             // {text: '自己的网站', link: 'http://120.77.15.133'},
             {text: 'TimeLine', link: '/timeline/', icon: 'reco-date'}
         ],
@@ -127,6 +128,16 @@ module.exports = {
                     children:[
                         { title: 'vue3', path: '/vue-base/vue3'},
                         { title: 'jsx', path: '/vue-base/jsx'}
+                    ]
+                }
+            ],
+            '/webpack': [
+                {
+                    title:'webpack相关知识',
+                    collapsable: false,
+                    children:[
+                        { title: 'webpack的基础介绍', path: '/webpack/basic'},
+                        { title: '自定义脚手架', path: '/webpack/custom'}
                     ]
                 }
             ],
