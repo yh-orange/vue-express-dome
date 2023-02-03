@@ -106,7 +106,8 @@ module.exports = {
                     children:[
                         { title: '零碎', path: '/informal-essay/'},
                         { title: '前端奇奇怪怪的技术', path: '/informal-essay/前端奇奇怪怪的技术'},
-                        { title: '面试题', path: '/informal-essay/面试题'}
+                        { title: '面试题', path: '/informal-essay/面试题'},
+                        { title: '喜欢的文字', path: '/informal-essay/喜欢的文字'}
                     ]
                 }
             ],
