@@ -128,6 +128,7 @@ module.exports = {
                     collapsable: false,
                     children:[
                         { title: 'vue3', path: '/vue-base/vue3'},
+                        { title: 'vue3相关技巧整理', path: '/vue-base/vue3相关技巧整理'},
                         { title: 'jsx', path: '/vue-base/jsx'}
                     ]
                 }
