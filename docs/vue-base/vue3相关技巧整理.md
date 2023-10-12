@@ -241,3 +241,30 @@ export default defineConfig({
 })
 ```
 
+## Proxy跨域
+
+### 跨域原因
+主要是出于`浏览器的**同源策略**`限制，它是浏览器最核心也最基本的安全功能。
+
+当一个请求url的 协议、域名、端口 三者之间任意一个与当前页面url不同即为跨域。
+
+* 例如 http://xxxx.com -> https://xxxx.com 存在跨域 协议不同
+* 例如 127.x.x.x:8001 -> 127.x.x.x:8002 存在跨域 端口不同
+* 例如 www.xxxx.com -> www.yyyy.com 存在跨域 域名不同
+
+### 如何解决跨域
+1. `jsonp` 这种方式在之前很常见，他实现的基本原理是利用了HTML里script元素标签没有跨域限制 动态创建script标签，将src作为服务器地址，服务器返回一个callback接受返回的参数
+```js
+function clickButton() {
+    let obj, s
+    obj = { "table":"products", "limit":10 }; //添加参数
+    s =  document.createElement("script"); //动态创建script
+    s.src = "接口地址xxxxxxxxxxxx"  + JSON.stringify(obj);
+    document.body.appendChild(s);
+ }
+//与后端定义callback名称
+function myFunc(myObj)  {
+    //接受后端返回的参数
+    document.getElementById("demo").innerHTML = myObj;
+}
+```
