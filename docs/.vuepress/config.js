@@ -65,6 +65,7 @@ module.exports = {
                     collapsable: false,
                     // path: 'base-js',
                     children:[
+                        { title: 'html+css+js', path: '/base-js/html+css+js'},
                         { title: '文档对象模型', path: '/base-js/文档对象模型'},
                         { title: '浏览器对象', path: '/base-js/浏览器对象' },
                         { title: 'javaScript基础知识', path: '/base-js/javaScript基础知识' },
