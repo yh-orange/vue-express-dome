@@ -54,6 +54,7 @@ module.exports = {
             {text: 'ps', link: '/ps/quick'},
             {text: 'es', link: '/es/'},
             {text: 'webpack', link: '/webpack/basic'},
+            {text: '小程序资料', link: '/mini-program/'},
             // {text: '自己的网站', link: 'http://120.77.15.133'},
             {text: 'TimeLine', link: '/timeline/', icon: 'reco-date'}
         ],
@@ -142,6 +143,27 @@ module.exports = {
                     children:[
                         { title: 'webpack的基础介绍', path: '/webpack/basic'},
                         { title: '自定义脚手架', path: '/webpack/custom'}
+                    ]
+                }
+            ],
+            '/mini-program': [
+                {
+                    title:'小程序相关知识',
+                    collapsable: false,
+                    children:[
+                        { title: '小程序基础', path: '/mini-program/01'},
+                        { title: '小程序配置文件', path: '/mini-program/02'},
+                        { title: '小程序样式与组件', path: '/mini-program/03'},
+                        { title: '小程序事件系统', path: '/mini-program/04'},
+                        { title: '小程序模板语法', path: '/mini-program/05'},
+                        { title: '小程序生命周期', path: '/mini-program/06'},
+                        { title: '小程序原生 API', path: '/mini-program/07'},
+                        { title: '小程序自定义组件', path: '/mini-program/08'},
+                        { title: '小程序 npm 使用', path: '/mini-program/09'},
+                        { title: '小程序分包加载', path: '/mini-program/10'},
+                        { title: '小程序开放能力', path: '/mini-program/11'},
+                        { title: '小程序补充与拓展', path: '/mini-program/12'},
+                        { title: '上线发布', path: '/mini-program/13'},
                     ]
                 }
             ],
