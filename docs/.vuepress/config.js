@@ -61,6 +61,7 @@ module.exports = {
       { text: "随笔", link: "/informal-essay/" },
       { text: "前端工程化", link: "/front-end-engineering/" },
       { text: "拍照修图", link: "/ps/" },
+      { text: "angular", link: "/angular/" },
       { text: "小程序资料", link: "/mini-program/" },
       // {text: '自己的网站', link: 'http://120.77.15.133'},
       { text: "TimeLine", link: "/timeline/", icon: "reco-date" },
