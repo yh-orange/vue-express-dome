@@ -221,6 +221,16 @@ module.exports = {
           ],
         },
       ],
+      "/angular": [
+        {
+          title: "angular",
+          collapsable: false,
+          children: [
+            { title: "angular", path: "/angular/angular" },
+            { title: "Rxjs", path: "/angular/Rxjs" },
+          ],
+        },
+      ],
     },
     subSidebar: "auto",
     lastUpdated: "Last Updated", // string | boolean
