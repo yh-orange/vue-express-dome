@@ -1597,11 +1597,95 @@ lst2=['陈梅梅','王一一','李丽丽']
 d={key:value for key,value in zip(lst,lst2)}
 print(d)
 ```
+**集合的创建与删除**
+```py
+# coding:utf-8
+#使用{}直接创建集合
+s={10,20,30,40}
+print(s)
+#s={[10,20],[30,40]}#TypeError: unhashable type: 'list'
+#s={([10,20]),([20,30])}
+print(s)
 
+s={} # 创建的是字典还是集合呢？
+print(type(s)) #<class 'dict'>字典
+
+#如何创建空集合
+s=set()
+print(type(s),bool(s))
+
+# 第二种创建集合的方式set()
+s=set('helloworld')
+s2=set([10,20,30])
+s3=set(range(1,10))
+print(s)
+print(s2)
+print(s3)
+
+#集合属于序列中的一种
+print('max:',max(s3))
+print('min:',min(s3))
+print('len:',len(s3))
+
+print('9在集合中是否存在?',(9 in s3))
+print('9在集合中不存在?',(9 not in s3))
+
+#集合的删除
+del s3
+# s3 = 4
+print(s3) #NameError: name 's3' is not defined
+```
 **集合的操作符**
+```python
+# coding:utf-8
+A={10,20,30,40,50}
+B={30,50,88,76,20}
 
 
+# 交集操作
+print(A&B)
 
+#并集
+print(A|B)
+
+#差集
+print(A-B)
+
+#补集
+print(A^B)
+```
+
+**集合的相关操作**
+```py
+# coding:utf-8
+s={10,20,30}
+#向集合中添加元素
+s.add(100)
+print(s)
+#删除元素
+s.remove(20)
+print(s)
+
+#清除集合中所有元素
+#s.clear()
+#print(s,'空集合的布尔值:',bool(s))
+
+#遍历集合
+for item in s:
+    print(item)
+
+sum = 0
+for index,item in enumerate(s,10):  #10表示的是元素的序号，不是索引，从几开始可以自定义
+    sum += item
+    print(index,'-->',item)
+
+#集合的生成式
+s={i for i in range(10)}
+print(s)
+
+s={i for i in range(10) if i%2}
+print(s)
+```
 
 
 
