@@ -200,3 +200,116 @@ render () {
 
 **函数式组件**
 [官方文档](https://github.com/vuejs/jsx-vue2#installation)
+
+## 常用指令
+
+1. **元素聚焦**
+当你需要在页面加载完成后自动聚焦到某个输入框或者按钮时，可以使用自定义指令来实现。
+
+```js
+Vue.directive('focus', {
+  inserted: function (el) {
+    el.focus();
+  }
+});
+```
+
+2. **文本输入格式化**
+例如，自动将用户输入的数字转换为货币格式，或者在用户输入时自动添加特定的前缀或后缀。
+```js
+Vue.directive('currency', {
+  bind(el, binding) {
+    el.value = parseFloat(el.value).toFixed(binding.value || 2);
+  },
+  update(el, binding) {
+    el.value = parseFloat(el.value).toFixed(binding.value || 2);
+  }
+});
+```
+
+3. **元素高亮显示**
+用于高亮显示某些元素，比如搜索结果或用户选中的项。
+```js
+Vue.directive('highlight', {
+  bind(el, binding) {
+    el.style.backgroundColor = binding.value ? 'yellow' : '';
+  }
+});
+```
+
+4. **懒加载图片**
+实现图片的懒加载，当图片进入视口时才加载。
+```js
+Vue.directive('lazyload', {
+  bind(el, binding) {
+    function check() {
+      if (isElementInViewport(el)) {
+        if (el.getAttribute('data-src')) {
+          el.src = el.getAttribute('data-src');
+          el.removeAttribute('data-src');
+        }
+      } else {
+        setTimeout(check, 500); // 每500ms检查一次
+      }
+    }
+    check(); // 初始检查
+  }
+});
+// 其中isElementInViewport是一个辅助函数，用于判断元素是否在视口内。
+function isElementInViewport(el) {
+    const rect = el.getBoundingClientRect();
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+}
+// function isElementInViewport(el) {
+//     return new Promise((resolve) => {
+//         const observer = new IntersectionObserver((entries) => {
+//             entries.forEach(entry => {
+//                 if (entry.isIntersecting) {
+//                     resolve(true);
+//                 }
+//             });
+//             observer.disconnect(); // 断开观察器连接，防止内存泄漏
+//         });
+//         observer.observe(el);
+//     });
+// }
+```
+5.  元素拖拽
+创建可拖拽的元素。这需要处理多个事件，包括 `mousedown`、`mousemove和mouseup`。
+```js
+Vue.directive('draggable', {
+  bind(el) {
+    let offset = { x: 0, y: 0 }; // 初始偏移量
+    function mouseDownHandler(e) {
+      const startX = e.clientX; // 获取鼠标点击时的X坐标
+      const startY = e.clientY; // 获取鼠标点击时的Y坐标
+      document.addEventListener('mousemove', mouseMoveHandler); // 添加鼠标移动事件监听器
+      document.addEventListener('mouseup', mouseUpHandler); // 添加鼠标松开事件监听器
+      offset.x = startX - el.offsetLeft; // 计算初始偏移量X
+      offset.y = startY - el.offsetTop; // 计算初始偏移量Y
+    }
+    
+    function mouseMoveHandler(e) {
+      el.style.left = `${e.clientX - offset.x}px`; // 设置元素的新位置X坐标
+      el.style.top = `${e.clientY - offset.y}px`; // 设置元素的新位置Y坐标
+    }
+    function mouseUpHandler() {
+      document.removeEventListener('mousemove', mouseMoveHandler); // 移除鼠标移动事件监听器
+      document.removeEventListener('mouseup', mouseUpHandler); // 移除鼠标松开事件监听器
+    }
+    el.addEventListener('mousedown', mouseDownHandler); // 在元素上添加鼠标按下事件监听器
+  }
+});
+```
+
+6. 全局事件监听器（如键盘事件）的封装管理
+在某些应用中，你可能需要在多个组件中监听键盘事件。通过自定义指令封装这部分逻辑，可以减少代码重复并提高代码的可维护性。例如，创建一个监听Esc键关闭模态框的指令。
+
+通过这些场景，你可以看到自定义指令在Vue中的灵活性和强大功能，它们能够帮助你更好地组织和封装DOM操作和逻辑，从而提高开发效率和代码质量。
+
+

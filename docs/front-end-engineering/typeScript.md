@@ -89,6 +89,36 @@ let arr3: [string, number, boolean] = ['小甜甜', 100.12345, true];
   console.log(arr3[0].split(''));
   console.log(arr3[1].toFixed(2));
 ```
+3. 多维数组
+···typeScript
+let data:number[][] = [[1,2], [3,4]];
+```
+
+4. arguments类数组
+```typeScript
+function Arr(...args:any): void {
+    console.log(arguments)
+    //错误的arguments 是类数组不能这样定义
+    let arr:number[] = arguments
+}
+Arr(111, 222, 333)
+ 
+ 
+ 
+function Arr(...args:any): void {
+    console.log(arguments) 
+    //ts内置对象IArguments 定义
+    let arr:IArguments = arguments
+}
+Arr(111, 222, 333)
+ 
+//其中 IArguments 是 TypeScript 中定义好了的类型，它实际上就是：
+interface IArguments {
+[index: number]: any;
+length: number;
+callee: Function;
+}
+```
 
 ### 枚举类型  -----> boolean
 
@@ -121,6 +151,215 @@ let arr3: [string, number, boolean] = ['小甜甜', 100.12345, true];
     console.log(Gender[0], Gender[1]);
 
 ```
+
+### 函数类型
+```typeScript
+//注意，参数不能多传，也不能少传 必须按照约定的类型来
+const fn = (name: string, age:number): string => {
+    return name + age
+}
+fn('张三',18)
+//通过?表示该参数为可选参数
+const fn = (name: string, age?:number): string => {
+    return name + age
+}
+fn('张三')
+
+// 函数参数的默认值
+const fn = (name: string = "我是默认值"): string => {
+    return name
+}
+fn()
+
+//定义参数 num 和 num2  ：后面定义返回值的类型
+interface Add {
+    (num:  number, num2: number): number
+}
+ 
+const fn: Add = (num: number, num2: number): number => {
+    return num + num2
+}
+fn(5, 5)
+ 
+//  接口定义函数
+interface User{
+    name: string;
+    age: number;
+}
+function getUserInfo(user: User): User {
+  return user
+}
+
+// 定义剩余参数
+const fn = (array:number[],...items:any[]):any[] => {
+       console.log(array,items)
+       return items
+}
+ 
+let a:number[] = [1,2,3]
+ 
+fn(a,'4','5','6')
+/*
+函数重载
+
+重载是方法名字相同，而参数不同，返回类型可以相同也可以不同。
+
+如果参数类型不同，则参数类型应设置为 any。
+
+参数数量不同你可以将不同的参数设置为可选。
+*/
+function fn(params: number): void
+ 
+function fn(params: string, params2: number): void
+ 
+function fn(params: any, params2?: any): void {
+ 
+    console.log(params)
+ 
+    console.log(params2)
+ 
+}
+ 
+ 
+ 
+fn(123)
+ 
+fn('123',456)
+```
+ 
+### 内置对象
+
+### 类型推论|类型别名
+什么是类型推论
+```ts
+let str = "小满zs"
+
+```
+ 1. 我声明了一个变量但是没有定义类型 `TypeScript` 会在没有明确的指定类型的时候推测出一个类型，这就是类型推论；所以TS帮我推断出来这是一个 `string` 类型并且不能够在赋值给别的类型
+ 2. 如果你声明变量没有定义类型也没有赋值这时候TS会推断成any类型可以进行任何操作
+ 
+**类型别名**
+type 关键字（可以给一个类型定义一个名字）多用于复合类型
+
+ 定义类型别名
+ ```ts
+ // 定义类型别名
+
+ type str = string
+
+let s:str = "我是小满"
+console.log(s);
+
+// 定义函数别名
+type str = () => string
+let s: str = () => "我是小满"
+ 
+console.log(s);
+// 定义联合类型别名
+type str = string | number
+ 
+ 
+let s: str = 123
+let s2: str = '123'
+console.log(s,s2);
+//定义值的别名
+type value = boolean | 0 | '213'
+ 
+ 
+let s:value = true
+//变量s的值  只能是上面value定义的值
+ ```
+
+ **type** 和 **interface** 还是一些区别的 虽然都可以定义类型
+
+1. **interface** 可以继承  type 只能通过 & 交叉类型合并
+
+2. **type** 可以定义 联合类型 和 可以使用一些操作符 interface不行
+
+3. **interface** 遇到重名的会合并 type 不行
+
+**type高级用法**
+```ts
+type a = 1 extends number ? 1 : 0 //1
+ 
+type a = 1 extends Number ? 1 : 0 //1
+ 
+type a = 1 extends Object ? 1 : 0 //1
+ 
+type a = 1 extends any ? 1 : 0 //1
+ 
+type a = 1 extends unknow ? 1 : 0 //1
+ 
+type a = 1 extends never ? 1 : 0 //0
+```
+第一梯队：any, unknow
+第二梯队：Object
+第三梯队：普通数据类型 number string boolean 
+第二梯队：never
+
+### never类型
+`TypeScript` 将使用 `never` 类型来表示不应该存在的状态(很抽象是不是)
+```ts
+// 返回never的函数必须存在无法达到的终点
+ 
+// 因为必定抛出异常，所以 error 将不会有返回值
+function error(message: string): never {
+    throw new Error(message);
+}
+ 
+// 因为存在死循环，所以 loop 将不会有返回值
+function loop(): never {
+    while (true) {
+    }
+}
+```
+**never 与 void 的差异**
+```ts
+    //void类型只是没有返回值 但本身不会出错
+    function Void():void {
+        console.log();
+    }
+ 
+    //只会抛出异常没有返回值
+    function Never():never {
+    throw new Error('aaa')
+    }
+```
+差异2   当我们鼠标移上去的时候会发现 只有void和number    never在联合类型中会被直接移除
+```ts
+type A = void | number | never
+```
+
+**never 类型的一个应用场景**
+```ts
+type A = '小满' | '大满' | '超大满' 
+ 
+function isXiaoMan(value:A) {
+   switch (value) {
+       case "小满":
+           break 
+       case "大满":
+          break 
+       case "超大满":
+          break 
+       default:
+          //是用于场景兜底逻辑
+          const error:never = value;
+          return error
+   }
+}
+```
+比如新来了一个同事他新增了一个篮球，我们必须手动找到所有 switch 代码并处理，否则将有可能引入 BUG 。而且这将是一个“隐蔽型”的BUG，如果回归面不够广，很难发现此类BUG。
+由于任何类型都不能赋值给 never 类型的变量，所以当存在进入 default 分支的可能性时，TS的类型检查会及时帮我们发现这个问题
+
+
+
+
+
+
+
+
+
 
 ### any类型
 
@@ -968,7 +1207,7 @@ let arr3: [string, number, boolean] = ['小甜甜', 100.12345, true];
   // function getArr1(value: number, count: number): number[] {
   //   // 根据数据和数量产生一个数组
   //   const arr: number[] = []
-  //   for (let i = 0; i < count; i++) {
+  //   for (let i = 0; i < count; i++) { 
   //     arr.push(value)
   //   }
   //   return arr
@@ -1156,7 +1395,18 @@ let arr3: [string, number, boolean] = ['小甜甜', 100.12345, true];
   // console.log(getLength<number>(123))
 })()
 ```
-
+**使用keyof 约束对象**
+```ts
+function prop<T, K extends keyof T>(obj: T, key: K) {
+   return obj[key]
+}
+ 
+ 
+let o = { a: 1, b: 2, c: 3 }
+ 
+prop(o, 'a') 
+prop(o, 'd') //此时就会报错发现找不到
+```
 ## 其他
 
 ### 声明文件
