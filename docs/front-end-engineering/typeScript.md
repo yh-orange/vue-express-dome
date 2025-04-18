@@ -461,6 +461,108 @@ function isXiaoMan(value:A) {
     console.log(txt2);
 ```
 
+### tsconfig.json配置文件
+生成 `tsconfig.json` 文件
+这个文件是通过`tsc --init`命令生成的
+配置详解
+```ts
+"compilerOptions": {
+  "incremental": true, // TS编译器在第一次编译之后会生成一个存储编译信息的文件，第二次编译会在第一次的基础上进行增量编译，可以提高编译的速度
+  "tsBuildInfoFile": "./buildFile", // 增量编译文件的存储位置
+  "diagnostics": true, // 打印诊断信息 
+  "target": "ES5", // 目标语言的版本
+  "module": "CommonJS", // 生成代码的模板标准
+  "outFile": "./app.js", // 将多个相互依赖的文件生成一个文件，可以用在AMD模块中，即开启时应设置"module": "AMD",
+  "lib": ["DOM", "ES2015", "ScriptHost", "ES2019.Array"], // TS需要引用的库，即声明文件，es5 默认引用dom、es5、scripthost,如需要使用es的高级版本特性，通常都需要配置，如es8的数组新特性需要引入"ES2019.Array",
+  "allowJS": true, // 允许编译器编译JS，JSX文件
+  "checkJs": true, // 允许在JS文件中报错，通常与allowJS一起使用
+  "outDir": "./dist", // 指定输出目录
+  "rootDir": "./", // 指定输出文件目录(用于输出)，用于控制输出目录结构
+  "declaration": true, // 生成声明文件，开启后会自动生成声明文件
+  "declarationDir": "./file", // 指定生成声明文件存放目录
+  "emitDeclarationOnly": true, // 只生成声明文件，而不会生成js文件
+  "sourceMap": true, // 生成目标文件的sourceMap文件
+  "inlineSourceMap": true, // 生成目标文件的inline SourceMap，inline SourceMap会包含在生成的js文件中
+  "declarationMap": true, // 为声明文件生成sourceMap
+  "typeRoots": [], // 声明文件目录，默认时node_modules/@types
+  "types": [], // 加载的声明文件包
+  "removeComments":true, // 删除注释 
+  "noEmit": true, // 不输出文件,即编译后不会生成任何js文件
+  "noEmitOnError": true, // 发送错误时不输出任何文件
+  "noEmitHelpers": true, // 不生成helper函数，减小体积，需要额外安装，常配合importHelpers一起使用
+  "importHelpers": true, // 通过tslib引入helper函数，文件必须是模块
+  "downlevelIteration": true, // 降级遍历器实现，如果目标源是es3/5，那么遍历器会有降级的实现
+  "strict": true, // 开启所有严格的类型检查
+  "alwaysStrict": true, // 在代码中注入'use strict'
+  "noImplicitAny": true, // 不允许隐式的any类型
+  "strictNullChecks": true, // 不允许把null、undefined赋值给其他类型的变量
+  "strictFunctionTypes": true, // 不允许函数参数双向协变
+  "strictPropertyInitialization": true, // 类的实例属性必须初始化
+  "strictBindCallApply": true, // 严格的bind/call/apply检查
+  "noImplicitThis": true, // 不允许this有隐式的any类型
+  "noUnusedLocals": true, // 检查只声明、未使用的局部变量(只提示不报错)
+  "noUnusedParameters": true, // 检查未使用的函数参数(只提示不报错)
+  "noFallthroughCasesInSwitch": true, // 防止switch语句贯穿(即如果没有break语句后面不会执行)
+  "noImplicitReturns": true, //每个分支都会有返回值
+  "esModuleInterop": true, // 允许export=导出，由import from 导入
+  "allowUmdGlobalAccess": true, // 允许在模块中全局变量的方式访问umd模块
+  "moduleResolution": "node", // 模块解析策略，ts默认用node的解析策略，即相对的方式导入
+  "baseUrl": "./", // 解析非相对模块的基地址，默认是当前目录
+  "paths": { // 路径映射，相对于baseUrl
+    // 如使用jq时不想使用默认版本，而需要手动指定版本，可进行如下配置
+    "jquery": ["node_modules/jquery/dist/jquery.min.js"]
+  },
+  "rootDirs": ["src","out"], // 将多个目录放在一个虚拟目录下，用于运行时，即编译后引入文件的位置可能发生变化，这也设置可以虚拟src和out在同一个目录下，不用再去改变路径也不会报错
+  "listEmittedFiles": true, // 打印输出文件
+  "listFiles": true// 打印编译的文件(包括引用的声明文件)
+}
+ 
+// 指定一个匹配列表（属于自动指定该路径下的所有ts相关文件）
+"include": [
+   "src/**/*"
+],
+// 指定一个排除列表（include的反向操作）
+ "exclude": [
+   "demo.ts"
+],
+// 指定哪些文件使用该配置（属于手动一个个指定文件）
+ "files": [
+   "demo.ts"
+]
+```
+介绍几个常用的
+
+1. **include**
+指定编译文件默认是编译当前目录下所有的ts文件
+
+2. **exclude**
+指定排除的文件
+
+3. **target**
+指定编译js 的版本例如es5  es6
+
+4. **allowJS**
+是否允许编译js文件
+
+5. **removeComments**
+是否在编译过程中删除文件中的注释
+
+6. **rootDir**
+编译文件的目录
+
+7. **outDir**
+输出的目录
+
+8. **sourceMap**
+代码源文件
+
+9. **strict**
+严格模式
+
+10. **module**
+默认 **common.js**  可选 ``es6模式`` `amd`  `umd` 等
+
+
 ## 接口
 
 **接口是对象的状态(属性)和行为(方法)的抽象(描述)**
@@ -1409,6 +1511,82 @@ prop(o, 'd') //此时就会报错发现找不到
 ```
 ## 其他
 
+### 命名空间 namespace
+* 内部模块，主要用于组织代码，避免命名冲突。
+* 命名空间内的类默认私有
+* 通过 `export` 暴露
+* 通过 `namespace` 关键字定义
+
+**TypeScript与ECMAScript 2015一样，任何包含顶级import或者export的文件都被当成一个模块。相反地，如果一个文件不带有顶级的import或者export声明，那么它的内容被视为全局可见的（因此对模块也是可见的）**
+```ts
+namespace a {
+    export const Time: number = 1000
+    export const fn = <T>(arg: T): T => {
+        return arg
+    }
+    fn(Time)
+}
+ 
+ 
+namespace b {
+     export const Time: number = 1000
+     export const fn = <T>(arg: T): T => {
+        return arg
+    }
+    fn(Time)
+}
+ 
+a.Time
+b.Time
+// 嵌套命名空间
+
+namespace a {
+    export namespace b {
+        export class Vue {
+            parameters: string
+            constructor(parameters: string) {
+                this.parameters = parameters
+            }
+        }
+    }
+}
+ 
+let v = a.b.Vue
+ 
+new v('1')
+// 抽离命名空间
+// a.ts
+export namespace V {
+    export const a = 1
+}
+// b.ts
+import {V} from '../observer/index'
+ 
+console.log(V); //{a:1}
+// 简化命名空间
+namespace A  {
+    export namespace B {
+        export const C = 1
+    }
+}
+ 
+import X = A.B.C
+ 
+console.log(X);
+// 合并命名空间
+// 重名的命名空间会合并
+namespace A  {
+    export b = 1
+}
+namespace A  {
+    export c = 2
+}
+console.log(A.b)// 1
+console.log(A.c)// 2
+```
+
+
+
 ### 声明文件
 
 ```typescript
@@ -1419,7 +1597,54 @@ prop(o, 'd') //此时就会报错发现找不到
 声明文件: 把声明语句放到一个单独的文件（jQuery.d.ts）中, ts会自动解析到项目中所有声明文件
 下载声明文件: npm install @types/jquery --save-dev
 */
-
+declare var 声明全局变量
+declare function 声明全局方法
+declare class 声明全局类
+declare enum 声明全局枚举类型
+declare namespace 声明（含有子属性的）全局对象
+interface 和 type 声明全局类型
+/// <reference /> 三斜线指令
+```
+**案例手写声明文件**
+```ts
+import express from 'express'
+ 
+ 
+const app = express()
+ 
+const router = express.Router()
+ 
+app.use('/api', router)
+ 
+router.get('/list', (req, res) => {
+    res.json({
+        code: 200
+    })
+})
+ 
+app.listen(9001,()=>{
+    console.log(9001)
+})
+```
+`express.d.ts`
+```txt
+declare module 'express' {
+    interface Router {
+        get(path: string, cb: (req: any, res: any) => void): void
+    }
+    interface App {
+ 
+        use(path: string, router: any): void
+        listen(port: number, cb?: () => void): void
+    }
+    interface Express {
+        (): App
+        Router(): Router
+ 
+    }
+    const express: Express
+    export default express
+}
 ```
 
 ### 内置对象
@@ -1446,6 +1671,78 @@ prop(o, 'd') //此时就会报错发现找不到
   const fragment: DocumentFragment = document.createDocumentFragment()
 })()
 ```
+
+### 混入mixins
+1. **对象混入**
+可以使用es6的Object.assign 合并多个对象
+
+此时 people 会被推断成一个交差类型 Name & Age & sex;
+```ts
+interface Name {
+    name: string
+}
+interface Age {
+    age: number
+}
+interface Sex {
+    sex: number
+}
+ 
+let people1: Name = { name: "小满" }
+let people2: Age = { age: 20 }
+let people3: Sex = { sex: 1 }
+ 
+const people = Object.assign(people1,people2,people3)
+```
+
+2. **类的混入**
+首先声明两个mixins类 （严格模式要关闭不然编译不过）
+```ts
+class A {
+    type: boolean = false;
+    changeType() {
+        this.type = !this.type
+    }
+}
+ 
+ 
+class B {
+    name: string = '张三';
+    getName(): string {
+        return this.name;
+    }
+}
+// 下面创建一个类，结合了这两个mixins
+// 首先应该注意到的是，没使用extends而是使用implements。 把类当成了接口
+// 我们可以这么做来达到目的，为将要mixin进来的属性方法创建出占位属性。 这告诉编译器这些成员在运行时是可用的。 这样就能使用mixin带来的便利，虽说需要提前定义一些占位属性
+class C implements A,B{
+    type:boolean
+    changeType:()=>void;
+    name: string;
+    getName:()=> string
+}
+// Object.getOwnPropertyNames()可以获取对象自身的属性，除去他继承来的属性，
+// 对它所有的属性遍历，它是一个数组，遍历一下它所有的属性名
+Mixins(C, [A, B])
+function Mixins(curCls: any, itemCls: any[]) {
+    itemCls.forEach(item => {
+        Object.getOwnPropertyNames(item.prototype).forEach(name => {
+            curCls.prototype[name] = item.prototype[name]
+        })
+    })
+}
+```
+
+
+
+
+
+
+
+
+
+
+
 
 ## tsconfig.json 配置说明
 
