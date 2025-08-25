@@ -226,9 +226,10 @@ module.exports = {
           title: "其他资料",
           collapsable: false,
           children: [
-            { title: "angular", path: "/other/angular" },
+            { title: "Angular", path: "/other/angular" },
             { title: "Rxjs", path: "/other/Rxjs" },
-            { title: "phthon", path: "/other/Phthon" },
+            { title: "Python", path: "/other/python" },
+            { title: "React", path: "/other/React" },
           ],
         },
       ],
