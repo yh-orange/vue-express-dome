@@ -226,10 +226,11 @@ module.exports = {
           title: "其他资料",
           collapsable: false,
           children: [
+            { title: "React", path: "/other/react" },
+            { title: "React Hooks", path: "/other/react-hooks" },
             { title: "Angular", path: "/other/angular" },
-            { title: "Rxjs", path: "/other/Rxjs" },
+            { title: "Rxjs", path: "/other/rxjs" },
             { title: "Python", path: "/other/python" },
-            { title: "React", path: "/other/React" },
           ],
         },
       ],

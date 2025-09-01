@@ -1319,16 +1319,250 @@ scheduler.scheduleCallback(NormalPriority, () => {
     console.log('Task 5: Normal Priority');
 });
 ```
-
-### 初识组件
-
-
-
-
+个人理解：
+1. 首先定义优先级类型
+2. 定义一个类，使用MessageChannel 类进行任务开始执行调度的触发通知
+3. 这个类首先收集任务调度并格式化数据，并加到需要执行的队列之中去，并且根据优先级参数结合时间戳进行排序，如果没有任务在执行就触发调度，开始执行任务队列里面已经排序的回调，如果在执行就不做处理。
 
 
+### 组件通信
 
+**1. 父向子组件传递 props**
+支持的类型如下：
 
+* string `title={'测试'}`
+* number `id={1}`
+* boolean `isGirl={false}`
+* null `empty={null}`
+* undefined `empty={undefined}`
+* object `obj={ { a: 1, b: 2 } }`
+* array a`rr={[1, 2, 3]}`
+* function `cb={(a: number, b: number) => a + b}`
+* JSX.Element `element={<div>测试</div>}`
+```ts
+function App() {
+  return (
+    <>
+      <Test
+        title={'测试'}
+        id={1}
+        obj={{ a: 1, b: 2 }}
+        arr={[1, 2, 3]}
+        cb={(a: number, b: number) => a + b}
+        empty={null}
+        element={<div>测试</div>}
+        isGirl={false}
+      >
+      </Test>
+    </>
+  )
+}
+```
+子组件接受父组件传递的props
+
+props是一个对象，会作为函数的第一个参数接受传过来的props值
+
+注意：我们需要遵守单向数据流，子组件不能直接修改父组件的props.在React源码中会使用`Object.freeze`冻结props，限制props的修改。
+
+`Object.freeze()` 静态方法可以使一个对象被冻结。冻结对象可以防止扩展，并使现有的属性不可写入和不可配置。被冻结的对象不能再被更改：不能添加新的属性，不能移除现有的属性，不能更改它们的可枚举性、可配置性、可写性或值，对象的原型也不能被重新指定
+
+```ts
+import React from "react"
+interface Props {
+    title: string
+    id: number
+    obj: {
+        a: number
+        b: number
+    }
+    arr: number[]
+    cb: (a: number, b: number) => number
+    empty: null
+    element: JSX.Element
+}
+
+const Test:React.FC<Props> = (props) => {
+    console.log(props)
+    return <div>Test</div>
+}
+
+export default Test 
+```
+
+**2. 定义默认值**
+**第一种方式**
+将属性变为可选的这儿使用 `title` 举例 `title?: string`
+
+然后将props进行解构，定义默认值 `{title = '默认标题'}`
+```ts
+import React from "react"
+interface Props {
+    title?: string
+    id: number
+    obj: {
+        a: number
+        b: number
+    }
+    arr: number[]
+    cb: (a: number, b: number) => number
+    empty: null
+    element: JSX.Element
+}
+
+const Test:React.FC<Props> = ({title = '默认标题'}) => {
+    return <div>Test</div>
+}
+
+export default Test 
+```
+
+**第二种方式**
+使用 `defaultProps` 进行默认值赋值，最后把 `defaultProps` 和 `props` 合并，注意顺序要先 `写defaultProps，再写props` 因为 `props` 会覆盖 `defaultProps` 的值。
+
+```ts
+import React from "react"
+interface Props {
+    title?: string
+    id: number
+    obj: {
+        a: number
+        b: number
+    }
+    arr: number[]
+    cb: (a: number, b: number) => number
+    empty: null
+    element: JSX.Element
+}
+
+const defaultProps: Partial<Props> = {
+    title: '默认标题',
+}
+
+const Test: React.FC<Props> = (props) => {
+    const { title } = { ...defaultProps, ...props }
+    return <div>{title}</div>
+}
+
+export default Test 
+```
+
+**3. React.FC**
+React.FC是函数式组件，是在TS使用的一个范型。FC是Function Component的缩写
+
+React.FC 帮助我们自动推导Props的类型。
+
+**4. props.children 特殊值**
+这个功能类似于Vue的插槽，直接在子组件内部插入标签会自动一个参数 `props.children`
+```ts
+function App() {
+  return (
+    <>
+      <Test>
+        <div>123</div>
+      </Test>
+    </>
+  )
+}
+```
+在之前的版本children是不需要手动定义的，在18之后改为需要手动定义类型
+这样就会把父级的 `<div>123</div>` 插入子组件的 `<div>` 里面
+```ts
+import React from "react"
+interface Props {
+    children: React.ReactNode //手动声明children
+}
+
+const Test: React.FC<Props> = (props) => {
+    return <div>{props.children}</div>
+}
+
+export default Test 
+```
+
+**5.子组件给父组件传值**
+React 没有像 Vue 那样的 emit 派发事件，所有我们回调函数模拟emit派发事件
+父组件传递函数过去,其本质就是录用函数的回调
+```ts
+import Test from "./components/Test"
+function App() {
+  const fn = (params:string) => {
+    console.log('子组件触发了 父组件的事件',params)
+  }
+  return (
+    <>
+      <Test callback={fn}></Test>
+    </>
+  )
+}
+```
+
+```ts
+import React from "react"
+interface Props {
+    callback: (params: string) => void
+    children?: React.ReactNode
+}
+
+const Test: React.FC<Props> = (props) => {
+    return <div>
+        <button onClick={() => props.callback('我见过龙')}>派发事件</button>
+    </div>
+}
+
+export default Test 
+```
+**6. 兄弟组件通信**
+定义两个组件放到一起作为兄弟组件，其原理就是`发布订阅设计模式`
+```ts
+import Card from "./components/Card"
+import Test from "./components/Test"
+function App() {
+
+  return (
+    <>
+      <Test></Test>
+      <Card></Card>
+    </>
+  )
+}
+
+export default App
+```
+第一个兄弟组件 定义事件模型
+```ts
+import React from "react"
+const Test: React.FC = (props) => {
+    const event = new Event('on-card') //添加到事件中心
+    const clickTap = () => {
+        console.log(event)
+        event.params = { name: '我见过龙' }
+        window.dispatchEvent(event) //派发事件
+    }
+    return <div>
+        <button onClick={clickTap}>派发事件</button>
+    </div>
+}
+//扩充event类型
+declare global {
+    interface Event {
+        params: any
+    }
+}
+
+export default Test 
+```
+第二个兄弟组件接受事件
+```ts
+import './index.css'
+export default function Test2() {
+    //接受参数
+    window.addEventListener('on-card', (e) => {
+        console.log(e.params, '触发了')
+    })
+
+    return <div className="card"></div>
+}
+```
 
 
 
