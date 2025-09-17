@@ -503,5 +503,765 @@ function getSnapshot() {
 ```
 
 
+### useEffect ***
+**useEffect**
+`useEffect` 是 `React` 中用于处理副作用的钩子。并且 `useEffect` 还在这里充当生命周期函数，在之前你可能会在类组件中使用 `componentDidMount、componentDidUpdate` 和 `componentWillUnmount` 来处理这些生命周期事件。
+
+**什么是副作用函数，什么是纯函数？**
+**这个问题在面试中也会被经常被问到**
+**纯函数**
+* 输入决定输出：相同的输入永远会得到相同的输出。这意味着函数的行为是可预测的。
+* 无副作用：纯函数不会修改外部状态，也不会依赖外部可变状态。因此，纯函数内部的操作不会影响外部的变量、文件、数据库等。
+例子(纯函数)
+```ts
+const add = (x: number, y: number) => x + y
+add(1,2) //3
+```
+
+**副作用函数**
+1. 副作用函数 指的是那些在执行时会改变外部状态或依赖外部可变状态的函数。
+2. 可预测性降低但是副作用不一定是坏事有时候副作用带来的效果才是我们所期待的
+3. 高耦合度函数非常依赖外部的变量状态紧密
+
+  * 操作引用类型
+  * 操作本地存储例如localStorage
+  * 调用外部API，例如fetch ajax
+  * 操作DOM
+  * 计时器
+
+```ts
+  let globalVariable = 0;
+
+function calculateDouble(number){  
+  globalVariable += 1; //修改函数外部环境变量
+
+  localStorage.setItem('globalVariable', globalVariable); //修改 localStorage
+
+  fetch(/*…*/).then((res)=>{ //网络请求
+   //…  
+  }); 
+
+  document.querySelector('.app').style.color = 'red'; //修改 DOM element
+
+  return number *2
+}
+```
+**例子(副作用函数)**
+```ts
+//------------副作用函数--------------
+let obj = {name:'小满'}
+const changeObj = (obj) => {
+    obj.name = '大满'
+    return obj
+}
+//小满
+changeObj(obj) //修改了外部变量属于副作用函数
+//大满
+//------------修改成纯函数--------------
+//也就是不会改变外部传入的变量
+let obj = {name:'小满'}
+const changeObj = (obj) => {
+   const newObj = window.structuredClone(obj) //深拷贝
+   newObj.name = '大满'
+   return newObj
+}
+console.log(obj,'before') //obj 小满
+let newobj = fn(obj)
+console.log(obj,'after',newobj) //obj 小满 newobj 大满
+```
+了解了副作用函数之后我们可以正式开始了解 `useEffect`
+
+**`useEffect`用法**
+```ts
+useEffect(setup, dependencies?)
+```
+参数
+  * setup：Effect处理函数,可以返回一个清理函数。组件挂载时执行setup,依赖项更新时先执行cleanup再执行setup,组件卸载时执行cleanup。
+
+  * dependencies(可选)：setup中使用到的响应式值列表(props、state等)。必须以数组形式编写如[dep1, dep2]。不传则每次重渲染都执行Effect。
+
+**返回值**
+useEffect 返回 undefined
+```ts
+let a = useEffect(() => {})
+console.log('a', a) //undefined
+```
+**基本使用**
+副作用函数能做的事情useEffect都能做，例如`操作DOM`、`网络请求`、`计时器`等等。
+
+**操作DOM**
+```ts
+import { useEffect } from 'react'
+
+function App() {
+  const dom = document.getElementById('data')
+  console.log(dom) //null
+  useEffect(() => {
+    const data = document.getElementById('data')
+    console.log(data) //<div id='data'>小满zs</div>
+  }, [])
+  return <div id='data'>小满zs</div>
+}
+```
+**网络请求**
+```ts
+useEffect(() => {
+  fetch('http://localhost:5174/?name=小满')
+}, [])
+```
+**执行时机**
+**组件挂载时执行**
+根据我们下面的例子可以观察到，组件在挂载的时候就执行了 `useEffect` 的副作用函数。
+
+类似于 `componentDidMount`
+```ts
+useEffect(() => {
+  console.log('组件挂载时执行')
+})
+```
+
+**组件更新时执行**
+* **无依赖项更新**
+根据我们下面的例子可以观察到，当有响应式值发生改变时， `useEffect` 的副作用函数就会执行。
+
+类似于 `componentDidUpdate` + `componentDidMount`
+```tsx
+import { useEffect, useState } from "react"
+
+const App = () => {
+   const [count, setCount] = useState(0)
+   const [name, setName] = useState('')
+   useEffect(() => {
+      console.log('执行了', count, name)
+   })
+   return (
+      <div id='data'>
+         <div>
+            <h3>count:{count}</h3>
+            <button onClick={() => setCount(count + 1)}>+</button>
+         </div>
+         <div>
+            <h3>name:{name}</h3>
+            <input value={name} onChange={e => setName(e.target.value)} />
+         </div>
+      </div>
+   )
+}
+export default App
+```
+
+* **有依赖项更新**
+根据我们下面的例子可以观察到，当依赖项数组中的`count`值发生改变时， `useEffect` 的副作用函数就会执行。而当`name`值改变时,由于它不在依赖项数组中,所以不会触发副作用函数的执行。
+
+```tsx
+import { useEffect, useState } from "react"
+
+const App = () => {
+   const [count, setCount] = useState(0)
+   const [name, setName] = useState('')
+   useEffect(() => {
+      console.log('执行了', count, name)
+   }, [count]) //当count发生改变时执行
+   return (
+      <div id='data'>
+         <div>
+            <h3>count:{count}</h3>
+            <button onClick={() => setCount(count + 1)}>+</button>
+         </div>
+         <div>
+            <h3>name:{name}</h3>
+            <input value={name} onChange={e => setName(e.target.value)} />
+         </div>
+      </div>
+   )
+}
+export default App
+```
+* **依赖项空值**
+根据我们下面的例子可以观察到，当依赖项为空数组时， `useEffect` 的副作用函数只会执行一次，也就是组件挂载时执行。
+
+适合做一些`初始化`的操作例如获取详情什么的。
+```tsx
+import { useEffect, useState } from "react"
+
+const App = () => {
+   const [count, setCount] = useState(0)
+   const [name, setName] = useState('')
+   useEffect(() => {
+      console.log('执行了', count, name)
+   }, []) //只会执行一次
+   return (
+      <div id='data'>
+         <div>
+            <h3>count:{count}</h3>
+            <button onClick={() => setCount(count + 1)}>+</button>
+         </div>
+         <div>
+            <h3>name:{name}</h3>
+            <input value={name} onChange={e => setName(e.target.value)} />
+         </div>
+      </div>
+   )
+}
+export default App
+```
+
+**组件卸载时执行**
+`useEffect` 的副作用函数可以返回一个清理函数，当组件卸载时， `useEffect` 的副作用函数就会执行清理函数。
+
+确切说清理函数就是副作用函数运行之前，会清楚上一次的副作用函数。
+
+根据我们下面的例子可以观察到，当组件卸载时， `useEffect` 的副作用函数就会执行。
+
+类似于 `componentWillUnmount`
+```tsx
+import { useEffect, useState } from "react"
+// 子组件
+const Child = (props: { name: string }) => {
+   useEffect(() => {
+      console.log('render', props.name)
+      // 返回一个清理函数
+      return () => {
+         console.log('unmount', props.name)
+      }
+   }, [props.name])
+   return <div>Child:{props.name}</div>
+}
+const App = () => {
+   const [show, setShow] = useState(true)
+   const [name, setName] = useState('')
+   return (
+      <div id='data'>
+         <div>
+            <h3>父组件</h3>
+            <input value={name} onChange={e => setName(e.target.value)} />
+            <button onClick={() => setShow(!show)}>显示/隐藏</button>
+         </div>
+         <hr />
+         <h3>子组件</h3>
+         {show && <Child name={name} />}
+      </div>
+   )
+}
+
+export default App
+```
+
+**清理函数应用场景**
+例如我们下面这个例子，当 `name` 值发生改变时， `useEffect` 的副作用函数就会执行，并且会开启一个定时器，当name值再次发生改变时，useEffect的副作用函数就会执行清理函数，清除上一次的定时器。这样就避免了接口请求的重复执行。
+```tsx
+import { useEffect, useState } from "react"
+// 子组件
+const Child = (props: { name: string }) => {
+   useEffect(() => {
+      let timer = setTimeout(() => {
+         fetch(`http://localhost:5174/?name=${props.name}`)
+      }, 1000)
+      return () => {
+         clearTimeout(timer)
+      }
+   }, [props.name])
+   return <div>Child</div>
+}
+const App = () => {
+   const [show, setShow] = useState(true)
+   const [name, setName] = useState('')
+   return (
+      <div id='data'>
+         <div>
+            <h3>父组件</h3>
+            <input value={name} onChange={e => setName(e.target.value)} />
+            <button onClick={() => setShow(!show)}>显示/隐藏</button>
+         </div>
+         <hr />
+         <h3>子组件</h3>
+         {show && <Child name={name} />}
+      </div>
+   )
+}
+
+export default App
+```
+
+**真实案例**
+下面是一个真实的用户信息获取案例，通过id获取用户信息，并且当id发生改变时，会获取新的用户信息。
+```tsx
+import React, { useState, useEffect } from 'react';
+interface UserData {
+   name: string;
+   email: string;
+   username: string;
+   phone: string;
+   website: string;
+}
+function App() {
+   const [userId, setUserId] = useState(1); // 假设初始用户ID为1
+   const [userData, setUserData] = useState<UserData | null>(null);
+   const [loading, setLoading] = useState(true);
+   const [error, setError] = useState(null);
+
+   useEffect(() => {
+      const fetchUserData = async () => {
+         setLoading(true);
+         try {
+            const response = await fetch(`https://jsonplaceholder.typicode.com/users/${userId}`); //免费api接口 可以直接使用
+            if (!response.ok) {
+               throw new Error('网络响应不正常');
+            }
+            const data = await response.json();
+            setUserData(data);
+         } catch (err: any) {
+            setError(err.message);
+         } finally {
+            setLoading(false);
+         }
+      };
+      fetchUserData();
+   }, [userId]);
+
+   const handleUserChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setUserId(parseInt(event.target.value));
+   };
+
+   return (
+      <div>
+         <h1>用户信息应用</h1>
+         <label>
+            输入用户ID:
+            <input type="number" value={userId} onChange={handleUserChange} min="1" max="10" />
+         </label>
+         {loading && <p>加载中...</p>}
+         {error && <p>错误: {error}</p>}
+         {userData && (
+            <div>
+               <h2>用户信息</h2>
+               <p>姓名: {userData.name}</p>
+               <p>邮箱: {userData.email}</p>
+               <p>用户名: {userData.username}</p>
+               <p>电话: {userData.phone}</p>
+               <p>网站: {userData.website}</p>
+            </div>
+         )}
+      </div>
+   );
+}
+
+export default App;
+```
+
+### useDeferredValue
+
+**useDeferredValue** 用于延迟某些状态的更新，直到主渲染任务完成。这对于高频更新的内容（`如输入框、滚动等`）非常有用，可以让 UI 更加流畅，避免由于频繁更新而导致的性能问题。
+
+**关联问题：useTransition 和 useDeferredValue 的区别**
+`useTransition` 和 `useDeferredValue` 都涉及延迟更新，但它们关注的重点和用途略有不同：
+
+`useTransition`: 主要关注点是状态的过渡。它允许开发者控制某个更新的延迟更新，还提供了过渡标识，让开发者能够添加过渡反馈。
+`useDeferredValue`: 主要关注点是单个值的延迟更新。它允许你把特定状态的更新标记为低优先级。
+
+**用法**
+```ts
+const deferredValue = useDeferredValue(value)
+```
+
+**参数**
+  * `value` : 延迟更新的值(支持任意类型)
+**返回值**
+  * `deferredValue`: 延迟更新的值,在初始渲染期间，返回的延迟值将与您提供的值相同
+**注意事项**
+当 `useDeferredValue` 接收到与之前不同的值（使用 Object.is 进行比较）时，除了当前渲染（此时它仍然使用旧值），它还会安排一个后台重新渲染。这个后台重新渲染是可以被中断的，如果 value 有新的更新，React 会从头开始重新启动后台渲染。举个例子，如果用户在输入框中的输入速度比接收延迟值的图表重新渲染的速度快，那么图表只会在用户停止输入后重新渲染。
+
+**案例:延迟搜索数据的更新**
+* `antd UI` 组件库
+* `mockjs` 模拟数据
+
+```tsx
+import React, { useState, useTransition, useDeferredValue } from 'react'
+import { Input, List } from 'antd'
+import mockjs from 'mockjs'
+interface Item {
+   name: number
+   address: string
+}
+export const App = () => {
+   const [val, setVal] = useState('')
+   const [list] = useState<Item[]>(() => {
+    // 使用 Mock.js 生成模拟数据
+      return mockjs.mock({
+         'list|10000': [
+            {
+               'id|+1': 1,
+               name: '@natural',
+               'address': '@county(true)',
+            }
+         ]
+      }).list
+   })
+   const deferredQuery = useDeferredValue(val)
+   const isStale = deferredQuery !== val // 检查是否为延迟状态
+   const findItem = () => {
+      //过滤列表，仅在 deferredQuery 更新时触发
+      return list.filter(item => item.name.toString().includes(deferredQuery))
+   }
+   return (
+      <div>
+         <Input value={val} onChange={(e) => setVal(e.target.value)} />
+         <List style={{opacity: isStale ? '0.2' : '1', transition: 'all 1s'}} renderItem={(item) => <List.Item>
+            <List.Item.Meta title={item.name} description={item.address} />
+         </List.Item>} dataSource={findItem()}>
+         </List>
+      </div>
+   )
+}
+
+export default App
+```
+
+**陷阱**
+* **useDeferredValue** 并不是防抖,防抖是需要一个固定的延迟时间，譬如1秒后再处理某些行为，但是useDeferredValue并不是一个固定的延迟，它会根据用户设备的情况进行延迟，当设备情况好，那么延迟几乎是无感知的
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### useLayoutEffect
+`useLayoutEffect` 是 `React` 中的一个 `Hook`，用于在浏览器重新绘制屏幕之前触发。与 `useEffect` 类似。
+
+```tsx
+
+useLayoutEffect(() => {
+
+  // 副作用代码
+
+  return () => {
+
+    // 清理代码
+
+  }
+
+}, [dependencies]);
+
+```
+**参数**
+* `setup` ：Effect处理函数,可以返回一个清理函数。组件挂载时执行setup,依赖项更新时先执行cleanup再执行setup,组件卸载时执行cleanup。
+
+* `dependencies(可选)`：setup中使用到的响应式值列表(props、state等)。必须以数组形式编写如[dep1, dep2]。不传则每次重渲染都执行Effect。
+
+**返回值**
+useLayoutEffect 返回 `undefined`
+
+**区别(useLayoutEffect/useEffect)**
+
+| 区别	| useLayoutEffect	| useEffect|
+| - | - | - | - |
+|执行时机	| 浏览器完成布局和绘制之前执行副作用	| 浏览器完成布局和绘制之后执行副作用|
+|执行方式	| 同步执行	| 异步执行|
+|DOM渲染	| 阻塞DOM渲染 |	不阻塞DOM渲染|
+
+**测试DOM阻塞**
+下面这个例子展示了 useLayoutEffect 和 useEffect 在DOM渲染时的区别。useLayoutEffect 会阻塞DOM渲染,而 useEffect 不会。
+
+```ts
+
+import React, { useLayoutEffect, useEffect, useState } from 'react';
+
+
+
+function App() {
+
+   const [count, setCount] = useState(0)
+
+   //不阻塞DOM
+
+   // useEffect(() => {
+
+   //    for (let i = 0; i < 50000; i++) {
+
+   //       //console.log(i);
+
+   //       setCount(count => count + 1)
+
+   //    }
+
+   // }, []);
+
+   //阻塞DOM
+
+   // useLayoutEffect(() => {
+
+   //    for (let i = 0; i < 50000; i++) {
+
+   //       //console.log(i);
+
+   //       setCount(count => count + 1)
+
+   //    }
+
+   // }, []);
+
+   return (
+
+      <div>
+
+         <div>app </div>
+
+         {
+
+            Array.from({ length: count }).map((_, index) => (
+
+               <div key={index}>{index}</div>
+
+            ))
+
+         }
+
+      </div>
+
+   );
+
+}
+
+
+
+export default App;
+```
+**测试同步异步渲染**
+在下面的动画示例代码中:
+
+1. useEffect 实现的动画效果:
+
+  * 初始渲染时 opacity: 0
+
+  * 浏览器完成绘制
+
+  * useEffect 异步执行,设置 opacity: 1
+
+  * 用户可以看到完整的淡入动画过渡效果
+
+2. useLayoutEffect 实现的动画效果:
+
+  * 初始渲染时 opacity: 0
+
+  * DOM 更新后立即同步执行 useLayoutEffect
+
+  * 设置 opacity: 1
+
+  * 浏览器绘制时已经是最终状态
+
+  * 用户看不到过渡动画效果
+
+```tsx
+
+#app1 {
+
+    width: 200px;
+
+    height: 200px;
+
+    background: red;
+
+}
+
+
+
+#app2 {
+
+    width: 200px;
+
+    height: 200px;
+
+    background: blue;
+
+    margin-top: 20px;
+
+    position: absolute;
+
+    top: 230px;
+
+}
+
+```
+```tsx
+
+import React, { useLayoutEffect, useEffect, useRef } from 'react';
+
+
+
+function App() {
+
+
+
+
+   // 使用 useEffect 实现动画效果
+
+   useEffect(() => {
+
+      const app1 = document.getElementById('app1') as HTMLDivElement;
+
+      app1.style.transition = 'opacity 3s';
+
+      app1.style.opacity = '1';
+
+   }, []);
+
+
+
+   // 使用 useLayoutEffect 实现动画效果
+
+   useLayoutEffect(() => {
+
+      const app2 = document.getElementById('app2') as HTMLDivElement;
+
+      app2.style.transition = 'opacity 3s';
+
+      app2.style.opacity = '1';
+
+
+
+   }, []);
+
+
+
+   return (
+
+      <div>
+
+         <div id="app1"  style={{ opacity: 0 }}>app1</div>
+
+         <div id="app2"  style={{ opacity: 0 }}>app2</div>
+
+      </div>
+
+   );
+
+}
+
+
+
+export default App;
+
+```
+
+**应用场景**
+* 需要同步读取或更改DOM：例如，你需要读取元素的大小或位置并在渲染前进行调整。
+
+* 防止闪烁：在某些情况下，异步的useEffect可能会导致可见的布局跳动或闪烁。例如，动画的启动或某些可见的快速DOM更改。
+
+* 模拟生命周期方法：如果你正在将旧的类组件迁移到功能组件，并需要模拟 componentDidMount、componentDidUpdate和componentWillUnmount的同步行为。
+
+**案例**
+可以记录滚动条位置，等用户返回这个页面时，滚动到之前记录的位置。增强用户体验。
+```tsx
+
+import React, { useLayoutEffect, useRef } from 'react';
+
+
+
+function App() {
+
+   useLayoutEffect(() => {
+
+      const list = document.getElementById('list') as HTMLUListElement;
+
+      list.scrollTop = 900
+
+   }, []);
+
+
+
+   return (
+
+      <ul id="list" style={{ height: '500px', overflowY: 'scroll' }}>
+
+         {Array.from({ length: 500 }, (_, i) => (
+
+            <li key={i}>Item {i + 1}</li>
+
+         ))}
+
+      </ul>
+
+   );
+
+}
+
+
+
+export default App;
+```
+
+### useRef
+**useRef**
+当你在React中需要处理DOM元素或需要在组件渲染之间保持持久性数据时，便可以使用useRef。
+```tsx
+import { useRef } from 'react';
+const refValue = useRef(initialValue)
+refValue.current // 访问ref的值 类似于vue的ref,Vue的ref是.value，其次就是vue的ref是响应式的，而react的ref不是响应式的
+```
+**通过Ref操作DOM元素**
+**参数**
+* initialValue：ref 对象的 current 属性的初始值。可以是任意类型的值。这个参数在首次渲染后被忽略。
+**返回值**
+* useRef返回一个对象，对象的current属性指向传入的初始值。 `{current:xxxx}`
+**注意**
+* 改变 ref.current 属性时，React 不会重新渲染组件。React 不知道它何时会发生改变，因为 ref 是一个普通的 JavaScript 对象。
+* 除了 初始化 外不要在渲染期间写入或者读取 ref.current，否则会使组件行为变得不可预测。
+```tsx
+import { useRef } from "react"
+function App() {
+  //首先，声明一个 初始值 为 null 的 ref 对象
+  let div = useRef(null)
+  const heandleClick = () => {
+    //当 React 创建 DOM 节点并将其渲染到屏幕时，React 将会把 DOM 节点设置为 ref 对象的 current 属性
+    console.log(div.current)
+  }
+  return (
+    <>
+      {/*然后将 ref 对象作为 ref 属性传递给想要操作的 DOM 节点的 JSX*/}
+      <div ref={div}>dom元素</div>
+      <button onClick={heandleClick}>获取dom元素</button>
+    </>
+  )
+}
+export default App
+```
+
+
+
+
+
+
+
+
+
 
 
