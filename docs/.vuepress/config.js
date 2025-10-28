@@ -228,6 +228,7 @@ module.exports = {
           children: [
             { title: "React", path: "/other/react" },
             { title: "React Hooks", path: "/other/react-hooks" },
+            { title: "React Hooks", path: "/other/react-router" },
             { title: "Angular", path: "/other/angular" },
             { title: "Rxjs", path: "/other/rxjs" },
             { title: "Python", path: "/other/python" },
