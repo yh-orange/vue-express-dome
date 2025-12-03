@@ -234,6 +234,7 @@ module.exports = {
             { title: "Python", path: "/other/python" },
             { title: "Zustand", path: "/other/Zustand" },
             { title: "Next", path: "/other/Next" },
+            { title: "Network", path: "/other/Network" },
           ],
         },
       ],
