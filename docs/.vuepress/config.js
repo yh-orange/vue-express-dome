@@ -233,6 +233,7 @@ module.exports = {
             { title: "Rxjs", path: "/other/rxjs" },
             { title: "Python", path: "/other/python" },
             { title: "Zustand", path: "/other/Zustand" },
+            { title: "Next", path: "/other/Next" },
           ],
         },
       ],
