@@ -235,6 +235,7 @@ module.exports = {
             { title: "Zustand", path: "/other/Zustand" },
             { title: "Next", path: "/other/Next" },
             { title: "Network", path: "/other/Network" },
+            { title: "eslint_prettier", path: "/other/eslint_prettier" },
           ],
         },
       ],
