@@ -952,6 +952,407 @@ export default function HomePage() {
 }
 ```
 
+## Next.js第九章(AI)
+**AI**
+Vercel提供了[AI SDK](https://gitcode.com/gh_mirrors/sdk1/sdk?utm_source=highlight_word_gitcode&word=sdk&isLogin=1&from_link=ac33515aed719ceb8760c88bba0c2e07)，可以让我们在`Next.js`中轻松集成`AI功能`。[AI SDK 官网](https://ai-sdk.dev/getting-started)
+
+### 安装AI-SDK
+```sh
+npm i ai @ai-sdk/deepseek @ai-sdk/react
+```
+
+这儿我们使用`deepseek`作为AI模型，`@ai-sdk/react`封装了流式输出和上下文管理hook，可以让我们在Next.js中轻松集成AI功能。如果你要安装其他模型，只需要将`deepseek`替换为其他模型即可。
+
+例如：安装`openai`模型
+
+```sh
+npm i ai @ai-sdk/openai @ai-sdk/react
+```
+
+**编写API接口**
+`src /app/api/chat/route.ts`
+```ts
+import { NextRequest } from "next/server";
+import { streamText,convertToModelMessages } from 'ai'
+import { createDeepSeek } from "@ai-sdk/deepseek";
+import { DEEPSEEK_API_KEY } from "./key";
+const deepSeek = createDeepSeek({
+    apiKey: DEEPSEEK_API_KEY, //设置API密钥
+});
+export async function POST(req: NextRequest) {
+    const { messages } = await req.json(); //获取请求体
+    //这里为什么接受messages 因为我们使用前端的useChat 他会自动注入这个参数，所有可以直接读取
+    const result = streamText({
+        model: deepSeek('deepseek-chat'), //使用deepseek-chat模型
+        messages:convertToModelMessages(messages), //转换为模型消息
+        //前端传过来的额messages不符合sdk格式所以需要convertToModelMessages转换一下
+        //转换之后的格式：
+        //[
+            //{ role: 'user', content: [ [Object] ] },
+            //{ role: 'assistant', content: [ [Object] ] },
+            //{ role: 'user', content: [ [Object] ] },
+            //{ role: 'assistant', content: [ [Object] ] },
+            //{ role: 'user', content: [ [Object] ] },
+            //{ role: 'assistant', content: [ [Object] ] },
+            //{ role: 'user', content: [ [Object] ] }
+        //]
+        system: '你是一个高级程序员，请根据用户的问题给出回答', //系统提示词
+    });
+   
+    return result.toUIMessageStreamResponse() //返回流式响应
+}
+```
+
+`src/app/page.tsx`
+我们在前端使用 `useChat` 组件来实现AI对话，这个组件内部封装了流式响应，默认会向 `/api/chat` 发送请求。
+
+* `messages`: 消息列表，包含用户和AI的对话内容
+* `sendMessage`: 发送消息的函数，参数为消息内容
+* `onFinish`: 消息发送完成后回调函数，可以在这里进行一些操作，例如清空输入框
+
+**messages：数据结构解析**
+```ts
+[
+    {
+        "parts": [
+            {
+                "type": "text", //文本类型
+                "text": "你知道 api router 吗"
+            }
+        ],
+        "id": "FPHwY1udRrkEoYgR", //消息ID
+        "role": "user" //用户角色
+    },
+    {
+        "id": "qno6vcWcwFM4Yc8J", //消息ID
+        "role": "assistant", //AI角色
+        "parts": [
+            {
+                "type": "step-start" //步骤开始 
+            },
+            {
+                "type": "text", //文本类型
+                "text": "是的，我知道 **API Router**。", //文本内容
+                "state": "done" //步骤完成
+            }
+        ]
+    }
+]
+```
+
+```ts
+'use client';
+import { useState, useRef, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { useChat } from '@ai-sdk/react';
+
+export default function HomePage() {
+    const [input, setInput] = useState(''); //输入框的值
+    const messagesEndRef = useRef<HTMLDivElement>(null); //获取消息结束的ref
+    //useChat 内部封装了流式响应 默认会向/api/chat 发送请求
+    const { messages, sendMessage } = useChat({
+        onFinish: () => {
+            setInput('');
+        }
+    });
+
+    // 自动滚动到底部
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+    //回车发送消息
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            if (input.trim()) {
+                sendMessage({ text: input });
+            }
+        }
+    };
+
+    return (
+        <div className='flex flex-col h-screen bg-linear-to-br from-blue-50 via-white to-purple-50'>
+            {/* 头部标题 */}
+            <div className='bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200'>
+                <div className='max-w-4xl mx-auto px-6 py-4'>
+                    <h1 className='text-2xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent'>
+                        AI 智能助手
+                    </h1>
+                    <p className='text-sm text-gray-500 mt-1'>随时为您解答问题</p>
+                </div>
+            </div>
+
+            {/* 消息区域 */}
+            <div className='flex-1 overflow-y-auto px-4 py-6'>
+                <div className='max-w-4xl mx-auto space-y-4'>
+                    {messages.length === 0 ? (
+                        <div className='flex flex-col items-center justify-center h-full text-center py-20'>
+                            <div className='bg-linear-to-br from-blue-100 to-purple-100 rounded-full p-6 mb-4'>
+                                <svg className='w-12 h-12 text-blue-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' />
+                                </svg>
+                            </div>
+                            <h2 className='text-xl font-semibold text-gray-700 mb-2'>开始对话</h2>
+                            <p className='text-gray-500'>输入您的问题，我会尽力帮助您</p>
+                        </div>
+                    ) : (
+                        messages.map((message) => (
+                            <div
+                                key={message.id}
+                                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-4 duration-500`}
+                            >
+                                <div className={`flex gap-3 max-w-[80%] ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                                    {/* 头像 */}
+                                    <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold ${
+                                        message.role === 'user' 
+                                            ? 'bg-linear-to-br from-blue-500 to-blue-600' 
+                                            : 'bg-linear-to-br from-purple-500 to-purple-600'
+                                    }`}>
+                                        {message.role === 'user' ? '你' : 'AI'}
+                                    </div>
+                                    
+                                    {/* 消息内容 */}
+                                    <div className={`flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}>
+                                        <div className={`rounded-2xl px-4 py-3 shadow-sm ${
+                                            message.role === 'user'
+                                                ? 'bg-linear-to-br from-blue-500 to-blue-600 text-white'
+                                                : 'bg-white border border-gray-200 text-gray-800'
+                                        }`}>
+                                            {message.parts.map((part, index) => {
+                                                switch (part.type) {
+                                                    case 'text':
+                                                        return (
+                                                            <div key={message.id + index} className='whitespace-pre-wrap wrap-break-word'>
+                                                                {part.text}
+                                                            </div>
+                                                        );
+                                                }
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                    <div ref={messagesEndRef} />
+                </div>
+            </div>
+
+            {/* 输入区域 */}
+            <div className='bg-white/80 backdrop-blur-sm border-t border-gray-200 shadow-lg'>
+                <div className='max-w-4xl mx-auto px-4 py-4'>
+                    <div className='flex gap-3 items-end'>
+                        <div className='flex-1 relative'>
+                            <Textarea
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                placeholder='请输入你的问题... (按 Enter 发送，Shift + Enter 换行)'
+                                className='min-h-[60px] max-h-[200px] resize-none rounded-xl border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all shadow-sm'
+                            />
+                        </div>
+                        <Button
+                            onClick={() => {
+                                if (input.trim()) {
+                                    sendMessage({ text: input });
+                                }
+                            }}
+                            disabled={!input.trim()}
+                            className='h-[60px] px-6 rounded-xl bg-linear-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed'
+                        >
+                            <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 19l9 2-9-18-9 18 9-2zm0 0v-8' />
+                            </svg>
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+```
+
+## Next.js第十章(Proxy)
+**Proxy代理**
+:::warning
+从 Next.js 16 开始，中间件 `Middleware` 更名为代理`（Proxy）`，以更好地体现其用途。其功能保持不变
+:::
+
+如果你想升级为16.x版本，Next.js提供了命令行工具来帮助你升级，只需要执行以下命令即可
+
+```bash
+npx @next/codemod@canary middleware-to-proxy .
+```
+代码转换会将文件和函数名从middleware重命名为proxy。
+```ts
+// middleware.ts -> proxy.ts
+ 
+// - export function middleware() {
+// + export function proxy() {
+```
+
+### 基本使用
+应用场景：
+
+* 处理跨域请求
+* 接口转发例如/api/user -> (可能是其他服务器java/go/python等) -> /api/user
+* 限流例如配合第三方服务做限流
+* 鉴权/判断是否登录
+
+Prxoy代理其实跟拦截器类似，它可以在请求完成之前进行拦截，然后进行一些处理，例如：修改请求头、修改请求体、修改响应体等。
+
+`src/proxy.ts` 定义`proxy`函数导出即可，`Next.js`会自动调用这个函数。
+```ts
+import { NextRequest, NextResponse } from "next/server";
+export async function proxy(request: NextRequest) {
+    console.log(request.url,'url');
+}
+```
+但是你会发现，他会拦截项目中所有的请求，包括静态资源、API请求、页面请求等。
+```txt
+http://localhost:3000/.well-known/appspecific/com.chrome.devtools.json url
+http://localhost:3000/_next/static/chunks/src_app_globals_91e4631d.css url
+http://localhost:3000/_next/static/chunks/%5Bturbopack%5D_browser_dev_hmr-client_hmr-client_ts_cedd0592._.js url
+http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js url
+http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_9212ccad._.js url
+http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_next-devtools_index_1dd7fb59.js url
+http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_a0e4c7b4._.js url
+http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_a38d7d69._.js url
+http://localhost:3000/_next/static/chunks/node_modules_next_dist_4b2403f5._.js url
+http://localhost:3000/_next/static/chunks/src_app_globals_91e4631d.css.map url
+http://localhost:3000/_next/static/chunks/node_modules_%40swc_helpers_cjs_d80fb378._.js url
+http://localhost:3000/_next/static/chunks/_a0ff3932._.js url
+http://localhost:3000/api/login url
+```
+
+### 配置(config)
+例如我们只想匹配`'/api'`下面的路径去做一些事情，我们可以使用`config`配置来实现。
+```ts
+import { NextRequest, NextResponse } from "next/server";
+export async function proxy(request: NextRequest) {
+    console.log(request.url,'url');
+}
+//配置匹配路径
+export const config = {
+    matcher: '/api/:path*',
+    //matcher: ['/api/:path*','/api/user/:path*'], 支持单个以及多个路径匹配
+    //matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'], 同样支持正则表达式匹配
+}
+```
+结合之前的案例,在`cookie`那一集，我们还需要单独定义check接口检查cookie，现在我们可以直接在proxy中实现。
+```ts
+import { NextRequest, NextResponse } from "next/server";
+export async function proxy(request: NextRequest) {
+    const cookie = request.cookies.get('token');
+    if (request.nextUrl.pathname.startsWith('/home') && !cookie) {
+        console.log('redirect to login');
+        return NextResponse.redirect(new URL('/', request.url));
+    }
+    if (cookie && cookie.value) {
+        return NextResponse.next();
+    }
+    return NextResponse.redirect(new URL('/', request.url));
+}
+
+export const config = {
+    matcher: ['/api/:path*', '/home/:path*'],
+}
+```
+**复杂匹配**
+* `source`: 表示匹配路径
+* `has`: 表示匹配路径中必须(包含)某些条件
+* `missing`: 表示匹配路径中(必须不包含)某些条件
+
+type 只能匹配: header, query, cookie
+```ts
+import { NextRequest, NextResponse } from "next/server";
+import { ProxyConfig } from "next/server";
+export async function proxy(request: NextRequest) {
+   console.log('start proxy')
+   return NextResponse.next();
+}
+
+export const config: ProxyConfig = {
+    matcher: [
+        {
+            source: '/home/:path*',
+            //表示匹配路径中必须(包含)Authorization头和userId查询参数
+            has: [
+                { type: 'header', key: 'Authorization', value: 'Bearer 123456' },
+                { type: 'query', key: 'userId', value: '123' }
+            ],
+            //表示匹配路径中(必须不包含)cookie和userId查询参数
+            missing: [
+                { type: 'cookie', key: 'token', value: '123456' },
+                { type: 'query', key: 'userId', value: '456' },
+            ]
+        },
+    ]
+}
+```
+
+访问url为：`http://localhost:3000/home?userId=123`
+
+**案例实战(处理跨域)**
+只要是/api下面的接口都可以被任意访问
+```ts
+import { NextRequest, NextResponse } from "next/server";
+import { ProxyConfig } from "next/server";
+export async function proxy(request: NextRequest) {
+    const response = NextResponse.next();
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+        response.headers.set(key, value);
+    })
+    return response;
+}
+
+const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+}
+
+export const config: ProxyConfig = {
+   matcher:'/api/:path*',
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
