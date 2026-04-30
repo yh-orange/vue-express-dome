@@ -181,6 +181,16 @@ module.exports = {
             { title: "Zustand", path: "/other/zustand" },
             { title: "Network", path: "/other/network" },
             { title: "Next", path: "/other/next" },
+            {
+              title: "webpack相关知识",
+              collapsable: false,
+              path: "/other/next/",
+              children: [
+                { title: "第一章到第八章", path: "/other/next/01" },
+                { title: "第九章到第十四章", path: "/other/next/02" },
+                { title: "第十五章到第二十章", path: "/other/next/03" },
+              ],
+            },
           ],
         },
       ],
