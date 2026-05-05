@@ -180,7 +180,7 @@ module.exports = {
             { title: "eslint_prettier", path: "/other/eslint_prettier" },
             { title: "Zustand", path: "/other/zustand" },
             { title: "Network", path: "/other/network" },
-            { title: "Next", path: "/other/next" },
+            // { title: "Next", path: "/other/next" },
             {
               title: "webpack相关知识",
               collapsable: false,
