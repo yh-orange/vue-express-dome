@@ -189,6 +189,7 @@ module.exports = {
                 { title: "第一章到第八章", path: "/other/next/01" },
                 { title: "第九章到第十四章", path: "/other/next/02" },
                 { title: "第十五章到第二十章", path: "/other/next/03" },
+                { title: "剩余章节", path: "/other/next/04" },
               ],
             },
           ],
