@@ -46,6 +46,7 @@ module.exports = {
       { text: "拍照修图", link: "/ps/" },
       { text: "其他资料", link: "/other/" },
       { text: "小程序资料", link: "/mini-program/" },
+      { text: "node.js", link: "/node/" },
       { text: "TimeLine", link: "/timeline/", icon: "reco-date" },
     ],
     displayAllHeaders: false,
@@ -192,6 +193,15 @@ module.exports = {
                 { title: "剩余章节", path: "/other/next/04" },
               ],
             },
+          ],
+        },
+      ],
+      "/node": [
+        {
+          title: "node.js相关知识",
+          collapsable: false,
+          children: [
+            { title: "第一到第十章", path: "/node/01" },
           ],
         },
       ],
