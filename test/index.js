@@ -1,25 +1,29 @@
-// const { execSync } = require('child_process');
-// // 替换成你本地pngquant.exe真实路径
-// const cmd = 'C:/tools/pngquant/pngquant.exe node12.png --output test.png';
-// execSync(cmd, { stdio: 'inherit' });
-const crypto = require('node:crypto');
-
-// 生成一个随机的 16 字节的初始化向量 (IV)
-const iv = Buffer.from(crypto.randomBytes(16));
-
-// 生成一个随机的 32 字节的密钥
-const key = crypto.randomBytes(32);
-
-// 创建加密实例，使用 AES-256-CBC 算法，提供密钥和初始化向量
-const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
-
-// 对输入数据进行加密，并输出加密结果的十六进制表示
-cipher.update("小满zs", "utf-8", "hex");
-const result = cipher.final("hex");
-
-// 解密
-const de = crypto.createDecipheriv("aes-256-cbc", key, iv);
-de.update(result, "hex");
-const decrypted = de.final("utf-8");
-
-console.log("Decrypted:", decrypted);
+const ejs = require('ejs'); // 导入ejs库，用于渲染模板
+const fs = require('node:fs'); // 导入fs模块，用于文件系统操作
+const marked = require('marked'); // 导入marked库，用于将Markdown转换为HTML
+const readme = fs.readFileSync('README.md'); // 读取README.md文件的内容
+const browserSync = require('browser-sync'); // 导入browser-sync库，用于实时预览和同步浏览器
+const openBrowser =  () => {
+    const browser = browserSync.create()
+    browser.init({
+        server: {
+            baseDir: './',
+            index: 'index.html',
+        }
+    })
+    return browser
+}
+ejs.renderFile('template.ejs', {
+    content: marked.parse(readme.toString()),
+    title:'markdown to html'
+},(err,data)=>{
+    if(err){
+        console.log(err)
+    }
+    let writeStream = fs.createWriteStream('index.html')
+    writeStream.write(data)
+    writeStream.close()
+    writeStream.on('finish',()=>{
+        openBrowser()
+    })
+})     
