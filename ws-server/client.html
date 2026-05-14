@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <body>
+    <h3>生产级 WebSocket 客户端</h3>
+    <div id="log"></div>
+    <input id="chatInput" placeholder="群发消息" />
+    <button onclick="sendChat()">群发</button>
+    <input id="toUser" placeholder="私聊用户token" />
+    <input id="privateInput" placeholder="私聊内容" />
+    <button onclick="sendPrivate()">私聊</button>
+
+    <script>
+      console.log(location, "location");
+
+      // ========== 配置 ==========
+      const WS_URL = `ws://localhost:8080`;
+      const TOKEN = "user123"; // 服务端约定token
+      const RECONNECT_DELAY = 3000; // 重连间隔
+      const HEARTBEAT_INTERVAL = 30000;
+
+      let ws = null;
+      let heartTimer = null;
+      let isManualClose = false; // 手动关闭标记
+
+      // 日志打印
+      function log(msg) {
+        const div = document.getElementById("log");
+        div.innerHTML += `<p>[${new Date().toLocaleTimeString()}] ${msg}</p>`;
+        div.scrollTop = div.scrollHeight;
+      }
+
+      // 初始化连接
+      function initWS() {
+        if (ws && ws.readyState === WebSocket.OPEN) return;
+        ws = new WebSocket(WS_URL);
+
+        // 连接成功
+        ws.onopen = () => {
+          log("✅ 连接成功，开始鉴权");
+          // 第一步：发送认证
+          ws.send(JSON.stringify({ type: "auth", token: TOKEN }));
+          startHeartbeat();
+        };
+
+        // 接收消息
+        ws.onmessage = (e) => {
+          const res = JSON.parse(e.data);
+          switch (res.type) {
+            case "success":
+              log(`✅ ${res.data}`);
+              break;
+            case "error":
+              log(`❌ ${res.data}`);
+              break;
+            case "heartbeat":
+              log("💓 心跳响应");
+              break;
+            case "chat":
+              log(`📢 群发【${res.data.from}】：${res.data.content}`);
+              break;
+            case "private":
+              log(`💬 私聊【${res.data.from}】：${res.data.content}`);
+              break;
+          }
+        };
+
+        // 关闭触发重连
+        ws.onclose = (e) => {
+          clearInterval(heartTimer);
+          if (!isManualClose) {
+            log(`❌ 连接断开，${RECONNECT_DELAY / 1000}s后重连`);
+            setTimeout(initWS, RECONNECT_DELAY);
+          }
+        };
+
+        // 错误
+        ws.onerror = () => {
+          log("⚠️ 连接异常");
+          ws.close();
+        };
+      }
+
+      // 心跳
+      function startHeartbeat() {
+        heartTimer = setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: "heartbeat" }));
+          }
+        }, HEARTBEAT_INTERVAL);
+      }
+
+      // 群发
+      function sendChat() {
+        const val = document.getElementById("chatInput").value.trim();
+        if (!val) return;
+        ws.send(JSON.stringify({ type: "chat", content: val }));
+        log(`📤 我：${val}`);
+        document.getElementById("chatInput").value = "";
+      }
+
+      // 私聊
+      function sendPrivate() {
+        const to = document.getElementById("toUser").value.trim();
+        const content = document.getElementById("privateInput").value.trim();
+        if (!to || !content) return;
+        ws.send(JSON.stringify({ type: "private", to, content }));
+        log(`📤 私聊${to}：${content}`);
+        document.getElementById("privateInput").value = "";
+      }
+
+      // 启动
+      initWS();
+    </script>
+  </body>
+</html>

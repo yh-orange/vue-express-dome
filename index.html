@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <body>
+    <h3>WebSocket 长连接测试</h3>
+    <div id="msgBox"></div>
+    <input type="text" id="input" placeholder="输入消息" />
+    <button onclick="sendMsg()">发送</button>
+
+    <script>
+      let ws = null;
+      let heartTimer = null; // 心跳定时器
+      const url = "ws://localhost:8080";
+
+      // 初始化连接
+      function initWebSocket() {
+        ws = new WebSocket(url);
+
+        // 连接成功
+        ws.onopen = () => {
+          console.log("连接成功");
+          appendMsg("✅ 已连接服务端");
+          startHeartBeat(); // 开启心跳
+        };
+
+        // 接收服务端消息
+        ws.onmessage = (e) => {
+          const res = JSON.parse(e.data);
+          appendMsg(`📩 服务端：${res.data}`);
+        };
+
+        // 连接关闭，自动重连
+        ws.onclose = () => {
+          appendMsg("❌ 连接断开，3秒后重连...");
+          clearInterval(heartTimer);
+          setTimeout(initWebSocket, 3000);
+        };
+
+        // 连接错误
+        ws.onerror = (err) => {
+          appendMsg("⚠️ 连接出错");
+          ws.close();
+        };
+      }
+
+      // 发送消息
+      function sendMsg() {
+        const val = document.getElementById("input").value;
+        if (!val) return;
+        ws.send(val);
+        appendMsg(`📤 我：${val}`);
+        document.getElementById("input").value = "";
+      }
+
+      // 心跳保活（防止断开）
+      function startHeartBeat() {
+        heartTimer = setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: "heartbeat", data: "ping" }));
+          }
+        }, 30000); // 30秒发一次心跳
+      }
+
+      // 页面打印消息
+      function appendMsg(text) {
+        const box = document.getElementById("msgBox");
+        box.innerHTML += `<p>${text}</p>`;
+      }
+
+      // 启动
+      initWebSocket();
+    </script>
+  </body>
+</html>

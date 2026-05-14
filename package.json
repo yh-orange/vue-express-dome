@@ -13,7 +13,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "vuepress-plugin-code-copy": "^1.0.6"
+    "vuepress-plugin-code-copy": "^1.0.6",
+    "ws": "^8.20.1"
   },
   "devDependencies": {
     "@vuepress/plugin-active-header-links": "^1.9.7",
