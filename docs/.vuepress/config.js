@@ -204,6 +204,8 @@ module.exports = {
             { title: "第一到第十章", path: "/node/01" },
             { title: "第十一到第二十章", path: "/node/02" },
             { title: "第二十一到第三十章", path: "/node/03" },
+            { title: "第三十一到第四十章", path: "/node/04" },
+            { title: "第四十一到第五十章", path: "/node/05" },
           ],
         },
       ],
