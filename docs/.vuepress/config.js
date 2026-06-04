@@ -120,6 +120,7 @@ module.exports = {
             },
 
             { title: "docker", path: "/front-end-engineering/docker" },
+            { title: "cmd常用命令", path: "/front-end-engineering/cmd" },
           ],
         },
       ],
