@@ -3,9 +3,12 @@
 ## 基础教学
 
 ### 常见关键字
+
 **print**
+
 1. 简单输出
-```txt
+
+```py
 a=100  # 变量a,值为100
 b=50  # 变量b,值为50
 print(90) # 输出数字90
@@ -15,14 +18,16 @@ print('北京欢迎你!!!')
 ```
 
 2. 不换行输出
-```txt
+
+```py
 a=100  # 变量a,值为100
 b=50  # 变量b,值为50
 print(a,b,"要么出众,要么出局!!!")
 ```
 
-3. 输出ASCII码所对应的字符
-```txt
+3. 输出 ASCII 码所对应的字符
+
+```py
 print('b')  # 输出字符b
 print(chr(98))  # 输出字符b
 print('C') #输出字符C
@@ -33,45 +38,34 @@ print('[')  #输出[
 print(chr(91)) #输出[
 ```
 
-4. 使用print输出中文Unicode编码
-```txt
+4. 使用 print 输出中文 Unicode 编码
+
+```py
 print(ord('北'))  #  北  这个字的编码（数字）21271
 print(ord('京'))
 print('\u5317\u4eac')
 ```
 
-5. 使用print函数将内容输出到文件
-```txt
+5. 使用 print 函数将内容输出到文件
+
+```py
 fp=open('note.txt','w') # 打开文件  w-->write
 print('北京欢迎你',file=fp) # 输出到文件中
 fp.close() #关闭文件
 ```
 
-6. 多条print输出到一行显示
-```txt
+6. 多条 print 输出到一行显示
+
+```py
 print('北京',end='--->')
-
-
-
-
-
-
-
-
-
-
-
-
-
 print('欢迎我23333')
-
-
 print('欢迎你')
 print('欢迎我')
 ```
 
 7. 使用连接符连接多个字符串
-```txt
+
+```py
 print(1314) #直接输出整数
 print(3.14)  #直接输出浮点数（带小数点的数）
 print(1,3,1,4) # 使用逗号连接要输出的数字，中间使用空格连接
@@ -81,24 +75,28 @@ print('北京欢迎你'+'2022')
 ```
 
 **input**
+
 1. 基本使用
-```txt
+
+```py
 name=input('请输入您的姓名:')
 print('我的姓名是:'+name)
 ```
 
 2. 输入整数类型的数据
-```txt
+
+```py
 num=int(input('请输入您好的幸运数字:')) # 将输入的字符串的类型转换成int（整数）类型
 print('您的幸运数字为:',num)
 ```
 
 **注释**
-`单行注释`: 
+`单行注释`:
 直接使用`#`
 
 `多行注释`:
-```txt
+
+```py
 '''
 版权所有:马士兵教育
 文件名 :11.多行注释
@@ -114,12 +112,14 @@ print('您的幸运数字为:',num)
 ```
 
 `中文声明注释`:
+
 ```txt
-#coding:utf-8 
+#coding:utf-8
 ```
 
 **类的定义**
-```txt
+
+```py
 class Student:
     name = 'yh'
     age = 18
@@ -132,7 +132,8 @@ print(Student.age)
 ```
 
 **函数定义**
-```txt
+
+```py
 def fun(data):
     # print(data)
     data.name = 'gao'
@@ -159,7 +160,8 @@ fun2(Student2)
 ```
 
 **保留字**
-```txt
+
+```py
 # coding:utf-8
 import keyword
 
@@ -168,10 +170,12 @@ print(keyword.kwlist[0])
 print(type(keyword.kwlist))
 print(2 not in [1, 2, 3])
 ```
+
 `['False', 'None', 'True', 'and', 'as', 'assert', 'async', 'await', 'break', 'class', 'continue', 'def', 'del', 'elif', 'else', 'except', 'finally', 'for', 'from', 'global', 'if', 'import', 'in', 'is', 'lambda', 'nonlocal', 'not', 'or', 'pass', 'raise', 'return', 'try', 'while', 'with', 'yield']`
 
 **标识符的命名规则**
-```txt
+
+```py
 # coding:utf-8
 my_name_1='杨淑娟'  # my_name_1 就是一个标识符
 
@@ -187,7 +191,8 @@ print(_姓名)
 ```
 
 **变量的定义和使用**
-```txt
+
+```py
 # coding:utf-8
 #创建一个整型变量luck_number,并为其赋值为8
 luck_number=8
@@ -213,7 +218,8 @@ print(id(name1), id(name2), sep='----')
 ```
 
 **整数类型**
-```txt
+
+```py
 # coding:utf-8
 num = 987  # 默认十进制，表示整数
 num2 = 0b1010101  # 使用二进制表示整数
@@ -226,7 +232,8 @@ print(num4)
 ```
 
 **浮点数类型**
-```txt
+
+```py
 # coding:utf-8
 height = 187.6  # 身高
 print(height)
@@ -249,7 +256,8 @@ print(abs(-10), abs(10), abs(-10) == abs(10))
 ```
 
 **复数类型**
-```txt
+
+```py
 # coding:utf-8
 
 # 复数类型在科学计算中十分常见
@@ -259,7 +267,8 @@ print('虚数部分:',x.imag)
 ```
 
 **字符串类型**
-```txt
+
+```py
 # coding:utf-8
 # 单行字符串
 city='北京'
@@ -282,7 +291,8 @@ print(info2, type(info2))
 ```
 
 **转义字符**
-```txt
+
+```py
 # coding:utf-8
 print('北京')
 print('欢迎你')
@@ -302,7 +312,8 @@ print(R'北\n京\n欢\n迎\n你')
 ```
 
 **字符串的索引和切片**
-```txt
+
+```py
 # coding:utf-8
 s = 'HELLOWORLD'
 print(s)
@@ -342,7 +353,8 @@ print(s[-10], 66666)
 ```
 
 **字符串类型的操作**
-```txt
+
+```py
 # coding:utf-8
 x='2022年'
 y='北京冬奥会'
@@ -355,7 +367,8 @@ print('上海' in y)
 ```
 
 **布尔类型**
-```txt
+
+```py
 # coding:utf-8
 x = True
 print(x)
@@ -380,7 +393,8 @@ print(bool(0) == True)
 ```
 
 **数据类型之间的转换**
-```txt
+
+```py
 # coding:utf-8
 x=10
 y=3
@@ -424,8 +438,9 @@ print('十进制转成二进制:'+bin(26472))
 print(0b110011101101000)
 ```
 
-**eval函数的使用**
-```txt
+**eval 函数的使用**
+
+```py
 # coding:utf-8
 s='3.14+3'
 print(s,type(s))
@@ -445,7 +460,8 @@ print(height,type(height))
 ```
 
 **算术运算符**
-```txt
+
+```py
 # coding:utf-8
 print('加法:',1+1)
 print('减法:',1-1)
@@ -459,7 +475,8 @@ print('幂运算:',2**3) # 2*2*2
 ```
 
 **赋值运算符**
-```txt
+
+```py
 # coding:utf-8
 x = 20  # 直接赋值，直接将20赋值给左侧的变量x
 y = 10
@@ -503,7 +520,8 @@ print(a, b)
 ```
 
 **比较运算符**
-```txt
+
+```py
 # coding:utf-8
 print('98大于90吗？',98>90)
 print('98小于90吗?',98<90)
@@ -514,7 +532,8 @@ print('98小于等于98吗',98<=98)
 ```
 
 **18.逻辑运算符**
-```txt
+
+```py
 # coding:utf-8
 # 且
 print(True and True)
@@ -544,7 +563,8 @@ print(not 0)
 ```
 
 **位运算**
-```txt
+
+```py
 # coding:utf-8
 print(12&8) #位与运算
 print(4|8) #位或运算
@@ -581,7 +601,8 @@ print(-0b1)
 ```
 
 **顺序结构**
-```txt
+
+```py
 # coding:utf-8
 # 赋值运算符的执行顺序，从右到左
 name = '张三'  # 将“张三”赋值给变量name
@@ -617,7 +638,8 @@ print('幸运数字:', lucky_number)
 ```
 
 **选择结构**
-```txt
+
+```py
 # coding:utf-8
 number = eval(input('请输入您的6位中奖号码:'))
 print(number)
@@ -668,7 +690,8 @@ else:
 ```
 
 **语句常见问题**
-```txt
+
+```py
 # coding:utf-8
 number = eval(input('请输入一个整数'))
 if number % 2:  # 冒号是if语句语法的重要组成部分
@@ -677,8 +700,9 @@ if number % 2:  # 冒号是if语句语法的重要组成部分
 else:print('这是一个偶数')
 ```
 
-**if-else语句**
-```txt
+**if-else 语句**
+
+```py
 # coding:utf-8
 number = eval(input('请输入您的6位中奖号码:'))
 # if...else
@@ -698,8 +722,9 @@ isShow = eval(input('请输入是否显示隐藏 值为True 或者False'))
 print('显示'if isShow else '隐藏')
 ```
 
-**多重if**
-```txt
+**多重 if**
+
+```py
 # coding:utf-8
 score=eval(input('请输入您的成绩:'))
 #判断
@@ -717,8 +742,9 @@ else:
     print('A')
 ```
 
-**嵌套if**
-```txt
+**嵌套 if**
+
+```py
 # coding:utf-8
 answer=input('请问，您喝酒了吗？y/n')
 if answer=='y': #代表喝酒了
@@ -733,10 +759,11 @@ else:  # 代表没有喝酒的情况
     print('你走吧，没你啥事儿')
 ```
 
-****
+---
 
-**使用and连接选择条件**
-```txt
+**使用 and 连接选择条件**
+
+```py
 # coding:utf-8
 user_name=input('请输入您的用户名:')
 pwd=input('请输入您的密码:')
@@ -746,8 +773,9 @@ else:
     print('用户名或密码不正确')
 ```
 
-**使用or连接多人选择条件**
-```txt
+**使用 or 连接多人选择条件**
+
+```py
 # coding:utf-8
 score=eval(input('请输入您的成绩:'))
 if score<0 or score>100:
@@ -761,8 +789,9 @@ data2 = input('请输入想输入的数据')
 print(type(data), '====', type(data2), data2 == '20')
 ```
 
-**遍历循环for**
-```txt
+**遍历循环 for**
+
+```py
 # coding:utf-8
 # 遍历字符串
 # for i in 'hello':
@@ -786,7 +815,7 @@ print(type(data), '====', type(data2), data2 == '20')
 
 print('--------------100-999之间的水仙花数----------------------')
 '''
-153  
+153
 3*3*3+5*5*5+1*1*1=153
 '''
 for i in range(100, 1000):
@@ -801,7 +830,8 @@ print(100 / 20)
 ```
 
 **遍历循环的扩展形式**
-```txt
+
+```py
 # coding:utf-8
 # 计算1-10之间的累加和
 s = 0  # 用于存储累加和
@@ -811,8 +841,9 @@ else:
     print('1-10之间的累加和为:', s)
 ```
 
-**无限循环while**
-```txt
+**无限循环 while**
+
+```py
 # coding:utf-8
 #1.初始化变量
 answer=input('今天要上课吗?y/n')
@@ -830,7 +861,8 @@ while i<=100: #(2)条件判断
     i+=1
 print('1-100之间的累加和:',s)
 ```
-```txt
+
+```py
 # coding:utf-8
 i=0 #统计循环执行的次数
 while i<3: # 0,1,2 ,当i=3时 3<3False，循环执行结束
@@ -849,7 +881,8 @@ while i<3: # 0,1,2 ,当i=3时 3<3False，循环执行结束
 if i==3: #当用户或密码输入不正确的时候，循环执行结束时，i的最大值为3
     print('对不起，三次均输入错')
 ```
-```txt
+
+```py
 # coding:utf-8
 # 三行四列
 for i in range(1, 4):
@@ -864,7 +897,8 @@ for i in range(1, 6):
         print('*')
     print()  # 换行
 ```
-```txt
+
+```py
 # coding:utf-8
 # 倒直三角形
 # 1-->5 (次)(1,6)  2-->4次(1,5)   3-->3次(1,4)   4  -->2次(1,3)   5-->1次  (1,2)
@@ -891,7 +925,8 @@ for i in range(1, 6):
         print('*', end='')
     print()
 ```
-```txt
+
+```py
 # coding:utf-8
 row = eval(input('请输入菱形的行数'))
 while row % 2 == 0:
@@ -922,7 +957,8 @@ for i in range(1, bottom_row + 1):
 
 print('-----------------------------')
 ```
-```txt
+
+```py
 # coding:utf-8
 row=eval(input('请输入菱形的行数'))
 while row%2==0:
@@ -961,8 +997,9 @@ for i in range(1,bottom_row+1):
 print('-----------------------------')
 ```
 
-**跳转语句break**
-```txt
+**跳转语句 break**
+
+```py
 # # coding:utf-8
 # #1+2+3+4+5+6
 s=0  # 存储累加和
@@ -1004,7 +1041,8 @@ while num < 10:
     num = eval(input('请输入数字') or '0')
     print(num, type(num))
 ```
-```txt
+
+```py
 # coding:utf-8
 for i in 'hello':
     if i=='e':
@@ -1024,8 +1062,9 @@ else:
     print('三次均输入错误')
 ```
 
-**跳转语句continue**
-```txt
+**跳转语句 continue**
+
+```py
 # coding:utf-8
 s = 0
 i = 1
@@ -1040,7 +1079,8 @@ print('1-100之间的偶数和:', s)
 ```
 
 **索引**
-```txt
+
+```py
 # coding:utf-8
 s = 'hello world'
 for i in range(0, len(s)):
@@ -1064,7 +1104,8 @@ print(yhData,yhData.name, type(yhData.name))
 ```
 
 **切片操作**
-```txt
+
+```py
 # coding:utf-8
 s = 'HelloWorld'
 s1 = s[0:5:1]  # 索引从0开始,到5结束，步长为1
@@ -1087,7 +1128,8 @@ print(s[::1])
 ```
 
 **序列的相关操作**
-```txt
+
+```py
 # coding:utf-8
 s = 'Hello'
 s2 = 'World'
@@ -1103,7 +1145,8 @@ print(s * 5)
 print('------------------------------------')
 print('-' * 40)
 ```
-```txt
+
+```py
 # coding:utf-8
 s = 'helloworld'
 print('e在helloworld中存在吗?', ('e' in s))
@@ -1138,7 +1181,8 @@ print(indexList)
 ```
 
 **序列的相关操作符和函数**
-```txt
+
+```py
 # coding:utf-8
 s = 'helloworld'
 # print('e在helloworld中存在吗?', ('e' in s))
@@ -1172,7 +1216,8 @@ if (int(strLength) > 0):
 
 print(indexList)
 ```
-```txt
+
+```py
 # coding:utf-8
 s = 'Hello'
 s2 = 'World'
@@ -1188,7 +1233,8 @@ print(s * 5)
 print('------------------------------------')
 print('-' * 40)
 ```
-```txt
+
+```py
 # coding:utf-8
 # 直接使用[]创建
 lst = ['hello', 'world', 99.8, 100]
@@ -1219,7 +1265,8 @@ print(lst4)
 # del lst4
 # print(lst4)  # NameError: name 'lst4' is not defined
 ```
-```txt
+
+```py
 # coding:utf-8
 lst=['hello','world','python','php']
 # 使用遍历循环for遍历列表元素
@@ -1238,7 +1285,8 @@ for index,item in enumerate(lst):  #默认序号从0开始
 for index,item in enumerate(lst,1):  #序号从1开始
     print(index,item)
 ```
-```txt
+
+```py
 # coding:utf-8
 lst=['hello','world','python']
 print('原列表:',lst,id(lst))
@@ -1258,7 +1306,7 @@ if item in lst:
     print('删除成功')
 else:
     print('输入错误删除失败')
- 
+
 print('删除元素之后的列表',lst,id(lst))
 
 #使用pop(index)根据索引移出元素，先将元素取出，再将元素删除
@@ -1283,8 +1331,10 @@ print(new_lst,id(new_lst))
 lst[1]='mysql'
 print(lst)
 ```
+
 `sort`基本使用
-```txt
+
+```py
 # coding:utf-8
 lst=[4,56,3,78,40,56,89]
 print('原列表:',lst)
@@ -1311,8 +1361,10 @@ print('降序:',lst2)
 lst2.sort(key=str.lower)
 print(lst2)
 ```
+
 `sorted`
-```txt
+
+```py
 # coding:utf-8
 lst=[4,56,3,78,40,56,89]
 print('原列表:',lst)
@@ -1334,7 +1386,8 @@ new_lst2=sorted(lst2,key=str.lower)
 print('原列表:',lst2)
 print('排序后的列表:',new_lst2)
 ```
-```txt
+
+```py
 # coding:utf-8
 #
 import random
@@ -1356,7 +1409,8 @@ print(random.randint(0, 100))
 for _ in range(10):
     print(_)
 ```
-```txt
+
+```py
 # coding:utf-8
 # 创建二维列表
 lst=[
@@ -1387,7 +1441,8 @@ for item in range(1, 10):
 ```
 
 **元组的创建与删除**
-```txt
+
+```py
 # coding:utf-8
 # 直接使用()创建元组
 t = ('hello', [10, 20, 30], 'python', 'world')
@@ -1423,7 +1478,8 @@ print(y, type(y))
 # del t
 # print(t)
 ```
-```txt
+
+```py
 # coding:utf-8
 t = ('python', 'hello', 'world')
 print(t[0], t)  # 根据索引访问
@@ -1441,7 +1497,8 @@ for i in range(len(t)):
 for index, item in enumerate(t, 11):
     print(index, '--->', item)
 ```
-```txt
+
+```py
 # coding:utf-8
 t=( i for i in range(1,4)) # 结果是一个生成器对象
 print(t)
@@ -1469,7 +1526,8 @@ for index, item in enumerate(t):
 ```
 
 **字典的创建与删除**
-```txt
+
+```py
 # coding:utf-8
 # (1)直接使用{}创建
 # d = {10: 'cat', 20: 'dog', 30: 'pet', 20: 'zoo'}  # key相同，值进行覆盖
@@ -1512,7 +1570,8 @@ print('len:', len(d))
 del d['ccc']
 print(d)
 ```
-```txt
+
+```py
 # coding:utf-8
 d = {'hello': 10, 'world': 20, 'python': 30}
 # 访问字典中的元素
@@ -1534,7 +1593,8 @@ for item in d.items():
 for key, value in d.items():
     print(key, value)
 ```
-```txt
+
+```py
 # coding:utf-8
 d = {1001: '李梅', 1002: '王华', 1003: '张峰'}
 print(d)
@@ -1585,7 +1645,8 @@ print(d)
 # Python中一切皆对象，而每一个对象都一个布尔值
 print(bool(d))  # 空字典的bool值为False
 ```
-```txt
+
+```py
 # coding:utf-8
 import random
 d={item :random.randint(1,100) for item in range(4)}
@@ -1597,7 +1658,9 @@ lst2=['陈梅梅','王一一','李丽丽']
 d={key:value for key,value in zip(lst,lst2)}
 print(d)
 ```
+
 **集合的创建与删除**
+
 ```py
 # coding:utf-8
 #使用{}直接创建集合
@@ -1635,7 +1698,9 @@ del s3
 # s3 = 4
 print(s3) #NameError: name 's3' is not defined
 ```
+
 **集合的操作符**
+
 ```python
 # coding:utf-8
 A={10,20,30,40,50}
@@ -1656,6 +1721,7 @@ print(A^B)
 ```
 
 **集合的相关操作**
+
 ```py
 # coding:utf-8
 s={10,20,30}
@@ -1686,10 +1752,3 @@ print(s)
 s={i for i in range(10) if i%2}
 print(s)
 ```
-
-
-
-
-
-
-

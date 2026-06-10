@@ -41,13 +41,13 @@ module.exports = {
     },
     nav: [
       { text: "前端基础资料", link: "/base-js/", sidebarDepth: 5 },
-      { text: "随笔", link: "/informal-essay/" },
       { text: "前端工程化", link: "/front-end-engineering/" },
-      { text: "拍照修图", link: "/ps/" },
-      { text: "其他资料", link: "/other/" },
       { text: "小程序资料", link: "/mini-program/" },
       { text: "node.js", link: "/node/" },
-      { text: "TimeLine", link: "/timeline/", icon: "reco-date" },
+      { text: "其他资料", link: "/other/" },
+      // { text: "拍照修图", link: "/ps/" },
+      // { text: "随笔", link: "/informal-essay/" },
+      // { text: "TimeLine", link: "/timeline/", icon: "reco-date" },
     ],
     displayAllHeaders: false,
     sidebar: {
@@ -82,7 +82,15 @@ module.exports = {
           title: "前端工程化",
           collapsable: false,
           children: [
-            { title: "webpack", path: "/front-end-engineering/webpack" },
+            {
+              title: "webpack相关知识",
+              collapsable: false,
+              path: "/base-js/webpack/",
+              children: [
+                { title: "webpack的基础介绍", path: "/front-end-engineering/webpack/basic" },
+                { title: "自定义脚手架", path: "/front-end-engineering/webpack/custom" },
+              ],
+            },
             { title: "前端错误监控体系搭建", path: "/front-end-engineering/01" },
             { title: "nginx", path: "/front-end-engineering/nginx" },
             { title: "Babel", path: "/front-end-engineering/babel" },
@@ -137,16 +145,16 @@ module.exports = {
           ],
         },
       ],
-      "/ps": [
-        {
-          title: "拍照修图",
-          collapsable: false,
-          children: [
-            { title: "照相基础", path: "/ps/photo-study" },
-            { title: "修图基础", path: "/ps/quick" },
-          ],
-        },
-      ],
+      // "/ps": [
+      //   {
+      //     title: "拍照修图",
+      //     collapsable: false,
+      //     children: [
+      //       { title: "照相基础", path: "/ps/photo-study" },
+      //       { title: "修图基础", path: "/ps/quick" },
+      //     ],
+      //   },
+      // ],
       "/mini-program": [
         {
           title: "小程序相关知识",
@@ -179,12 +187,20 @@ module.exports = {
             { title: "Angular", path: "/other/angular" },
             { title: "Rxjs", path: "/other/rxjs" },
             { title: "Python", path: "/other/python" },
+            {
+              title: "Python相关知识和学习计划",
+              collapsable: false,
+              path: "/other/python/",
+              children: [
+                { title: "基础部分", path: "/other/python/01" },
+                { title: "学习计划", path: "/other/python/02" },
+              ],
+            },
             { title: "eslint_prettier", path: "/other/eslint_prettier" },
             { title: "Zustand", path: "/other/zustand" },
             { title: "Network", path: "/other/network" },
-            // { title: "Next", path: "/other/next" },
             {
-              title: "webpack相关知识",
+              title: "Next相关知识",
               collapsable: false,
               path: "/other/next/",
               children: [
@@ -194,6 +210,8 @@ module.exports = {
                 { title: "剩余章节", path: "/other/next/04" },
               ],
             },
+            { title: "Markdown基础使用", path: "/other/md-study-note/" },
+            { title: "utils", path: "/other/01" },
           ],
         },
       ],
